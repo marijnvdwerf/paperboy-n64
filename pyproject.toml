@@ -1,0 +1,8 @@
+[project]
+name = "project"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "ninja-syntax>=1.7.2",
+    "splat64[mips]>=0.40.0",
+]

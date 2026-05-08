@@ -1,0 +1,58 @@
+name: Paperboy (North America)
+sha1: b043c47b9758fa6bb289ca7dba2068bda6cafa3a
+options:
+  basename: paperboy
+  base_path: .
+  target_path: baserom.z64
+  elf_path: build/paperboy.elf
+  platform: n64
+  compiler: KMC
+
+  ld_script_path: paperboy.ld
+  ld_dependencies: True
+
+  find_file_boundaries: True
+  header_encoding: ASCII
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  mips_abi_float_regs: o32
+
+  symbol_addrs_path:
+    - symbol_addrs.txt
+
+  undefined_funcs_auto_path: undefined_funcs_auto.txt
+  undefined_syms_auto_path: undefined_syms_auto.txt
+  create_undefined_funcs_auto: True
+  create_undefined_syms_auto: True
+
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  ld_legacy_generation: True
+
+segments:
+  - name: header
+    type: header
+    start: 0x0
+
+  - name: ipl3
+    type: bin
+    start: 0x40
+
+  - name: entry
+    type: code
+    start: 0x1000
+    vram: 0x80000400
+    subsegments:
+      - [0x1000, hasm]
+      - [0x1060, data]
+      - [0x6BD0, asm]
+      - [0x7FE0, c]
+      - [0x8DA0, asm]
+      - [0x64F60, data]
+
+  - type: bin
+    start: 0x79AE0
+
+  - [0xC00000]
