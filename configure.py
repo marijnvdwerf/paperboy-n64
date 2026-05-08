@@ -13,10 +13,6 @@ BASENAME = "paperboy"
 YAML_FILE = Path(f"{BASENAME}.yaml")
 
 LD_PATH = f"{BASENAME}.ld"
-MAP_PATH = f"build/{BASENAME}.map"
-ELF_PATH = f"build/{BASENAME}.elf"
-Z64_PATH = f"build/{BASENAME}.z64"
-OK_PATH = f"build/{BASENAME}.ok"
 
 CROSS = "mips-linux-gnu-"
 CROSS_AS = f"{CROSS}as"
@@ -44,6 +40,11 @@ CXX_CPP_FLAGS = f"{COMMON_DEFINES} -lang-c++ -D_LANGUAGE_C_PLUS_PLUS {INCLUDES}"
 
 CC_FLAGS = "-quiet -G0 -O2"
 
+VARIANTS = {
+    "ntsc": {"defines": "", "verify": True},
+    "pal": {"defines": "-DPAL=1", "verify": False},
+}
+
 
 def clean():
     shutil.rmtree("asm", ignore_errors=True)
@@ -58,6 +59,7 @@ def create_build_script(linker_entries: list[LinkerEntry]):
 
     ninja = ninja_syntax.Writer(open("build.ninja", "w"), width=9999)
 
+    # Shared rules (asm/bin don't vary between variants)
     ninja.rule(
         "as",
         description="as $in",
@@ -65,10 +67,17 @@ def create_build_script(linker_entries: list[LinkerEntry]):
     )
 
     ninja.rule(
+        "bin",
+        description="bin $in",
+        command=f"{CROSS_LD} -r -b binary $in -o $out",
+    )
+
+    # C/C++ rules take $extra_defines for variant-specific flags
+    ninja.rule(
         "cc",
         description="cc $in",
         command=(
-            f"{CROSS_CPP} {C_CPP_FLAGS} -MD -MF $out.d -MT $out -o $out.i $in"
+            f"{CROSS_CPP} {C_CPP_FLAGS} $extra_defines -MD -MF $out.d -MT $out -o $out.i $in"
             f" && wibo {CC1N64} {CC_FLAGS} $out.i -o $out.s"
             f" && python3 {MODERN_ASN64} {CROSS_AS} $out.s {AS_FLAGS} -I. -o $out"
         ),
@@ -79,23 +88,18 @@ def create_build_script(linker_entries: list[LinkerEntry]):
         "cxx",
         description="cxx $in",
         command=(
-            f"{CROSS_CPP} {CXX_CPP_FLAGS} -MD -MF $out.d -MT $out -o $out.i $in"
+            f"{CROSS_CPP} {CXX_CPP_FLAGS} $extra_defines -MD -MF $out.d -MT $out -o $out.i $in"
             f" && wibo {CC1PLN64} {CC_FLAGS} $out.i -o $out.s"
             f" && python3 {MODERN_ASN64} {CROSS_AS} $out.s {AS_FLAGS} -I. -o $out"
         ),
         depfile="$out.d",
     )
 
-    ninja.rule(
-        "bin",
-        description="bin $in",
-        command=f"{CROSS_LD} -r -b binary $in -o $out",
-    )
-
+    # Link from inside the build dir so the linker script's relative paths resolve
     ninja.rule(
         "ld",
         description="link $out",
-        command=f"{CROSS_LD} -T undefined_funcs_auto.txt -T undefined_syms_auto.txt -Map $mapfile -T $in -o $out",
+        command=f"cd $build_dir && {CROSS_LD} -T ../../undefined_funcs_auto.txt -T ../../undefined_syms_auto.txt -Map {BASENAME}.map -T ../../{LD_PATH} -o {BASENAME}.elf",
     )
 
     ninja.rule(
@@ -110,43 +114,48 @@ def create_build_script(linker_entries: list[LinkerEntry]):
         command="sha1sum -c $in && touch $out",
     )
 
-    built_objects = []
+    for name, variant in VARIANTS.items():
+        build_dir = f"build/{name}"
+        elf_path = f"{build_dir}/{BASENAME}.elf"
+        z64_path = f"{build_dir}/{BASENAME}.z64"
+        ok_path = f"{build_dir}/{BASENAME}.ok"
 
-    for entry in linker_entries:
-        if entry.object_path is None:
-            continue
+        built_objects = []
 
-        seg = entry.segment
-        if seg.type[0] == ".":
-            continue
+        for entry in linker_entries:
+            if entry.object_path is None:
+                continue
+            seg = entry.segment
+            if seg.type[0] == ".":
+                continue
 
-        src = str(entry.src_paths[0])
-        obj = str(entry.object_path)
+            src = str(entry.src_paths[0])
+            obj_rel = str(entry.object_path)
+            obj = f"{build_dir}/{obj_rel}"
 
-        if src.endswith(".s"):
-            ninja.build(obj, "as", src)
+            if src.endswith(".s"):
+                ninja.build(obj, "as", src)
+            elif src.endswith(".c"):
+                ninja.build(obj, "cc", src, variables={"extra_defines": variant["defines"]})
+            elif src.endswith(".cpp"):
+                ninja.build(obj, "cxx", src, variables={"extra_defines": variant["defines"]})
+            elif src.endswith(".bin"):
+                ninja.build(obj, "bin", src)
+
             built_objects.append(obj)
-        elif src.endswith(".c"):
-            ninja.build(obj, "cc", src)
-            built_objects.append(obj)
-        elif src.endswith(".cpp"):
-            ninja.build(obj, "cxx", src)
-            built_objects.append(obj)
-        elif src.endswith(".bin"):
-            ninja.build(obj, "bin", src)
-            built_objects.append(obj)
 
-    ninja.build(
-        ELF_PATH,
-        "ld",
-        LD_PATH,
-        implicit=built_objects,
-        variables={"mapfile": MAP_PATH},
-    )
+        ninja.build(
+            elf_path, "ld", implicit=built_objects + [LD_PATH, "undefined_funcs_auto.txt", "undefined_syms_auto.txt"],
+            variables={"build_dir": build_dir},
+        )
 
-    ninja.build(Z64_PATH, "z64", ELF_PATH)
-    ninja.build(OK_PATH, "sha1sum", "checksum.sha1", implicit=[Z64_PATH])
-    ninja.default(OK_PATH)
+        ninja.build(z64_path, "z64", elf_path)
+
+        if variant["verify"]:
+            ninja.build(ok_path, "sha1sum", "checksum.sha1", implicit=[z64_path])
+            ninja.default(ok_path)
+        else:
+            ninja.default(z64_path)
 
 
 if __name__ == "__main__":

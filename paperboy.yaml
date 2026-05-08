@@ -4,6 +4,7 @@ options:
   basename: paperboy
   base_path: .
   target_path: baserom.z64
+  build_path: .
   elf_path: build/paperboy.elf
   platform: n64
   compiler: KMC

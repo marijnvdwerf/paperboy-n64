@@ -50,6 +50,9 @@ void func_80006730(u8*, u8*, s32);
 void func_80009350(void*, s32);
 StructWW* func_80009458(s32);
 s32 func_8004B414(s32);
+#ifdef PAL
+void func_8005FA60(s32);
+#endif
 extern u8 D_800005D8[];
 extern u8 D_800005E8[];
 extern u8 D_80076404[];
@@ -82,6 +85,9 @@ void StructXX::func_80007DE0() {
     temp_a0 = this->unk48;
     temp_a0->vfunc9(this->unk4, this->unk8, this->unkC, this->unk50);
 
+#ifdef PAL
+    func_8005FA60(1);
+#endif
     if (&D_800005D8 != NULL) {
         func_80006730(D_80076404, D_800005D8, 0x100);
         D_80076404[0xFF] = 0;
