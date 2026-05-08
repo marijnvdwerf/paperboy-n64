@@ -26,17 +26,21 @@ CROSS_OBJCOPY = f"{CROSS}objcopy"
 
 # SN toolchain
 CC1N64 = "tools/bin/cc1n64.exe"
+CC1PLN64 = "tools/bin/cc1pln64.exe"
 MODERN_ASN64 = "tools/modern-asn64/modern-asn64.py"
 
 INCLUDES = "-Iinclude"
 AS_FLAGS = f"-EB -march=vr4300 -mtune=vr4300 -G0 {INCLUDES}"
 
-CPP_FLAGS = (
-    f"-nostdinc -undef -D__GNUC__=2 -D__OPTIMIZE__ -lang-c"
-    f" -Dmips -D__mips__ -D__mips -Dn64 -D__n64__ -D__n64"
-    f" -D_PSYQ -D__EXTENSIONS__ -D_MIPSEB -D__CHAR_UNSIGNED__"
-    f" -D_LANGUAGE_C -DINCLUDE_ASM_USE_MACRO_INC=1 {INCLUDES}"
+COMMON_DEFINES = (
+    "-nostdinc -undef -D__GNUC__=2 -D__OPTIMIZE__"
+    " -Dmips -D__mips__ -D__mips -Dn64 -D__n64__ -D__n64"
+    " -D_PSYQ -D__EXTENSIONS__ -D_MIPSEB -D__CHAR_UNSIGNED__"
+    " -DINCLUDE_ASM_USE_MACRO_INC=1"
 )
+
+C_CPP_FLAGS = f"{COMMON_DEFINES} -lang-c -D_LANGUAGE_C {INCLUDES}"
+CXX_CPP_FLAGS = f"{COMMON_DEFINES} -lang-c++ -D_LANGUAGE_C_PLUS_PLUS {INCLUDES}"
 
 CC_FLAGS = "-quiet -G0 -O2"
 
@@ -64,8 +68,19 @@ def create_build_script(linker_entries: list[LinkerEntry]):
         "cc",
         description="cc $in",
         command=(
-            f"{CROSS_CPP} {CPP_FLAGS} -MD -MF $out.d -MT $out -o $out.i $in"
+            f"{CROSS_CPP} {C_CPP_FLAGS} -MD -MF $out.d -MT $out -o $out.i $in"
             f" && wibo {CC1N64} {CC_FLAGS} $out.i -o $out.s"
+            f" && python3 {MODERN_ASN64} {CROSS_AS} $out.s {AS_FLAGS} -I. -o $out"
+        ),
+        depfile="$out.d",
+    )
+
+    ninja.rule(
+        "cxx",
+        description="cxx $in",
+        command=(
+            f"{CROSS_CPP} {CXX_CPP_FLAGS} -MD -MF $out.d -MT $out -o $out.i $in"
+            f" && wibo {CC1PLN64} {CC_FLAGS} $out.i -o $out.s"
             f" && python3 {MODERN_ASN64} {CROSS_AS} $out.s {AS_FLAGS} -I. -o $out"
         ),
         depfile="$out.d",
@@ -113,6 +128,9 @@ def create_build_script(linker_entries: list[LinkerEntry]):
             built_objects.append(obj)
         elif src.endswith(".c"):
             ninja.build(obj, "cc", src)
+            built_objects.append(obj)
+        elif src.endswith(".cpp"):
+            ninja.build(obj, "cxx", src)
             built_objects.append(obj)
         elif src.endswith(".bin"):
             ninja.build(obj, "bin", src)

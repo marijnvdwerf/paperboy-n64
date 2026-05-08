@@ -3,4 +3,8 @@
 
 #include "include_asm.h"
 
+#ifndef NULL
+#define NULL 0
+#endif
+
 #endif

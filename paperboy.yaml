@@ -48,7 +48,7 @@ segments:
       - [0x1000, hasm]
       - [0x1060, data]
       - [0x6BD0, asm]
-      - [0x7FE0, c]
+      - [0x7FE0, cpp]
       - [0x8DA0, asm]
       - [0x64F60, data]
 

@@ -1,0 +1,5 @@
+func_80007DE0__8StructXX = 0x80007DE0; // type:func
+func_80006730 = 0x80006730; // type:func
+func_80009350 = 0x80009350; // type:func
+func_80009458 = 0x80009458; // type:func
+func_8004B414 = 0x8004B414; // type:func
