@@ -1,5 +1,7 @@
 #include "common.h"
 
+struct SceneNode;
+
 struct GameObj {
     char pad0[0x12C];
     virtual void vfunc_01();
@@ -157,10 +159,12 @@ struct GameTop {
 
 struct UnkArgStruct {
     char pad0[0xC];
-    GameObjChild** children;
-    char pad10[0x4];
-    s32 count;
-    char pad18[0x2C];
+    SceneNode** children;
+    u32 capacity;
+    u32 count;
+    char pad18[0x8];
+    s32 unk20;
+    char pad24[0x20];
     s32 unk44;
     char pad48[0x10];
     s32 unk58;
@@ -194,14 +198,145 @@ struct Actor {
     s32 unk168;
 };
 
+struct ChildDef {
+    char pad0[0xC];
+    char unk0C[0xC];
+    char unk18[0xC];
+    char unk24[0xC];
+};
+
+struct SceneNodeData {
+    char pad0[0x8];
+    char name[0x5C];
+    s32 type;
+    char pad68[0x2F];
+    u8 childCount;
+    char pad98[0x20];
+    ChildDef* children;
+};
+
+struct SceneNodeEntry {
+    void* node;
+    SceneNodeData* data;
+    char pad8[0x46];
+    u8 unk4E;
+    char pad50[0x3C];
+    s32 unk8C;
+};
+
+struct SceneNodeBase {
+    char pad0[0x30];
+    virtual void vfunc_01();
+    virtual void vfunc_02();
+    virtual void vfunc_03();
+    virtual void vfunc_04();
+    virtual void vfunc_05();
+    virtual void vfunc_06();
+    virtual void vfunc_07();
+    virtual void vfunc_08();
+    virtual void vfunc_09();
+    virtual void vfunc_10();
+    virtual void vfunc_11();
+    virtual void vfunc_12();
+    virtual void vfunc_13();
+    virtual void vfunc_14();
+    virtual void vfunc_15();
+    virtual void vfunc_16();
+    virtual void vfunc_17();
+    virtual void vfunc_18();
+    virtual void vfunc_19();
+    virtual void vfunc_20();
+    virtual void vfunc_21();
+    virtual void vfunc_22();
+    virtual void vfunc_23();
+    virtual void vfunc_24();
+    virtual void vfunc_25();
+    virtual void vfunc_26();
+    virtual void vfunc_27();
+    virtual void vfunc_28();
+    virtual void vfunc_29();
+    virtual void vfunc_30();
+    virtual void vfunc_31(void* pos, void* rot);
+    virtual void vfunc_32(void* scale, s32 arg);
+    virtual void vfunc_33();
+    virtual void vfunc_34();
+    virtual void vfunc_35();
+    virtual void vfunc_36();
+    virtual void vfunc_37();
+    virtual void vfunc_38();
+    virtual void vfunc_39();
+    virtual void vfunc_40();
+    virtual void vfunc_41();
+    virtual void vfunc_42();
+    virtual void vfunc_43();
+    virtual void vfunc_44();
+    virtual void vfunc_45();
+    virtual void vfunc_46();
+    virtual void vfunc_47();
+    virtual void vfunc_48();
+    virtual void vfunc_49();
+    virtual void vfunc_50();
+    virtual void vfunc_51();
+    virtual void vfunc_52();
+    virtual void vfunc_53();
+    virtual void vfunc_54();
+    virtual void vfunc_55();
+    virtual void vfunc_56();
+    virtual void vfunc_57();
+};
+
+struct SceneNode : SceneNodeBase {
+    char pad34[0x60];
+    u32 flags;
+    char pad98[0x40];
+    s32 unkD8;
+};
+
 extern "C" {
 
 s32 func_80008C74(Actor* arg);
 f32 __sinf(f32 arg);
+void func_8000D2FC(void*, void*);
+void func_8000D5CC(void*, void*, void*);
+s32 func_800431D0(void*);
+void func_800C5610(s32, void*);
+void func_800CB780(s32);
+void func_800CB804(s32, void*);
 s32 func_800CC3B8(s32 arg0, void* arg1);
 void func_800DA890(s32 arg);
+SceneNode* func_800DCA68(UnkArgStruct*, SceneNodeEntry*, s32);
 void func_800DC944(UnkArgStruct* arg);
+SceneNode* func_800DF190(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF25C(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF2E4(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF36C(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF3F4(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF47C(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF504(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF58C(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF614(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF69C(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF724(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF7AC(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF834(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF8BC(UnkArgStruct*, SceneNodeEntry*);
+SceneNode* func_800DF944(UnkArgStruct*, SceneNodeEntry*);
 void func_800DF9C8(GameState* arg);
+void func_800EB4E0(UnkArgStruct*);
+void func_800F1390(SceneNodeEntry*, void*);
+void func_800F13B0(SceneNodeEntry*, void*);
+void func_800F1488(SceneNodeEntry*, void*, void*);
+void func_800F14C0(SceneNodeEntry*, void*, void*);
+SceneNodeEntry* func_800F1C40(s32, s32);
+void func_800F1E1C(s32, SceneNodeEntry*);
+void func_800F48CC(SceneNodeData*, SceneNode*);
+s32 func_800F5120(s32, ChildDef*);
+void func_800F8484(SceneNode*, SceneNodeEntry*);
+void func_800F9EE4(SceneNode*, SceneNodeEntry*);
+void func_800FA5F4(SceneNode*, u32, SceneNode*);
+void func_800FA608(SceneNode*, u8);
+void func_800FAFEC(SceneNode*);
+void func_80101C44(SceneNode*);
 void func_80114BB0(SoundState* a0, void* a1, s32 a2, s32 a3, f32 a4, f32 a5, s32 a6);
 
 extern GameTop* D_8006AB04;
@@ -209,6 +344,9 @@ extern Actor* D_8006AB10;
 extern GameScene* D_801258C0;
 extern SceneEntry* D_80127670;
 extern UnkStruct7954* D_80127954;
+extern s32 D_801272F0;
+extern s32 D_801286D0;
+extern s32 D_80128710;
 extern GameState* D_80128010;
 extern u8 D_8012802C;
 extern SoundState* D_80129060;
@@ -241,9 +379,9 @@ void func_800DC5C0(UnkArgStruct* self) {
         gameObj->vfunc_58(0);
     }
 
-    for (i = 0; (u32)i < (u32)self->count; i++) {
-        GameObjChild* child = self->children[i];
-        if (!(child->unk94 & 1)) {
+    for (i = 0; (u32)i < self->count; i++) {
+        SceneNode* child = self->children[i];
+        if (!(child->flags & 1)) {
             continue;
         }
         child->vfunc_27();
@@ -327,7 +465,119 @@ void func_800DC944(UnkArgStruct* self) {
     gameObj->vfunc_24();
 }
 
+#ifdef NON_MATCHING
+SceneNode* func_800DCA68(UnkArgStruct* arg0, SceneNodeEntry* entry, s32 arg2) {
+    char sp10[0x10];
+    char sp20[0x8];
+    u8 sp28[0x8];
+    char sp30[0x10];
+    char sp40[0x10];
+
+    arg0->unk20 = arg2;
+    SceneNodeData* data = entry->data;
+    SceneNode* node = NULL;
+    if (arg0->count >= arg0->capacity) {
+        func_800EB4E0(arg0);
+    }
+    switch (data->type) {
+        case 2:
+            node = func_800DF944(arg0, entry);
+            break;
+        case 3:
+            node = func_800DF25C(arg0, entry);
+            break;
+        case 17:
+            node = func_800DF190(arg0, entry);
+            break;
+        case 21:
+            node = func_800DF2E4(arg0, entry);
+            break;
+        case 5:
+            node = func_800DF36C(arg0, entry);
+            break;
+        case 22:
+            node = func_800DF3F4(arg0, entry);
+            break;
+        case 8:
+            node = func_800DF8BC(arg0, entry);
+            break;
+        case 7:
+            node = func_800DF47C(arg0, entry);
+            break;
+        case 25:
+            node = func_800DF834(arg0, entry);
+            break;
+        case 27:
+            node = func_800DF7AC(arg0, entry);
+            break;
+        case 28:
+            node = func_800DF724(arg0, entry);
+            break;
+        case 29:
+            node = func_800DF614(arg0, entry);
+            break;
+        case 30:
+            node = func_800DF58C(arg0, entry);
+            break;
+        case 31:
+            node = func_800DF504(arg0, entry);
+            break;
+        case 32:
+            node = func_800DF69C(arg0, entry);
+            break;
+    }
+    func_800F48CC(data, node);
+    func_800F8484(node, entry);
+    entry->node = node;
+    func_800F1488(entry, sp30, sp20);
+    func_800F1390(entry, sp10);
+    node->vfunc_31(sp30, sp20);
+    node->vfunc_32(sp10, 1);
+    if ((node->flags >> 5) & 1) {
+        SceneNode* obj = node;
+        obj->vfunc_57();
+        if (entry->unk4E != 0) {
+            func_8000D2FC(sp28, &entry->unk4E);
+        } else {
+            func_8000D2FC(sp28, entry->data->name);
+        }
+        if (sp28[0] != 0) {
+            u8* temp_s1 = sp28;
+
+            func_8000D5CC(sp10, temp_s1, "OBB");
+            s32 temp_s3 = D_801272F0;
+            func_800CB804(temp_s3, "OBF");
+            if (func_800431D0(sp10) != 8) {
+                func_80101C44(obj);
+                func_800C5610(obj->unkD8, temp_s1);
+            }
+            func_800FAFEC(obj);
+            func_800CB780(temp_s3);
+        } else {
+            func_800FAFEC(obj);
+        }
+    }
+    arg0->children[arg0->count] = node;
+    arg0->count = arg0->count + 1;
+    func_800FA608(node, data->childCount);
+    for (u32 var_s3 = 0; var_s3 < data->childCount; var_s3++) {
+        SceneNodeEntry* childEntry = func_800F1C40(D_801286D0, func_800F5120(D_80128710, &data->children[var_s3]));
+        func_800F13B0(childEntry, data->children[var_s3].unk0C);
+        func_800F14C0(childEntry, data->children[var_s3].unk18, data->children[var_s3].unk24);
+        func_800FA5F4(node, var_s3, func_800DCA68(arg0, childEntry, arg0->unk20));
+    }
+    func_800F1390(entry, sp10);
+    func_800F1488(entry, sp40, sp20);
+    node->vfunc_31(sp40, sp20);
+    node->vfunc_32(sp10, 1);
+    func_800F9EE4(node, entry);
+    entry->unk8C = 1;
+    func_800F1E1C(D_801286D0, entry);
+    return node;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCA68);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCED4);
 
