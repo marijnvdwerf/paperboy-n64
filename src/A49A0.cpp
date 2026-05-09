@@ -583,6 +583,8 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCED4);
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCFF0);
 
+// Possible boundary
+
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD2C0);
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD6BC);
@@ -592,6 +594,7 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD7BC);
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD8D8);
 #else
+__asm__(".globl func_800DD8D8\nfunc_800DD8D8:\n");
 TEXT_PAD(0x3F0);
 #endif
 
@@ -702,6 +705,7 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFA40);
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFA6C); // Constructor
 #else
+__asm__(".globl func_800DFA6C\nfunc_800DFA6C:\n");
 TEXT_PAD(0x88);
 #endif
 
@@ -792,6 +796,7 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFCB4);
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFCC4);
 #else
+__asm__(".globl func_800DFCC4\nfunc_800DFCC4:\n");
 TEXT_PAD(0x24);
 #endif
 
@@ -910,6 +915,7 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4060);
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4184); // mismatch
 #else
+__asm__(".globl func_800E4184\nfunc_800E4184:\n");
 TEXT_PAD(0x450);
 #endif
 
