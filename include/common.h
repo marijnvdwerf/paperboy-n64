@@ -29,6 +29,8 @@ typedef double f64;
             "    .set at\n")
 #define DATA_PAD(size) static char pad[size] = { 0 }
 
+#define OS_K0_TO_PHYSICAL(x) (u32)(((char *)(x) - 0x80000000))
+
 #ifndef PAL
 #define GARBAGE_NTSC(value)    \
     __asm__(".section .text\n" \

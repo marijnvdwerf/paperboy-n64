@@ -292,3 +292,4 @@ osMapTLBRdb = 0x80063240; // type:func
 __divdi3 = 0x800632A0; // type:func
 __udivdi3 = 0x80063890; // type:func
 __umoddi3 = 0x80063E20; // type:func
+D_8000FF88 = 0x8000FF88; // type:func
