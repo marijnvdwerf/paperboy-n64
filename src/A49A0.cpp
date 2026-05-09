@@ -1,8 +1,259 @@
 #include "common.h"
 
+struct GameObj {
+    char pad0[0x12C];
+    virtual void vfunc_01();
+    virtual void vfunc_02();
+    virtual void vfunc_03();
+    virtual void vfunc_04();
+    virtual void vfunc_05();
+    virtual void vfunc_06();
+    virtual void vfunc_07();
+    virtual void vfunc_08();
+    virtual void vfunc_09(s32 arg);
+    virtual void vfunc_10();
+    virtual void vfunc_11();
+    virtual void vfunc_12();
+    virtual void vfunc_13();
+    virtual void vfunc_14();
+    virtual void vfunc_15();
+    virtual void vfunc_16();
+    virtual void vfunc_17();
+    virtual void vfunc_18();
+    virtual void vfunc_19();
+    virtual void vfunc_20();
+    virtual void vfunc_21();
+    virtual void vfunc_22();
+    virtual void vfunc_23();
+    virtual void vfunc_24();
+    virtual void vfunc_25();
+    virtual void vfunc_26();
+    virtual void vfunc_27();
+    virtual void vfunc_28();
+    virtual void vfunc_29();
+    virtual void vfunc_30();
+    virtual void vfunc_31();
+    virtual void vfunc_32();
+    virtual void vfunc_33();
+    virtual void vfunc_34();
+    virtual void vfunc_35();
+    virtual void vfunc_36();
+    virtual void vfunc_37();
+    virtual void vfunc_38();
+    virtual void vfunc_39();
+    virtual void vfunc_40();
+    virtual void vfunc_41();
+    virtual void vfunc_42();
+    virtual void vfunc_43();
+    virtual void vfunc_44();
+    virtual void vfunc_45();
+    virtual void vfunc_46();
+    virtual void vfunc_47();
+    virtual void vfunc_48();
+    virtual void vfunc_49();
+    virtual void vfunc_50();
+    virtual void vfunc_51();
+    virtual void vfunc_52();
+    virtual void vfunc_53();
+    virtual void vfunc_54();
+    virtual void vfunc_55();
+    virtual void vfunc_56();
+    virtual void vfunc_57();
+    virtual void vfunc_58(s32 arg);
+};
+
+struct GameObjChild {
+    char pad0[0x30];
+    virtual void vfunc_01();
+    virtual void vfunc_02();
+    virtual void vfunc_03();
+    virtual void vfunc_04();
+    virtual void vfunc_05();
+    virtual void vfunc_06();
+    virtual void vfunc_07();
+    virtual void vfunc_08();
+    virtual void vfunc_09();
+    virtual void vfunc_10();
+    virtual void vfunc_11();
+    virtual void vfunc_12();
+    virtual void vfunc_13();
+    virtual void vfunc_14();
+    virtual void vfunc_15();
+    virtual void vfunc_16();
+    virtual void vfunc_17();
+    virtual void vfunc_18();
+    virtual void vfunc_19();
+    virtual void vfunc_20();
+    virtual void vfunc_21();
+    virtual void vfunc_22();
+    virtual void vfunc_23();
+    virtual void vfunc_24();
+    virtual void vfunc_25();
+    virtual void vfunc_26();
+    virtual void vfunc_27();
+};
+
+struct GameObjChild2 {
+    char pad0[0xC];
+    virtual void vfunc_01();
+    virtual void vfunc_02();
+    virtual void vfunc_03();
+    virtual void vfunc_04();
+    virtual void vfunc_05();
+    virtual void vfunc_06();
+    virtual s32 vfunc_07();
+};
+
+struct SceneEntry {
+    char pad0[0x8];
+    s32 unk8;
+    s32 unkC;
+};
+
+struct GameScene {
+    char pad0[0x8];
+    GameObjChild2* child;
+};
+
+struct GameMiddle {
+    char pad0[0x78];
+    GameObj* unk78;
+};
+
+struct GameTop {
+    char pad0[0x48];
+    GameMiddle* unk48;
+};
+
+struct UnkArgStruct {
+    char pad0[0xC];
+    GameObjChild** children;
+    char pad10[0x4];
+    s32 count;
+    char pad18[0x2C];
+    s32 unk44;
+    char pad48[0x10];
+    s32 unk58;
+};
+
+struct SoundState {
+    char pad0[0x8];
+    f32 unk8;
+    char padC[0x8];
+    s32 unk14;
+};
+
+struct GameState {
+    char pad0[0xB4];
+    s32 unkB4;
+};
+
+struct UnkStruct7954 {
+    char pad0[0xC1C];
+    s32 unkC1C;
+};
+
+extern "C" {
+
+s32 func_80008C74(s32 arg);
+f32 func_8005A7B0(f32 arg);
+s32 func_800CC3B8(s32 arg0, void* arg1);
+void func_800DA890(s32 arg);
+void func_800DC944(UnkArgStruct* arg);
+void func_800DF9C8(GameState* arg);
+void func_80114BB0(SoundState* a0, void* a1, s32 a2, s32 a3, f32 a4, f32 a5, s32 a6);
+
+extern GameTop* D_8006AB04;
+extern s32 D_8006AB10;
+extern GameScene* D_801258C0;
+extern SceneEntry* D_80127670;
+extern UnkStruct7954* D_80127954;
+extern GameState* D_80128010;
+extern u8 D_8012802C;
+extern SoundState* D_80129060;
+
 #ifndef PAL
-INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DC5C0);
+void func_800DC5C0(UnkArgStruct* self) {
+    SceneEntry* sceneEntry;
+    GameObj* gameObj;
+    s32 savedState;
+    s32 var_s0;
+    s32 state;
+    s32 i;
+    s32 actor_s4;
+
+    gameObj = D_8006AB04->unk48->unk78;
+    sceneEntry = D_80127670;
+    func_800DF9C8(D_80128010);
+    savedState = sceneEntry->unk8;
+    gameObj->vfunc_09(sceneEntry->unkC);
+    gameObj->vfunc_24();
+
+    var_s0 = 0;
+    {
+        GameScene* scene = D_801258C0;
+        GameObjChild2* child2 = scene->child;
+        if (child2->vfunc_07() != 0) {
+            var_s0 = D_80128010->unkB4 == 0;
+        }
+    }
+    if (var_s0 != 0) {
+        gameObj->vfunc_58(0);
+    }
+
+    for (i = 0; (u32)i < (u32)self->count; i++) {
+        GameObjChild* child = self->children[i];
+        if (!(*(s32*)((s32)child + 0x94) & 1)) {
+            continue;
+        }
+        child->vfunc_27();
+    }
+
+    gameObj->vfunc_58(0);
+    var_s0 = 0;
+    if (func_80008C74(D_8006AB10) == 5) {
+        var_s0 = D_80128010->unkB4 == 0;
+    }
+    if (var_s0 != 0) {
+        func_800DC944(self);
+        func_800DA890(self->unk58);
+    }
+
+    gameObj->vfunc_57();
+    gameObj->vfunc_58(0);
+    actor_s4 = D_8006AB10;
+    state = func_80008C74(actor_s4);
+    if (state == 1 && D_80127954->unkC1C != 0) {
+        char* dumy = "DUMY";
+        func_800CC3B8(self->unk44, dumy);
+        SoundState* snd = D_80129060;
+        snd->unk14 = state;
+        snd->unk8 = 0.9f;
+        func_80114BB0(snd, "A NEW CONTROLLER PAK%CHAS BEEN DETECTED", func_800CC3B8(self->unk44, dumy), 0, -8.25f, 1.0f,
+                      state);
+    }
+    if (func_80008C74(actor_s4) == 5 && *(s32*)(actor_s4 + 0x168) != 0) {
+        char* dumy = "DUMY";
+        func_800CC3B8(self->unk44, dumy);
+        SoundState* snd = D_80129060;
+        snd->unk14 = 4;
+        snd->unk8 = func_8005A7B0((f32)D_8012802C * 0.20943952f) * 0.25f + 1.25f;
+        func_80114BB0(snd, "DEMO", func_800CC3B8(self->unk44, dumy), 0, -9.0f, 1.0f, 1);
+        u8 val = D_8012802C + 1;
+        D_8012802C = val;
+        if ((u32)(val & 0xFF) >= 0x1E) {
+            D_8012802C = 0;
+        }
+    }
+
+    gameObj->vfunc_57();
+    gameObj->vfunc_09(savedState);
+    gameObj->vfunc_24();
+}
 #else
+__asm__(".section .rdata\n"
+        ".space 0x58\n");
+
 TEXT_PAD(0x3FC);
 #endif
 
@@ -131,7 +382,7 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF9C8);
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFA40);
 
 #ifndef PAL
-INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFA6C); // WRONG
+INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFA6C); // Constructor
 #else
 TEXT_PAD(0x88);
 #endif
@@ -409,3 +660,5 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E69D8);
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E69F4);
 #endif
+
+} // extern "C"
