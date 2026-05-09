@@ -351,6 +351,10 @@ extern GameState* D_80128010;
 extern u8 D_8012802C;
 extern SoundState* D_80129060;
 
+// ============================================================================
+// Scene Manager
+// ============================================================================
+
 void func_800DC5C0(UnkArgStruct* self) {
     SceneEntry* sceneEntry;
     GameObj* gameObj;
@@ -576,288 +580,416 @@ SceneNode* func_800DCA68(UnkArgStruct* arg0, SceneNodeEntry* entry, s32 arg2) {
     return node;
 }
 #else
+// Recursive scene node creation from SceneNodeData tree
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCA68);
 #endif
-
+// Load scene: walks node list, activates visibility, applies transforms
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCED4);
-
+// Scene tick: evaluates game state transitions each frame
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCFF0);
-
-// Possible boundary
-
+// Scene update: scoring, animation, timer logic
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD2C0);
-
+// Per-frame children update, decrements invincibility timer
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD6BC);
-
+// Lookup scene node ID across six search tables
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD7BC);
 
 #ifndef PAL
+// Scene event dispatch: navigation, menu, input handling
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD8D8);
 #else
 __asm__(".globl func_800DD8D8\nfunc_800DD8D8:\n");
+__asm__(".section .rdata\n"
+        "    .word 0, 0\n");
 TEXT_PAD(0x3F0);
 #endif
-
+// Scene transition: deactivates old tree, activates new one
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DDCA4);
-
+// Compute world position from camera basis vectors
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DDE08);
-
+// Level advance: sets state=5, loads next route from track data
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DDF90);
-
+// Damage handler: unkAA zone, sets invincibility timer by difficulty
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE3FC);
 
+// Damage handler: unk9E zone
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE498);
 
+// Damage handler: unk80 zone
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE4F4);
 
+// Check if route slot is valid (has data and is accessible)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE530);
 
+// Teardown scene, reload level string list, switch to cutscene node
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE5AC);
 
+// Get timer value from "TIME" node
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE67C);
 
+// Set timer value on "TIME" node
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE6AC);
 
+// Per-frame children render, call vfunc_17 on each
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE6E8);
 
+// Get current route index from delivery manager
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE778);
 
+// Get child node at slot 3
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE7A0);
 
+// Get child node at slot 8
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE7C0);
 
+// Transition to next scene from D_80127310
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE7E0);
 
+// Switch active scene node: deactivate old, activate new
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE81C);
 
+// Teardown scene tree, clear state
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE878);
 
+// Load scene from game mode table lookup
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE8F4);
 
+// Destructor: free children, release resources
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DE930);
 
+// Init table search from D_80128024 (route slot 5)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEA00);
 
+// Init table search from D_80128020 (route slot 3)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEA98);
 
+// Init table search from D_80128028 (route slot 6)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEB30);
 
+// Init table search from D_8012801C (route slot 4)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEBC4);
 
+// Init table search from D_80128018 (route slot 2)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEC5C);
 
+// Init table search from D_80128014 (route slot 1)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DECF0);
-
+// SceneManager init: zero all state, allocate unk58
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DED84);
 
+// Release scene node references
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEE3C);
 
+// Deactivate all children recursively
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEE5C);
 
+// Recursive child deactivation helper
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEEC8);
 
+// Deactivate single node wrapper
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEF34);
 
+// Walk node tree: activate visibility, set up transforms
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DEF50);
 
+// Recursive node activation helper
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF020);
 
+// Activate single node: set visibility based on unk6C->unk50
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF0D8);
 
+// Teardown single node: free render data, set mode 3
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF134);
-
+// Factory: create base scene node (type 17)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF190);
 
+// Factory helper: bind node to parent if unk84 set
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF21C);
 
+// Factory: create node type 3 (func_80136F20)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF25C);
 
+// Factory: create node type 21 (func_8013F3F4)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF2E4);
 
+// Factory: create node type 5 (func_801374D4)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF36C);
 
+// Factory: create node type 22 (func_800E915C)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF3F4);
 
+// Factory: create node type 7 (func_80139A14)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF47C);
 
+// Factory: create node type 31 (func_800D7214)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF504);
 
+// Factory: create node type 30 (func_801363FC)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF58C);
 
+// Factory: create node type 29 (func_8013C454)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF614);
 
+// Factory: create node type 32 (func_800E7370)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF69C);
 
+// Factory: create node type 28 (func_800E9BE0)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF724);
 
+// Factory: create node type 27 (func_8013EBE0)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF7AC);
 
+// Factory: create node type 25 (func_8013B890)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF834);
 
+// Factory: create node type 8 (func_8013AC24)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF8BC);
 
+// Factory: create node type 2 (func_800D7868)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF944);
 
+// Setup scene child transforms from SceneEntry data
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DF9C8);
+// ============================================================================
+// GameState
+// ============================================================================
 
+// GameState destructor
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFA40);
 
 #ifndef PAL
+// GameState constructor: init all fields, set D_80128010
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFA6C); // Constructor
 #else
 __asm__(".globl func_800DFA6C\nfunc_800DFA6C:\n");
 TEXT_PAD(0x88);
 #endif
 
+// set unk3C
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFADC); // -> A80A0
 
+// get unk5C
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFAE4);
 
+// get &unkD6
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFAF0);
 
+// get &unkCC
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFAF8);
 
+// get unkC8
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB00);
 
+// get unkC4
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB0C);
 
+// get unk78
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB18);
 
+// get &unkAA
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB24);
 
+// get &unk9E
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB2C);
 
+// get &unk80
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB34);
 
+// get unk74
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB3C);
 
+// get unk6C
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB48);
 
+// get unk54
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB54);
 
+// get unk50
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB60);
 
+// get unkBC
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB6C);
 
+// get unk60
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB78);
 
+// get unkB4
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB84);
 
+// get unk70
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB90);
 
+// get unk12C > 0
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFB9C);
 
+// get unk68 (float)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFBA8);
 
+// set unk5C
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFBB4);
 
+// clear unk12C
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFBBC);
 
+// init unkD6, set unkC8=1
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFBC4);
 
+// init unkCC, set unkC8=1
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFBF4);
 
+// set unkC8
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC24);
 
+// set unkC4
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC2C);
 
+// set unk78
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC34);
 
+// set unk74
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC3C);
 
+// set unk54
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC44);
 
+// set unk50
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC4C);
 
+// set unkBC
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC54);
 
+// set unk60
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC5C);
 
+// set unk6C
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC64);
 
+// set unkB4
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC6C);
 
+// set unk70
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC74);
 
+// set unkB0
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC7C);
 
+// set unkB8
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC84);
 
+// set unk68
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC8C);
 
+// set unk4C
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC94);
 
+// get unk4C
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFC9C); // -> A8260
 
 #ifndef PAL
+// get unk48
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFCA8);
 
+// get D_80128010
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFCB4);
 
+// tail call to func_800F8524
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFCC4);
 #else
 __asm__(".globl func_800DFCC4\nfunc_800DFCC4:\n");
 TEXT_PAD(0x24);
 #endif
+// ============================================================================
+// Delivery Route
+// ============================================================================
 
+// Init route positions from track data and D_80128720
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFCD0); // -> A8290
 
+// Camera update: transform scene child from player orientation
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFE00);
 
+// Camera setup: position scene child with D_800B699C basis
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFF24);
 
+// Find nearest delivery point to position
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E0028);
 
+// Render delivery arrow ("RRAR") pointing toward target
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E01D4);
 
+// Render delivery route grid with subscriber colors
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E0580);
 
+// Debug render: draw text markers at delivery points
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E0BC4);
 
+// Render route overlay with directional rotation
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E0E44);
 
+// Render subscriber status bars (NON SUBSCRIBER/HAPPY/ANGRY/DELIVERED)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E12AC);
 
+// Render houses (SBHP/SBNO) along route with face direction
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E1534);
 
+// Render face icon (BFAC/GFAC) at paperboy position
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E1868);
 
+// Init delivery state: zero positions, get viewport dimensions
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E1A08);
 
+// Load igmap model from GAMEDATA\TRACKS\ path
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E1BDC);
 
+// Load nhmap model from GAMEDATA\TRACKS\ path
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E207C);
 
+// Load route data from LEVELS\*.scb file
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E2748);
 
+// Read camera params from scene: position, angle, offset
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E29B8);
 
+// Level init: load track, configure delivery manager
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E2AC0);
 
+// Update delivery positions from collision, find nearest
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E2DC8);
 
+// Main update dispatch: route state by game mode
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E2F54);
 
+// Distance check: trigger delivery events near mailboxes
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E30F8);
 
+// Count active subscribers (unk3B8 != 0)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3260);
 
+// Update unk4F8 flags from delivery manager
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E32B0);
 
+// Update unk480 delivery status from manager
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E334C);
 
+// Toggle neighbor visibility every 500ms
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E33F8);
 
+// Set position from HVhers3 hotspot
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E34E0);
 
+// Count missed deliveries (unk70=0, unkE8=1)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E35A4);
 
+// Count vandalized houses (unk70=1, unkE8=0)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3620);
 
+// Load route bounds from LEVELS\*.scb
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E369C);
 
+// Update unk3B8 flags from collision results
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3774);
 
+// Init HVhers3 hotspot position
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3824);
 
 void func_800E38A0(void) {
@@ -866,32 +998,49 @@ void func_800E38A0(void) {
 void func_800E38A8(void) {
 }
 
+// Transform world coords to screen coords via viewport
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E38B0);
 
+// Render helper: setup camera + draw subscribers + status
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E39A4);
 
+// Wrapper: call func_800E01D4 on main game object
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3A2C);
 
+// Get position of closest delivery point
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3A58);
 
+// Find nearest delivery point by distance
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3AD0);
 
+// Init unk570 array from renderable nodes
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3BCC);
 
+// Hide scene node (call vfunc_17 to disable)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3C90);
 
+// Attach scene child to main game object
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3CBC);
 
+// Camera setup with D_800B699C/69AC/69B8 basis vectors
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3D1C);
 
+// Setup scene child and attach camera to player
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3E14);
 
+// Init unkE8 subscriber flags from track collision data
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3E6C);
+// ============================================================================
+// Controller Pak
+// ============================================================================
 
+// Init D_801282B0 game mode state
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3F14);
 
+// Configure D_801282B0 with initial field values
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3F40);
 
+// Empty stub
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3F8C);
 
 void func_800E3F90(void) {
@@ -900,88 +1049,127 @@ void func_800E3F90(void) {
 void func_800E3F98(void) {
 }
 
+// Count entries in D_80128484 table
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3FA0);
 
+// Lookup value by key in D_80128484 table
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3FD4);
 
+// Init D_80128480 game mode state
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4018);
 
+// Configure D_80128480
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4044);
 
+// Empty stub
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4058);
 
+// Controller pak: check PBOY.1 file, start save/load
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4060);
 
 #ifndef PAL
+// Controller pak event dispatch (big switch)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4184); // mismatch
 #else
 __asm__(".globl func_800E4184\nfunc_800E4184:\n");
 TEXT_PAD(0x450);
 #endif
 
+// Check if pak slot is valid and accessible
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E45B0); // -> ACB94
 
+// Check pak file integrity (checksum over 16 blocks)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E46D0);
 
+// Detect pak insertion/removal state changes
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E47AC);
 
+// Handle pak state per mode (1-5): start appropriate flow
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4898);
 
+// Save game to pak: write PBOY.1 then load scene
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4A34);
 
+// Load game from pak (mode 5)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4BD4);
 
+// Load game from pak (mode 4)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4DF8);
 
+// Serialize game state to save buffer
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E5044);
 
+// Deserialize save buffer to game state
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E5684);
 
+// Wrapper: get pak controller, return 1
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E5B98);
 
+// Start new game: check pak, begin game flow
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E5BB8);
 
+// Continue game: check pak for modes 2/3
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E5CE8);
 
+// Load saved game (mode 5 flow)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E5F1C);
 
+// Pak poll: periodic check for pak changes during gameplay
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E605C);
 
+// Select active controller slot
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E623C);
 
+// Update pak state and controller assignment
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E6330);
 
+// Get active controller pak handle
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E641C);
 
+// Get active controller slot index
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E64A8);
 
+// Check if address 0x300 is zero
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E6510);
 
+// Validate pak file (check 16 blocks, compare threshold)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E6520);
 
+// Read PBOY.1 from pak into buffer, verify magic
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E65C4);
 
+// Check if pak is inserted and has valid file
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E6750);
 
+// Set unkC1C based on rumble pak presence
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E67E4);
 
+// Clear unkC1C and reset pak file pointer
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E6830);
 
+// Detach and cleanup pak controller
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E686C);
 
+// Init pak controller: allocate, configure "EYPB" magic
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E68C4);
 
+// Init pak name field
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E6964);
 
+// Init D_80127954 pak state
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E6980);
 
+// Set D_80127954
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E69AC);
 
+// Cleanup wrapper
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E69BC);
 
+// Cleanup wrapper
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E69D8);
 
 #ifndef PAL
+// Return negative float (stub)
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E69F4);
 #endif
 
