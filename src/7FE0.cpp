@@ -8,7 +8,7 @@ typedef signed short s16;
 typedef signed int s32;
 
 class StructYY {
-public:
+  public:
     /* 0x00 */ char pad0[0x70];
     /* 0x70 */ s32 unk70;
     /* 0x74 */ char pad74[0x28];
@@ -26,13 +26,13 @@ public:
 };
 
 class StructWW {
-public:
+  public:
     /* 0x00 */ char pad0[0x74];
     /* 0x74 */ s32 unk74;
 };
 
 class StructXX {
-public:
+  public:
     /* 0x00 */ char pad0[0x4];
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;

@@ -45,15 +45,63 @@ segments:
     type: code
     start: 0x1000
     vram: 0x80000400
+    bss_size: 0x38820
     subsegments:
       - [0x1000, hasm]
-      - [0x1060, data]
+      - [0x1060, rodata]
+      - [0x2220, rodata]
+      - [0x2500, rodata]
+      - [0x25D0, rodata]
+      - [0x2AA0, rodata]
+      - [0x2D50, rodata]
+      - [0x2EC0, rodata]
+      - [0x3150, rodata]
+      - [0x3450, rodata]
+      - [0x35A0, rodata]
+ 
       - [0x6BD0, asm]
       - [0x7FE0, cpp]
       - [0x8DA0, asm]
+      - [0x2A500, c]
+      - [0x2b220, asm] # TODO: random start -> fix
+      - [0x318E0, c] 
+      - [0x38440, asm]
+      - [0x477C0, c]
+      - [0x4A000, asm]
+      - [0x60270, c, pal_pad60270]
+      - [0x60270, asm]
+      - [0x63A60, c, pal_pad63A60]
+      - [0x63A60, asm]
       - [0x64F60, data]
+      - [0x79AE0, bss]
 
-  - type: bin
+  - type: code
+    name: first
     start: 0x79AE0
+    vram: 0x800B1700
+    follows_vram: entry
+    bss_size: 0xB0
+    subsegments:
+      - [auto, c, pal_F19C0]
+      - [0x79AE0, rodata]
+      - [0x85BC0, c, pal_pad85BC0]
+      - [0x85BC0, asm]
+      - [0x88330, c]
+      - [0x885D0, asm]
+      - [0xA49A0, c] # TODO: random start -> fix
+      - [0xAEDE0, asm]
+      - [0xEDC60, data]
+      - [0xF19C0, .data, pal_F19C0]
+      - [0xF19C0, bss]
 
+  - type: code
+    start: 0xF19C0
+    vram: 0x80129690
+    follows_vram: first
+    subsegments:
+      - [0xF19C0, rodata]
+      - [0xF5430, asm]
+      - [0x1104E0, data]
+
+  - [0x1106A0, bin]
   - [0xC00000]

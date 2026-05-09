@@ -99,7 +99,7 @@ def create_build_script(linker_entries: list[LinkerEntry]):
     ninja.rule(
         "ld",
         description="link $out",
-        command=f"cd $build_dir && {CROSS_LD} -T ../../undefined_funcs_auto.txt -T ../../undefined_syms_auto.txt -Map {BASENAME}.map -T ../../{LD_PATH} -o {BASENAME}.elf",
+        command=f"cd $build_dir && {CROSS_LD} -T ../../undefined_funcs.txt -T ../../undefined_funcs_auto.txt -T ../../undefined_syms_auto.txt -Map {BASENAME}.map -T ../../{LD_PATH} -o {BASENAME}.elf",
     )
 
     ninja.rule(
