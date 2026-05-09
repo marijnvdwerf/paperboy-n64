@@ -10,7 +10,7 @@ struct GameObj {
     virtual void vfunc_06();
     virtual void vfunc_07();
     virtual void vfunc_08();
-    virtual void vfunc_09(s32 arg);
+    virtual void vfunc_09(void* arg);
     virtual void vfunc_10();
     virtual void vfunc_11();
     virtual void vfunc_12();
@@ -102,12 +102,37 @@ struct GameObjChild2 {
     virtual void vfunc_05();
     virtual void vfunc_06();
     virtual s32 vfunc_07();
+    virtual void vfunc_08();
+    virtual void vfunc_09();
+    virtual void vfunc_10(void* a1, void* a2);
+    virtual void vfunc_11();
+    virtual void vfunc_12();
+    virtual void vfunc_13();
+    virtual void vfunc_14();
+    virtual void vfunc_15();
+    virtual void vfunc_16();
+    virtual void vfunc_17();
+    virtual void vfunc_18(void* a1);
+};
+
+struct SceneChild {
+    GameObjChild2* child2;
+    char pad4[0xC];
+    f32 unk10;
+    char pad14[0x18];
+    s32 unk2C;
+    char pad30[0xEC];
+    virtual void vfunc_01();
+    virtual void vfunc_02();
+    virtual void vfunc_03();
+    virtual void vfunc_04();
+    virtual void vfunc_05(void* arg);
 };
 
 struct SceneEntry {
     char pad0[0x8];
-    s32 unk8;
-    s32 unkC;
+    void* unk8;
+    SceneChild* unkC;
 };
 
 struct GameScene {
@@ -134,6 +159,11 @@ struct UnkArgStruct {
     s32 unk44;
     char pad48[0x10];
     s32 unk58;
+    char pad5C[0x90];
+    char unkEC[0xC];
+    char unkF8[0xC];
+    char unk104[0x24];
+    f32 unk128;
 };
 
 struct SoundState {
@@ -176,7 +206,7 @@ extern SoundState* D_80129060;
 void func_800DC5C0(UnkArgStruct* self) {
     SceneEntry* sceneEntry;
     GameObj* gameObj;
-    s32 savedState;
+    void* savedState;
     s32 var_s0;
     s32 state;
     s32 i;
@@ -257,7 +287,31 @@ __asm__(".section .rdata\n"
 TEXT_PAD(0x3FC);
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DC944);
+void func_800DC944(UnkArgStruct* self) {
+    SceneChild* sceneChild = D_80127670->unkC;
+    GameObj* gameObj = D_8006AB04->unk48->unk78;
+
+    sceneChild->child2->vfunc_18(self->unk104);
+
+    sceneChild->unk2C |= 1;
+
+    sceneChild->child2->vfunc_10(self->unkEC, self->unkF8);
+
+    sceneChild->unk2C |= 1;
+    sceneChild->unk10 = self->unk128;
+    sceneChild->unk2C |= 2;
+
+    f32 floats[4];
+    floats[0] = -2.0f;
+    floats[1] = -1.5f;
+    floats[2] = 2.0f;
+    floats[3] = 1.5f;
+
+    sceneChild->vfunc_05(floats);
+
+    gameObj->vfunc_09(sceneChild);
+    gameObj->vfunc_24();
+}
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCA68);
 
