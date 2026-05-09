@@ -1,26 +1,30 @@
 #!/usr/bin/env python3
 
 
+def add_custom_arguments(parser):
+    parser.add_argument("--pal", action="store_true", help="Diff against the PAL build")
+
+
 def apply(config, args):
+    variant = "pal" if args.pal else "ntsc"
+
     config["baseimg"] = "baserom.z64"
-    config["myimg"] = "build/ntsc/paperboy.z64"
-    config["mapfile"] = "build/ntsc/paperboy.map"
+    config["myimg"] = f"build/{variant}/paperboy.z64"
+    config["mapfile"] = f"build/{variant}/paperboy.map"
     config["source_directories"] = ["src", "include"]
     config["make_command"] = []
     config["objdump_flags"] = ["-M", "reg-names=32"]
-    config["build_dir"] = "build/ntsc/"
+    config["build_dir"] = f"build/{variant}/"
     config["expected_dir"] = "expected/"
 
-    # asm-differ resolves objfiles from the map relative to cwd.
-    # Since our objects are in build/ntsc/, we patch search_map_file
-    # to prepend the build dir.
     import diff as _diff
     _orig_search = _diff.search_map_file
+    _build_dir = f"build/{variant}"
     def _patched_search(fn_name, project, config, *, for_binary):
         import os
         result = _orig_search(fn_name, project, config, for_binary=for_binary)
         if result[0] and not os.path.isfile(result[0]):
-            patched = os.path.join("build/ntsc", result[0])
+            patched = os.path.join(_build_dir, result[0])
             if os.path.isfile(patched):
                 return patched, result[1]
         return result

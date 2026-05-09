@@ -62,7 +62,7 @@ struct GameObj {
     virtual void vfunc_58(s32 arg);
 };
 
-struct GameObjChild {
+struct GameObjChildBase {
     char pad0[0x30];
     virtual void vfunc_01();
     virtual void vfunc_02();
@@ -91,6 +91,11 @@ struct GameObjChild {
     virtual void vfunc_25();
     virtual void vfunc_26();
     virtual void vfunc_27();
+};
+
+struct GameObjChild : GameObjChildBase {
+    char pad34[0x60];
+    s32 unk94;
 };
 
 struct GameObjChild2 {
@@ -164,6 +169,7 @@ struct UnkArgStruct {
     char unkF8[0xC];
     char unk104[0x24];
     f32 unk128;
+    s32 unk12C;
 };
 
 struct SoundState {
@@ -183,9 +189,14 @@ struct UnkStruct7954 {
     s32 unkC1C;
 };
 
+struct Actor {
+    char pad0[0x168];
+    s32 unk168;
+};
+
 extern "C" {
 
-s32 func_80008C74(s32 arg);
+s32 func_80008C74(Actor* arg);
 f32 __sinf(f32 arg);
 s32 func_800CC3B8(s32 arg0, void* arg1);
 void func_800DA890(s32 arg);
@@ -194,7 +205,7 @@ void func_800DF9C8(GameState* arg);
 void func_80114BB0(SoundState* a0, void* a1, s32 a2, s32 a3, f32 a4, f32 a5, s32 a6);
 
 extern GameTop* D_8006AB04;
-extern s32 D_8006AB10;
+extern Actor* D_8006AB10;
 extern GameScene* D_801258C0;
 extern SceneEntry* D_80127670;
 extern UnkStruct7954* D_80127954;
@@ -202,7 +213,6 @@ extern GameState* D_80128010;
 extern u8 D_8012802C;
 extern SoundState* D_80129060;
 
-#ifndef PAL
 void func_800DC5C0(UnkArgStruct* self) {
     SceneEntry* sceneEntry;
     GameObj* gameObj;
@@ -210,7 +220,7 @@ void func_800DC5C0(UnkArgStruct* self) {
     s32 var_s0;
     s32 state;
     s32 i;
-    s32 actor_s4;
+    Actor* actor_s4;
 
     gameObj = D_8006AB04->unk48->unk78;
     sceneEntry = D_80127670;
@@ -233,7 +243,7 @@ void func_800DC5C0(UnkArgStruct* self) {
 
     for (i = 0; (u32)i < (u32)self->count; i++) {
         GameObjChild* child = self->children[i];
-        if (!(*(s32*)((s32)child + 0x94) & 1)) {
+        if (!(child->unk94 & 1)) {
             continue;
         }
         child->vfunc_27();
@@ -262,7 +272,17 @@ void func_800DC5C0(UnkArgStruct* self) {
         func_80114BB0(snd, "A NEW CONTROLLER PAK%CHAS BEEN DETECTED", func_800CC3B8(self->unk44, dumy), 0, -8.25f, 1.0f,
                       state);
     }
-    if (func_80008C74(actor_s4) == 5 && *(s32*)(actor_s4 + 0x168) != 0) {
+#ifdef PAL
+    if (state == 1 && self->unk12C != 0) {
+        char* dumy = "DUMY";
+        func_800CC3B8(self->unk44, dumy);
+        SoundState* snd = D_80129060;
+        snd->unk14 = state;
+        snd->unk8 = 0.9f;
+        func_80114BB0(snd, "INSERT CONTROLLER%CPAK NOW", func_800CC3B8(self->unk44, dumy), 0, -8.25f, 1.0f, state);
+    }
+#endif
+    if (func_80008C74(actor_s4) == 5 && actor_s4->unk168 != 0) {
         char* dumy = "DUMY";
         func_800CC3B8(self->unk44, dumy);
         SoundState* snd = D_80129060;
@@ -280,12 +300,6 @@ void func_800DC5C0(UnkArgStruct* self) {
     gameObj->vfunc_09(savedState);
     gameObj->vfunc_24();
 }
-#else
-__asm__(".section .rdata\n"
-        ".space 0x58\n");
-
-TEXT_PAD(0x3FC);
-#endif
 
 void func_800DC944(UnkArgStruct* self) {
     SceneChild* sceneChild = D_80127670->unkC;
