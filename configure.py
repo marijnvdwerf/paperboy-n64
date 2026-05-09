@@ -41,8 +41,8 @@ CXX_CPP_FLAGS = f"{COMMON_DEFINES} -lang-c++ -D_LANGUAGE_C_PLUS_PLUS {INCLUDES}"
 CC_FLAGS = "-quiet -G0 -O2"
 
 VARIANTS = {
-    "ntsc": {"defines": "", "verify": True},
-    "pal": {"defines": "-DPAL=1", "verify": False},
+    "ntsc": {"defines": "", "ld_flags": "", "verify": True},
+    "pal": {"defines": "-DPAL=1", "ld_flags": "-T ../../undefined_syms_pal.txt", "verify": False},
 }
 
 
@@ -99,7 +99,7 @@ def create_build_script(linker_entries: list[LinkerEntry]):
     ninja.rule(
         "ld",
         description="link $out",
-        command=f"cd $build_dir && {CROSS_LD} -T ../../undefined_funcs.txt -T ../../undefined_funcs_auto.txt -T ../../undefined_syms_auto.txt -Map {BASENAME}.map -T ../../{LD_PATH} -o {BASENAME}.elf",
+        command=f"cd $build_dir && {CROSS_LD} $extra_ld_flags -T ../../undefined_syms.txt -T ../../undefined_funcs_auto.txt -T ../../undefined_syms_auto.txt -Map {BASENAME}.map -T ../../{LD_PATH} -o {BASENAME}.elf",
     )
 
     ninja.rule(
@@ -146,7 +146,7 @@ def create_build_script(linker_entries: list[LinkerEntry]):
 
         ninja.build(
             elf_path, "ld", implicit=built_objects + [LD_PATH, "undefined_funcs_auto.txt", "undefined_syms_auto.txt"],
-            variables={"build_dir": build_dir},
+            variables={"build_dir": build_dir, "extra_ld_flags": variant["ld_flags"]},
         )
 
         ninja.build(z64_path, "z64", elf_path)
