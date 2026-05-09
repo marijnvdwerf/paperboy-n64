@@ -26,12 +26,6 @@ INCLUDE_ASM("asm/nonmatchings/2A500", func_80029D00);
 
 INCLUDE_ASM("asm/nonmatchings/2A500", func_80029D08);
 
-INCLUDE_ASM("asm/nonmatchings/2A500", func_80029D24);
-
-INCLUDE_ASM("asm/nonmatchings/2A500", func_80029E3C);
-
-INCLUDE_ASM("asm/nonmatchings/2A500", func_80029FD4);
-
-INCLUDE_ASM("asm/nonmatchings/2A500", func_8002A1CC);
-
-INCLUDE_ASM("asm/nonmatchings/2A500", func_8002A3F8);
+GARBAGE_NTSC(0x0222102B);
+GARBAGE_NTSC(0x10400026);
+GARBAGE_NTSC(0x00008021);
