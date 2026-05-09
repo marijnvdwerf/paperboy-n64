@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.11"
 
 [options]
-exclude-newer = "2026-05-02T00:41:37.926155Z"
+exclude-newer = "2026-05-02T00:52:11.116214Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -83,6 +83,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d7/dc/71ac606f7dfa71d49e3dc126b49b18daefaf6bd953078858af30fde40702/cxxfilt-0.3.0.tar.gz", hash = "sha256:7df6464ba5e8efbf0d8974c0b2c78b32546676f06059a83515dbdfa559b34214", size = 4806, upload-time = "2021-08-21T16:48:04.038Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1c/29/23572dc59bf4a3984fe3c5fc242f73be916785ee93387dd95c972dbf584e/cxxfilt-0.3.0-py2.py3-none-any.whl", hash = "sha256:774e85a8d0157775ed43276d89397d924b104135762d86b3a95f81f203094e07", size = 4649, upload-time = "2021-08-21T16:48:02.953Z" },
+]
+
+[[package]]
+name = "graphviz"
+version = "0.20.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fa/83/5a40d19b8347f017e417710907f824915fba411a9befd092e52746b63e9f/graphviz-0.20.3.zip", hash = "sha256:09d6bc81e6a9fa392e7ba52135a9d49f1ed62526f96499325930e87ca1b5925d", size = 256455, upload-time = "2024-03-21T07:50:45.772Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/00/be/d59db2d1d52697c6adc9eacaf50e8965b6345cc143f671e1ed068818d5cf/graphviz-0.20.3-py3-none-any.whl", hash = "sha256:81f848f2904515d8cd359cc611faba817598d2feaac4027b266aa3eda7b3dde5", size = 47126, upload-time = "2024-03-21T07:50:43.091Z" },
 ]
 
 [[package]]
@@ -177,6 +186,14 @@ wheels = [
 ]
 
 [[package]]
+name = "m2c"
+version = "0.1.0"
+source = { git = "https://github.com/matt-kempster/m2c.git#3478473441a1e6da75d6bf07629452f410390ef4" }
+dependencies = [
+    { name = "graphviz" },
+]
+
+[[package]]
 name = "n64img"
 version = "0.3.3"
 source = { registry = "https://pypi.org/simple" }
@@ -200,6 +217,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "asm-differ" },
+    { name = "m2c" },
     { name = "ninja-syntax" },
     { name = "splat64", extra = ["mips"] },
 ]
@@ -207,6 +225,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "asm-differ", git = "https://github.com/simonlindholm/asm-differ" },
+    { name = "m2c", git = "https://github.com/matt-kempster/m2c.git" },
     { name = "ninja-syntax", specifier = ">=1.7.2" },
     { name = "splat64", extras = ["mips"], specifier = ">=0.40.0" },
 ]
