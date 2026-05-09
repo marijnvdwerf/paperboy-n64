@@ -186,7 +186,7 @@ struct UnkStruct7954 {
 extern "C" {
 
 s32 func_80008C74(s32 arg);
-f32 func_8005A7B0(f32 arg);
+f32 __sinf(f32 arg);
 s32 func_800CC3B8(s32 arg0, void* arg1);
 void func_800DA890(s32 arg);
 void func_800DC944(UnkArgStruct* arg);
@@ -267,7 +267,7 @@ void func_800DC5C0(UnkArgStruct* self) {
         func_800CC3B8(self->unk44, dumy);
         SoundState* snd = D_80129060;
         snd->unk14 = 4;
-        snd->unk8 = func_8005A7B0((f32)D_8012802C * 0.20943952f) * 0.25f + 1.25f;
+        snd->unk8 = __sinf((f32)D_8012802C * 0.20943952f) * 0.25f + 1.25f;
         func_80114BB0(snd, "DEMO", func_800CC3B8(self->unk44, dumy), 0, -9.0f, 1.0f, 1);
         u8 val = D_8012802C + 1;
         D_8012802C = val;
