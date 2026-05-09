@@ -78,8 +78,13 @@ Obj* func_800C1E60(void* mem);
 Obj* func_800C22EC(void* mem);
 Obj* func_800C26D4(void* mem);
 
-#ifndef PAL
 extern s32 D_80000300;
+
+#ifdef PAL
+void pal_func_8005F6B0(f32 arg);
+void pal_func_8005FA60(s32 arg);
+#endif
+
 extern s32 D_8006AAE4;
 extern UnkStructTop* D_8006AB04;
 extern s32 D_8006AB10;
@@ -104,7 +109,11 @@ void func_800BFF50(Actor* self) {
                 var_s0 = (u32)result->unk34 > 0U;
             }
             if (var_s0 != 0) {
+#ifndef PAL
                 if (D_80000300 != 0) {
+#else
+                if (D_80000300 != 1 && D_80000300 != 2) {
+#endif
                     func_80008C80(self, 1);
                     if (self->unk5B4 == 0) {
                         func_80008C80(self, 6);
@@ -154,6 +163,14 @@ void func_800BFF50(Actor* self) {
         child->vfunc3();
     }
     func_800081A0(D_80125894);
+
+#ifdef PAL
+    if (D_80000300 == 0) {
+        pal_func_8005F6B0(0.833f);
+    }
+    pal_func_8005FA60(0);
+#endif
+
     func_800BFE30(D_801295E0);
     if (child != NULL) {
         child->vfunc4();
@@ -165,9 +182,6 @@ void func_800BFF50(Actor* self) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/88330", func_800C01EC);
-#else
-TEXT_PAD(0x2D0);
-#endif
+GARBAGE_NTSC(0x8012218C);
 
 } // extern "C"
