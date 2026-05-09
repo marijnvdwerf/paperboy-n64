@@ -68,6 +68,16 @@ The diff shows TARGET (original ROM) vs CURRENT (your build) side by side.
 - When decompiling a function with a switch/jump table, the rodata for the jump table must be migrated: add a `.rdata` subsegment in the YAML pointing to the C/C++ file, and remove/replace the old rodata entries
 - m2c needs the rodata file passed as a second argument to handle jump tables: `uv run m2c asm/nonmatchings/<file>/<func>.s asm/data/<rodata_file>.s`
 
+### Register allocation and local variables
+- Don't store struct field accesses in local variables if the value is only used across function calls. The compiler will reload from the struct after each call (caller-saved regs are clobbered). A local variable forces the compiler to allocate an extra s-register, increasing the stack frame size.
+- Example: use `sceneChild->child2->vfunc_18(...)` instead of `GameObjChild2* child2 = sceneChild->child2; child2->vfunc_18(...);`
+- When a virtual function accepts different argument types across call sites (pointer in one, integer in another), declare the parameter as `void*`
+
+### Float literal arrays
+- When assigning float literals to a local array, use sequential index order (0, 1, 2, 3). The SN compiler emits rodata in source order of the literals, and sequential stores match the target better.
+- Always pass the rodata file to m2c as a second argument, even when there's no jump table — it resolves float constants to their actual values: `uv run m2c asm/nonmatchings/<file>/<func>.s asm/data/<rodata_file>.s`
+- When decompiling a function with inline float constants, the `.rdata` subsegment boundary in the YAML must be extended to cover them, and the following `rodata` subsegment start address must be adjusted
+
 ### Instruction scheduling
 - The SN compiler aggressively fills branch delay slots — it may reorder stores, address computations, or `move` instructions into delay slots
 - Reordering C statements (e.g. moving `var = 0` before or after a function call) can affect which instruction lands in a delay slot
