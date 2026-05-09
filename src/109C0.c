@@ -11,7 +11,13 @@ extern u8 D_800768F0;
 extern u8 D_80148370;
 extern s32 D_8006D5F0;
 extern s32 D_800865B0;
-extern u8 D_800865C0;
+extern u8* D_800865C0[];
+
+typedef void (*InitFunc)(void);
+
+extern InitFunc D_80005F40;
+extern InitFunc D_80005F90;
+extern InitFunc func_80005FD0;
 
 void func_8000FEEC(void);
 void D_8000FF88(void);
@@ -51,9 +57,37 @@ void D_8000FF88(void) {
     func_80010000();
 }
 
-INCLUDE_ASM("asm/nonmatchings/109C0", func_80010000);
+void func_80010000(void) {
+    InitFunc* p;
+    InitFunc* end;
 
-INCLUDE_ASM("asm/nonmatchings/109C0", func_8001005C);
+    p = &D_80005F90;
+    end = &func_80005FD0;
+    if (p < end) {
+        do {
+            if (*p != NULL) {
+                (*p)();
+            }
+            p += 4;
+        } while (p < end);
+    }
+}
+
+void func_8001005C(void) {
+    InitFunc* p;
+    InitFunc* end;
+
+    p = &D_80005F40;
+    end = &D_80005F90;
+    if (p < end) {
+        do {
+            if (*p != NULL) {
+                (*p)();
+            }
+            p += 4;
+        } while (p < end);
+    }
+}
 
 GARBAGE_NTSC(0x8E020000);
 GARBAGE_NTSC(0x10400003);
