@@ -43,14 +43,7 @@ INCLUDE_ASM("asm/nonmatchings/318E0", func_80034F64);
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/318E0", func_80036108);
 #else
-__asm__(".section .text\n"
-        "    .set noat\n"
-        "    .set noreorder\n"
-        "          .rept 0x1E\n"
-        "          nop\n"
-        "          .endr\n"
-        "    .set reorder\n"
-        "    .set at\n");
+TEXT_PAD(0x78);
 #endif
 
 INCLUDE_ASM("asm/nonmatchings/318E0", func_80036158);

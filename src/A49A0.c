@@ -3,14 +3,7 @@
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DC5C0);
 #else
-__asm__(".section .text\n"
-        "    .set noat\n"
-        "    .set noreorder\n"
-        "          .rept 0x3FC / 4\n"
-        "          nop\n"
-        "          .endr\n"
-        "    .set reorder\n"
-        "    .set at\n");
+TEXT_PAD(0x3FC);
 #endif
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DC944);
@@ -30,14 +23,7 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD7BC);
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD8D8);
 #else
-__asm__(".section .text\n"
-        "    .set noat\n"
-        "    .set noreorder\n"
-        "          .rept 0x3F0 / 4\n"
-        "          nop\n"
-        "          .endr\n"
-        "    .set reorder\n"
-        "    .set at\n");
+TEXT_PAD(0x3F0);
 #endif
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DDCA4);
@@ -147,14 +133,7 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFA40);
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFA6C); // WRONG
 #else
-__asm__(".section .text\n"
-        "    .set noat\n"
-        "    .set noreorder\n"
-        "          .rept 0x88 / 4\n"
-        "          nop\n"
-        "          .endr\n"
-        "    .set reorder\n"
-        "    .set at\n");
+TEXT_PAD(0x88);
 #endif
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFADC); // -> A80A0
@@ -244,14 +223,7 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFCB4);
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFCC4);
 #else
-__asm__(".section .text\n"
-        "    .set noat\n"
-        "    .set noreorder\n"
-        "          .rept 0x24 / 4\n"
-        "          nop\n"
-        "          .endr\n"
-        "    .set reorder\n"
-        "    .set at\n");
+TEXT_PAD(0x24);
 #endif
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DFCD0); // -> A8290
@@ -369,14 +341,7 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4060);
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4184); // mismatch
 #else
-__asm__(".section .text\n"
-        "    .set noat\n"
-        "    .set noreorder\n"
-        "          .rept 0x450 / 4\n"
-        "          nop\n"
-        "          .endr\n"
-        "    .set reorder\n"
-        "    .set at\n");
+TEXT_PAD(0x450);
 #endif
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E45B0); // -> ACB94

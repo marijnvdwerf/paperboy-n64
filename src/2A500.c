@@ -3,14 +3,7 @@
 #ifndef PAL
 INCLUDE_ASM("asm/nonmatchings/2A500", func_80029900);
 #else
-__asm__(".section .text\n"
-        "    .set noat\n"
-        "    .set noreorder\n"
-        "          .rept 119\n"
-        "          nop\n"
-        "          .endr\n"
-        "    .set reorder\n"
-        "    .set at\n");
+TEXT_PAD(0x1DC);
 #endif
 
 INCLUDE_ASM("asm/nonmatchings/2A500", func_80029AEC);

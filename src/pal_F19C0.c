@@ -1,5 +1,5 @@
 #include "common.h"
 
 #ifdef PAL
-static char pad[0x10] = { 0 };
+DATA_PAD(0x10);
 #endif
