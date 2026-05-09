@@ -53,3 +53,28 @@ The diff shows TARGET (original ROM) vs CURRENT (your build) side by side.
 - PAL-specific code is guarded with `#ifdef PAL`
 - PAL-only symbols go in `undefined_syms_pal.txt`, shared symbols in `undefined_syms.txt`
 - After any YAML changes, always run `uv run python configure.py --clean` before building
+
+## SN compiler behavior
+
+### C++ vtables
+- The SN compiler places the vtable pointer AFTER all data members (not at the start like GCC/MSVC)
+- The compiler auto-generates a destructor at vtable slot 0, even if no destructor is declared
+- Each vtable entry is 8 bytes: `{s16 this_offset, s16 pad, void *func_ptr}`
+- So declared virtual functions start at slot 1. If you see a vtable access at byte offset N, the entry index is N/8, and the declared virtual function index is (N/8 - 1) accounting for the destructor
+- Virtual function calls in asm look like: load vtable ptr from object, load entry offset+func, adjust `this` by offset, `jalr` the func ptr
+
+### Switch statements
+- The compiler may emit switch cases in a different order than written in source — reorder cases to match the jump table in rodata
+- When decompiling a function with a switch/jump table, the rodata for the jump table must be migrated: add a `.rdata` subsegment in the YAML pointing to the C/C++ file, and remove/replace the old rodata entries
+- m2c needs the rodata file passed as a second argument to handle jump tables: `uv run m2c asm/nonmatchings/<file>/<func>.s asm/data/<rodata_file>.s`
+
+### Instruction scheduling
+- The SN compiler aggressively fills branch delay slots — it may reorder stores, address computations, or `move` instructions into delay slots
+- Reordering C statements (e.g. moving `var = 0` before or after a function call) can affect which instruction lands in a delay slot
+- The compiler CSEs (common subexpression eliminates) `&global` into a register with `lui+addiu`, then uses `move` to pass it. The original code may have recomputed the address each time with `addiu reg, saved_hi, %lo(...)` — this is a known codegen difference that's hard to control from C source
+
+### Identifying library functions
+- Use `bunx ultra64 identify baserom.z64 --base 0x80000400` to identify libultra functions in the ROM
+- Always use the **baserom**, not the built ROM (which may not match yet)
+- The game's base vram is `0x80000400` — pass `--base 0x80000400` for correct addresses
+- Known: `osRecvMesg = 0x8005CEB0`
