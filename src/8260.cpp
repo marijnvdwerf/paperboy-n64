@@ -34,6 +34,9 @@ struct GameSubContext {
     GameSubContext();
 };
 
+class StructYY;
+class StructWW;
+
 struct GameContext : GameContextBase {
     /* 0x004 */ s32 unk4;
     /* 0x008 */ s32 unk8;
@@ -42,8 +45,8 @@ struct GameContext : GameContextBase {
     /* 0x014 */ OSMesgQueue unk14;
     /* 0x02C */ OSMesg unk2C;
     /* 0x030 */ char pad02C[0x18];
-    /* 0x048 */ void* unk48;
-    /* 0x04C */ s32 unk4C = 0;
+    /* 0x048 */ StructYY* unk48;
+    /* 0x04C */ StructWW* unk4C;
     /* 0x050 */ s32 unk50;
     /* 0x054 */ GameSubContext unk54;
 
@@ -51,11 +54,14 @@ struct GameContext : GameContextBase {
     virtual void func1();
     virtual void func13();
     virtual ~GameContext();
+
+    void func_80007DE0();
 };
 
 class StructYY {
   public:
-    /* 0x00 */ char pad0[0x70];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ char pad4[0x6C];
     /* 0x70 */ s32 unk70;
     /* 0x74 */ char pad74[0x28];
 
@@ -77,20 +83,6 @@ class StructWW {
     /* 0x74 */ s32 unk74;
 };
 
-class StructXX {
-  public:
-    /* 0x00 */ char pad0[0x4];
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ char pad10[0x38];
-    /* 0x48 */ StructYY* unk48;
-    /* 0x4C */ StructWW* unk4C;
-    /* 0x50 */ s32 unk50;
-
-    void func_80007DE0();
-};
-
 extern "C" {
 // Functions
 void func_80006730(u8*, u8*, s32);
@@ -98,6 +90,8 @@ void func_80009350(void*, s32);
 StructWW* func_80009458(s32);
 s32 func_8004B414(s32);
 void func_80007660();
+void func_80007A60(GameContext*);
+void func_80007D70(GameContext*);
 void func_80007EC4(GameContext*);
 void func_80007F10(GameContext*);
 s32 func_80007F54(GameContext*, s32, u8**);
@@ -263,7 +257,7 @@ INCLUDE_ASM("asm/nonmatchings/8260", func_80007D14);
 
 INCLUDE_ASM("asm/nonmatchings/8260", func_80007D70);
 
-void StructXX::func_80007DE0() {
+void GameContext::func_80007DE0() {
     StructYY* temp_a0;
     StructWW* temp_v0;
 
@@ -291,18 +285,24 @@ void StructXX::func_80007DE0() {
     D_80076404[0] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007EC4);
+extern "C" void func_80007EC4(GameContext* arg0) {
+    if (arg0->unk48->unk0 & 1) {
+        arg0->func_80007DE0();
+        func_80007A60(arg0);
+        func_80007D70(arg0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/8260", func_80007F10);
 
 extern "C" s32 func_80007F54(GameContext* arg0, s32, u8**) {
-    arg0->unk48 = func_8000D0B0(func_8004B414(0x11AB0));
-    if (*(s32*)arg0->unk48 & 1) {
+    arg0->unk48 = (StructYY*)func_8000D0B0(func_8004B414(0x11AB0));
+    if (arg0->unk48->unk0 & 1) {
         func_80007F10(arg0);
     }
 
     // TODO: migrate string
-    ((StructYY*)arg0->unk48)->vfunc2(D_800005CC, D_8006AAFC);
+    arg0->unk48->vfunc2(D_800005CC, D_8006AAFC);
     osCreateMesgQueue(&arg0->unk14, &arg0->unk2C, 1);
     return 1;
 }
