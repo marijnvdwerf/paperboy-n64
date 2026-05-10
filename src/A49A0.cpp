@@ -411,8 +411,15 @@ void func_800DC5C0(UnkArgStruct* self) {
         SoundState* snd = D_80129060;
         snd->unk14 = state;
         snd->unk8 = 0.9f;
-        func_80114BB0(snd, "A NEW CONTROLLER PAK%CHAS BEEN DETECTED", func_800CC3B8(self->unk44, dumy), 0, -8.25f, 1.0f,
-                      state);
+        func_80114BB0(
+            snd,
+            "A NEW CONTROLLER PAK%CHAS BEEN DETECTED",
+            func_800CC3B8(self->unk44, dumy),
+            0,
+            -8.25f,
+            1.0f,
+            state
+        );
     }
 #ifdef PAL
     if (state == 1 && self->unk12C != 0) {

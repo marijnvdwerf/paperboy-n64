@@ -7,9 +7,11 @@ BreakBeforeBraces: Attach
 SpaceAfterCStyleCast: false
 Cpp11BracedListStyle: false
 IndentCaseLabels: true
-BinPackArguments: true
-BinPackParameters: true
-AlignAfterOpenBracket: Align
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AlignAfterOpenBracket: BlockIndent
 AlignOperands: true
 BreakBeforeTernaryOperators: true
 BreakBeforeBinaryOperators: None
