@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=splat.schema.json
 name: Paperboy (North America)
 sha1: b043c47b9758fa6bb289ca7dba2068bda6cafa3a
 options:

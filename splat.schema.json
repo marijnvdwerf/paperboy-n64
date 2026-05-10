@@ -1,0 +1,968 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Splat Configuration",
+  "description": "JSON Schema for splat N64/PSX/PS2/PSP ROM splitting tool YAML configuration",
+  "type": "object",
+  "required": ["options", "segments"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Human-readable project name (informational only)"
+    },
+    "sha1": {
+      "type": "string",
+      "description": "Expected SHA-1 checksum of the target ROM binary for verification",
+      "pattern": "^[0-9a-fA-F]{40}$"
+    },
+    "options": {
+      "type": "object",
+      "description": "Global project configuration options",
+      "required": ["basename", "target_path", "base_path", "platform"],
+      "additionalProperties": false,
+      "properties": {
+        "basename": {
+          "type": "string",
+          "description": "Base name of the project, used for naming the linker script and other generated files"
+        },
+        "target_path": {
+          "type": "string",
+          "description": "Path to the target binary (ROM file), relative to base_path"
+        },
+        "base_path": {
+          "type": "string",
+          "description": "Base path of the project; all other paths are relative to this"
+        },
+        "platform": {
+          "type": "string",
+          "description": "Target platform",
+          "enum": ["n64", "psx", "ps2", "psp"]
+        },
+        "is_unsupported_platform": {
+          "type": "boolean",
+          "description": "Disable built-in platform validation checks to allow custom platforms",
+          "default": false
+        },
+        "compiler": {
+          "type": "string",
+          "description": "Compiler used to compile the target binary",
+          "enum": ["IDO", "GCC", "SN64", "KMC", "EGCS", "PSYQ", "MWCCPS2", "EEGCC"],
+          "default": "IDO"
+        },
+        "endianness": {
+          "type": "string",
+          "description": "Endianness of the target binary (defaults to 'little' for psx/ps2/psp, 'big' for n64)",
+          "enum": ["big", "little"]
+        },
+        "elf_path": {
+          "type": "string",
+          "description": "Path to the final ELF target, relative to base_path"
+        },
+        "dump_symbols": {
+          "type": "boolean",
+          "description": "Dump all symbols to a file for debugging",
+          "default": false
+        },
+        "allow_segment_overrides": {
+          "type": "boolean",
+          "description": "Allow extension segments to take precedence over built-in segment types",
+          "default": false
+        },
+        "check_consecutive_segment_types": {
+          "type": "boolean",
+          "description": "Error on non-consecutive segment types",
+          "default": true
+        },
+        "section_order": {
+          "type": "array",
+          "description": "Default section order for generated linker scripts",
+          "items": { "type": "string" },
+          "default": [".text", ".data", ".rodata", ".bss"]
+        },
+        "gp_value": {
+          "type": "integer",
+          "description": "Value of the $gp register, used to calculate %gp_rel relocation offsets"
+        },
+        "o_as_suffix": {
+          "type": "boolean",
+          "description": "Use .o as the file suffix for all binary files",
+          "default": false
+        },
+
+        "generated_c_preamble": {
+          "type": "string",
+          "description": "Code inserted at the top of generated C files",
+          "default": "#include \"common.h\""
+        },
+        "generated_s_preamble": {
+          "type": "string",
+          "description": "Code inserted at the top of generated assembly (.s) files",
+          "default": ""
+        },
+        "generated_macro_inc_content": {
+          "type": "string",
+          "description": "Extra content appended to the generated macro.inc file"
+        },
+        "generate_asm_macros_files": {
+          "type": "boolean",
+          "description": "Regenerate assembly macro include files on each run",
+          "default": true
+        },
+        "include_asm_macro_style": {
+          "type": "string",
+          "description": "Style of the INCLUDE_ASM macro definition",
+          "enum": ["default", "maspsx_hack"],
+          "default": "default"
+        },
+        "generated_asm_macros_directory": {
+          "type": "string",
+          "description": "Directory for generated assembly macro files, relative to base_path",
+          "default": "include"
+        },
+
+        "asset_path": {
+          "type": "string",
+          "description": "Path for extracted asset files, relative to base_path",
+          "default": "assets"
+        },
+        "symbol_addrs_path": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ],
+          "description": "Path(s) to symbol address files; supports a single path string or a list",
+          "default": "symbol_addrs.txt"
+        },
+        "reloc_addrs_path": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ],
+          "description": "Path(s) to relocation address files",
+          "default": "reloc_addrs.txt"
+        },
+        "build_path": {
+          "type": "string",
+          "description": "Path to the build output directory, relative to base_path",
+          "default": "build"
+        },
+        "src_path": {
+          "type": "string",
+          "description": "Path to the C/C++ source directory, relative to base_path",
+          "default": "src"
+        },
+        "asm_path": {
+          "type": "string",
+          "description": "Path to the generated assembly directory, relative to base_path",
+          "default": "asm"
+        },
+        "data_path": {
+          "type": "string",
+          "description": "Path to the extracted data assembly directory, relative to asm_path",
+          "default": "data"
+        },
+        "nonmatchings_path": {
+          "type": "string",
+          "description": "Path to individual non-matching function assembly files, relative to asm_path",
+          "default": "nonmatchings"
+        },
+        "matchings_path": {
+          "type": "string",
+          "description": "Path to matching function assembly files (used with disassemble_all), relative to asm_path",
+          "default": "matchings"
+        },
+        "cache_path": {
+          "type": "string",
+          "description": "Path to the splat cache file, relative to base_path",
+          "default": ".splache"
+        },
+        "hasm_in_src_path": {
+          "type": "boolean",
+          "description": "Treat hasm files as relative to src_path instead of asm_path",
+          "default": false
+        },
+        "create_undefined_funcs_auto": {
+          "type": "boolean",
+          "description": "Generate an undefined_funcs_auto.txt file listing referenced but undefined functions",
+          "default": true
+        },
+        "undefined_funcs_auto_path": {
+          "type": "string",
+          "description": "Path to the generated undefined functions file, relative to base_path",
+          "default": "undefined_funcs_auto.txt"
+        },
+        "create_undefined_syms_auto": {
+          "type": "boolean",
+          "description": "Generate an undefined_syms_auto.txt file listing referenced but undefined symbols",
+          "default": true
+        },
+        "undefined_syms_auto_path": {
+          "type": "string",
+          "description": "Path to the generated undefined symbols file, relative to base_path",
+          "default": "undefined_syms_auto.txt"
+        },
+        "extensions_path": {
+          "type": "string",
+          "description": "Directory to search for custom splat segment extension Python modules, relative to base_path"
+        },
+        "lib_path": {
+          "type": "string",
+          "description": "Path to library files linked into the target binary, relative to base_path",
+          "default": "lib"
+        },
+        "o_path": {
+          "type": "string",
+          "description": "Path for object files linked into the target binary, relative to base_path",
+          "default": "build"
+        },
+        "elf_section_list_path": {
+          "type": "string",
+          "description": "Path to a file listing ELF sections, relative to base_path"
+        },
+
+        "subalign": {
+          "oneOf": [
+            { "type": "integer" },
+            { "type": "null" }
+          ],
+          "description": "Default SUBALIGN value in the generated linker script; null disables it",
+          "default": 16
+        },
+        "emit_subalign": {
+          "type": "boolean",
+          "description": "Emit SUBALIGN directives in the generated linker script",
+          "default": true
+        },
+        "auto_link_sections": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Sections for which automatic linker script entries are added",
+          "default": [".data", ".rodata", ".bss"]
+        },
+        "ld_script_path": {
+          "type": "string",
+          "description": "Output path for the generated linker script, relative to base_path (defaults to '{basename}.ld')"
+        },
+        "ld_symbol_header_path": {
+          "type": "string",
+          "description": "Output path for a C header exposing segment RAM/ROM start/end symbols, relative to base_path"
+        },
+        "ld_discard_section": {
+          "type": "boolean",
+          "description": "Add a DISCARD section with a wildcard to the linker script",
+          "default": true
+        },
+        "ld_sections_allowlist": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Sections to preserve during linking (e.g. debug sections)",
+          "default": []
+        },
+        "ld_sections_denylist": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Sections to discard during linking (does not disable ld_discard_section)",
+          "default": []
+        },
+        "ld_wildcard_sections": {
+          "type": "boolean",
+          "description": "Use wildcards for section matching in the linker script (e.g. .rodata*)",
+          "default": false
+        },
+        "ld_use_symbolic_vram_addresses": {
+          "type": "boolean",
+          "description": "Use follows_vram / vram_symbol / follows_classes to compute VRAM addresses symbolically in the linker script",
+          "default": true
+        },
+        "ld_sort_segments_by_vram_class_dependency": {
+          "type": "boolean",
+          "description": "Write segments with VRAM class dependencies after the segments they depend on",
+          "default": false
+        },
+        "ld_partial_linking": {
+          "type": "boolean",
+          "description": "Enable partial linking mode; requires ld_partial_scripts_path and ld_partial_build_segments_path",
+          "default": false
+        },
+        "ld_partial_scripts_path": {
+          "type": "string",
+          "description": "Output directory for per-segment partial linker scripts, relative to base_path"
+        },
+        "ld_partial_build_segments_path": {
+          "type": "string",
+          "description": "Directory where partially linked segment objects will be placed, relative to base_path"
+        },
+        "ld_dependencies": {
+          "type": "boolean",
+          "description": "Generate a .d dependency file alongside each linker script; requires elf_path",
+          "default": false
+        },
+        "ld_dependencies_include": {
+          "type": "boolean",
+          "description": "Emit -include directives for each object file in the dependency file",
+          "default": true
+        },
+        "ld_legacy_generation": {
+          "type": "boolean",
+          "description": "Use legacy linker script generation that ignores section_order",
+          "default": false
+        },
+        "segment_end_before_align": {
+          "type": "boolean",
+          "description": "Place the segment end symbol before the alignment directive",
+          "default": false
+        },
+        "segment_symbols_style": {
+          "type": "string",
+          "description": "Style of auto-generated segment symbols in the linker script",
+          "enum": ["splat", "makerom"],
+          "default": "splat"
+        },
+        "ld_rom_start": {
+          "type": "integer",
+          "description": "Starting offset for ROM address symbols in the linker script",
+          "default": 0
+        },
+        "ld_fill_value": {
+          "oneOf": [
+            { "type": "integer" },
+            { "type": "null" }
+          ],
+          "description": "Value for FILL statements in the linker script; null disables FILL statements",
+          "default": 0
+        },
+        "ld_bss_is_noload": {
+          "type": "boolean",
+          "description": "Place BSS sections in NOLOAD segments in the linker script (default: true for n64, false for psx)"
+        },
+        "ld_align_segment_start": {
+          "oneOf": [
+            { "type": "integer" },
+            { "type": "null" }
+          ],
+          "description": "Align the start of each segment to this value; null disables"
+        },
+        "ld_align_segment_vram_end": {
+          "type": "boolean",
+          "description": "Emit alignment for the *_VRAM_END linker symbol of each segment",
+          "default": true
+        },
+        "ld_align_section_vram_end": {
+          "type": "boolean",
+          "description": "Emit alignment for the *_END linker symbol of each section within each segment",
+          "default": true
+        },
+        "ld_generate_symbol_per_data_segment": {
+          "type": "boolean",
+          "description": "Generate a linker symbol for each data file",
+          "default": false
+        },
+        "ld_bss_contains_common": {
+          "type": "boolean",
+          "description": "Default value for bss_contains_common on all segments",
+          "default": false
+        },
+        "ld_gp_expression": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ],
+          "description": "Expression for the _gp symbol in the linker script instead of a hardcoded value"
+        },
+
+        "create_c_files": {
+          "type": "boolean",
+          "description": "Create new C stub files for c-type segments when they don't exist",
+          "default": true
+        },
+        "auto_decompile_empty_functions": {
+          "type": "boolean",
+          "description": "Automatically decompile functions with empty bodies",
+          "default": true
+        },
+        "do_c_func_detection": {
+          "type": "boolean",
+          "description": "Detect matched/unmatched functions in existing C files to skip generating .s stubs",
+          "default": true
+        },
+        "c_newline": {
+          "type": "string",
+          "description": "Newline character(s) to use in generated C files (compiler-dependent default)"
+        },
+
+        "symbol_name_format": {
+          "type": "string",
+          "description": "Format string for default symbol names; use $VRAM, $ROM, $SEG as placeholders",
+          "default": "$VRAM"
+        },
+        "symbol_name_format_no_rom": {
+          "type": "string",
+          "description": "Format string for symbols with no ROM address",
+          "default": "$VRAM_$SEG"
+        },
+        "find_file_boundaries": {
+          "type": "boolean",
+          "description": "Detect and report likely file split points during disassembly",
+          "default": true
+        },
+        "pair_rodata_to_text": {
+          "type": "boolean",
+          "description": "Detect and hint about rodata sections that likely correspond to text sections",
+          "default": true
+        },
+        "migrate_rodata_to_functions": {
+          "type": "boolean",
+          "description": "Attempt to migrate rodata symbols into their corresponding function .s files",
+          "default": true
+        },
+        "asm_inc_header": {
+          "type": "string",
+          "description": "Header code included at the top of every .s file that is INCLUDE_ASM'd from C (compiler-dependent default)"
+        },
+        "asm_function_macro": {
+          "type": "string",
+          "description": "Macro used to declare function labels in assembly files",
+          "default": "glabel"
+        },
+        "asm_function_alt_macro": {
+          "type": "string",
+          "description": "Macro used for alternate function entry labels in assembly files",
+          "default": "alabel"
+        },
+        "asm_jtbl_label_macro": {
+          "type": "string",
+          "description": "Macro used to declare jump table labels in assembly files",
+          "default": "jlabel"
+        },
+        "asm_data_macro": {
+          "type": "string",
+          "description": "Macro used to declare data symbols in assembly files",
+          "default": "dlabel"
+        },
+        "asm_end_label": {
+          "type": "string",
+          "description": "Macro used at the end of a function",
+          "default": "endlabel"
+        },
+        "asm_data_end_label": {
+          "type": "string",
+          "description": "Macro used at the end of a data symbol",
+          "default": "enddlabel"
+        },
+        "asm_ehtable_label_macro": {
+          "type": "string",
+          "description": "Macro used to declare exception handler table labels in assembly files",
+          "default": "ehlabel"
+        },
+        "asm_nonmatching_label_macro": {
+          "type": "string",
+          "description": "Macro used to mark a symbol as non-matching",
+          "default": "nonmatching"
+        },
+        "asm_emit_size_directive": {
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "null" }
+          ],
+          "description": "Emit .size directives in disassembled files; null uses the compiler default"
+        },
+        "mnemonic_ljust": {
+          "type": "integer",
+          "description": "Number of characters to left-justify mnemonic columns in disassembly output",
+          "default": 11
+        },
+        "rom_address_padding": {
+          "type": "boolean",
+          "description": "Pad ROM addresses with leading zeros in disassembly output",
+          "default": false
+        },
+        "mips_abi_gpr": {
+          "type": "string",
+          "description": "ABI naming convention for general-purpose registers",
+          "enum": ["numeric", "32", "o32", "n32", "n64"],
+          "default": "o32"
+        },
+        "mips_abi_float_regs": {
+          "type": "string",
+          "description": "ABI naming convention for floating-point registers",
+          "enum": ["numeric", "32", "o32", "n32", "n64"],
+          "default": "numeric"
+        },
+        "named_regs_for_c_funcs": {
+          "type": "boolean",
+          "description": "Use named registers in disassembly of C function files",
+          "default": true
+        },
+        "add_set_gp_64": {
+          "type": "boolean",
+          "description": "Add '.set gp=64' directive to asm/hasm files (default: true for n64, false for psx/ps2)"
+        },
+        "create_asm_dependencies": {
+          "type": "boolean",
+          "description": "Generate .asmproc.d dependency files for C files that reference assembly",
+          "default": false
+        },
+        "string_encoding": {
+          "type": "string",
+          "description": "Global encoding for rodata strings; can be overridden per segment"
+        },
+        "data_string_encoding": {
+          "type": "string",
+          "description": "Global encoding for data strings; can be overridden per segment"
+        },
+        "rodata_string_guesser_level": {
+          "type": "integer",
+          "description": "Aggressiveness level for the rodata string guesser (0 = disabled)"
+        },
+        "data_string_guesser_level": {
+          "type": "integer",
+          "description": "Aggressiveness level for the data string guesser (0 = disabled)"
+        },
+        "allow_data_addends": {
+          "type": "boolean",
+          "description": "Allow data symbols to use addends on symbol references; can be overridden per symbol",
+          "default": true
+        },
+        "disasm_unknown": {
+          "type": "boolean",
+          "description": "Attempt to disassemble functions containing unknown instructions instead of falling back to raw data",
+          "default": false
+        },
+        "detect_redundant_function_end": {
+          "type": "boolean",
+          "description": "Detect and merge redundant/unreferenced function end labels (IDO only)",
+          "default": true
+        },
+        "disassemble_all": {
+          "type": "boolean",
+          "description": "Disassemble all functions including already-matched ones",
+          "default": false
+        },
+        "make_full_disasm_for_code": {
+          "type": "boolean",
+          "description": "Emit a full .s file for each c/cpp segment in addition to nonmatchings",
+          "default": false
+        },
+        "global_vram_start": {
+          "type": "integer",
+          "description": "Override the detected global VRAM start address (useful for multi-file splat projects)"
+        },
+        "global_vram_end": {
+          "type": "integer",
+          "description": "Override the detected global VRAM end address"
+        },
+        "use_gp_rel_macro_nonmatching": {
+          "type": "boolean",
+          "description": "Emit %gp_rel relocation parameters for $gp-relative instructions in nonmatchings",
+          "default": true
+        },
+        "use_gp_rel_macro": {
+          "type": "boolean",
+          "description": "Emit %gp_rel relocation parameters for $gp-relative instructions in asm/hasm files",
+          "default": true
+        },
+        "suggestion_rodata_section_start": {
+          "type": "boolean",
+          "description": "Emit suggestions for where the rodata section starts based on data section analysis",
+          "default": true
+        },
+
+        "header_encoding": {
+          "type": "string",
+          "description": "[N64] Encoding used to decode the ROM header string",
+          "default": "ASCII"
+        },
+        "gfx_ucode": {
+          "type": "string",
+          "description": "[N64] GFX microcode type used by gfx segments",
+          "enum": ["f3d", "f3db", "f3dex", "f3dexb", "f3dex2"],
+          "default": "f3dex2"
+        },
+        "libultra_symbols": {
+          "type": "boolean",
+          "description": "[N64] Use named libultra symbols by default",
+          "default": false
+        },
+        "ique_symbols": {
+          "type": "boolean",
+          "description": "[N64] Use named iQue symbols by default",
+          "default": false
+        },
+        "hardware_regs": {
+          "type": "boolean",
+          "description": "[N64] Use named hardware register symbols by default",
+          "default": false
+        },
+        "image_type_in_extension": {
+          "type": "boolean",
+          "description": "[N64] Append the image format type to the output file extension",
+          "default": false
+        },
+
+        "use_legacy_include_asm": {
+          "type": "boolean",
+          "description": "[GCC/SN64] Use the legacy INCLUDE_ASM macro format in C files",
+          "default": false
+        },
+        "align_on_branch_labels": {
+          "type": "boolean",
+          "description": "[PS2/SN] Emit alignment directives on branch labels to work around SN PS2 short loop bug"
+        },
+
+        "migrate_rodata": {
+          "type": "boolean",
+          "description": "[Deprecated] Legacy alias; use migrate_rodata_to_functions instead"
+        }
+      }
+    },
+
+    "vram_classes": {
+      "type": "array",
+      "description": "Reusable VRAM address classes for overlay segments that share the same VRAM range",
+      "items": {
+        "anyOf": [
+          {
+            "type": "array",
+            "description": "Short form: [name, vram]",
+            "items": [
+              { "type": "string", "description": "Class name" },
+              { "type": "integer", "description": "VRAM base address" }
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "additionalItems": false
+          },
+          {
+            "type": "object",
+            "description": "Long form with optional vram_symbol and follows_classes",
+            "required": ["name", "vram"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Unique name for this VRAM class"
+              },
+              "vram": {
+                "type": "integer",
+                "description": "Base VRAM address for this class"
+              },
+              "vram_symbol": {
+                "type": "string",
+                "description": "Linker symbol name to use for the VRAM address of this class"
+              },
+              "follows_classes": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "List of VRAM class names that this class is placed after"
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    "segments": {
+      "type": "array",
+      "description": "List of ROM segments to split",
+      "items": { "$ref": "#/definitions/topLevelSegment" }
+    }
+  },
+
+  "definitions": {
+    "segmentStart": {
+      "description": "ROM offset where this segment starts ('auto' for BSS/SBSS segments without a ROM address)",
+      "anyOf": [
+        { "type": "integer" },
+        { "type": "string", "enum": ["auto"] }
+      ]
+    },
+
+    "simpleSegmentType": {
+      "description": "Segment types that take only an optional name argument (no width/height)",
+      "type": "string",
+      "enum": [
+        "asm", "hasm", "c", "cpp", "asmtu",
+        "data", ".data", "sdata",
+        "rodata", ".rodata", "rdata", ".rdata",
+        "bss", ".bss", "sbss",
+        "bin", "textbin", "databin", "rodatabin",
+        "code", "header", "ipl3", "pad", "lib", "o",
+        "linker_offset", "eh_frame", "gcc_except_table",
+        "mio0", "yay0", "gfx", "vtx", "rsp", "palette"
+      ]
+    },
+
+    "imageSegmentType": {
+      "description": "N64 image segment types that require name + width + height",
+      "type": "string",
+      "enum": ["rgba16", "rgba32", "i1", "i4", "i8", "ia4", "ia8", "ia16"]
+    },
+
+    "ciSegmentType": {
+      "description": "N64 color-indexed image types that require name + width + height and accept an optional palette name",
+      "type": "string",
+      "enum": ["ci4", "ci8"]
+    },
+
+    "segmentName": {
+      "description": "Segment name used in output file paths; slashes create subdirectories. Integers are coerced to strings by splat.",
+      "anyOf": [
+        { "type": "string" },
+        { "type": "integer" }
+      ]
+    },
+
+    "segmentEndMarker": {
+      "type": "array",
+      "description": "End marker: [offset] — marks where the previous segment ends",
+      "items": [{ "$ref": "#/definitions/segmentStart" }],
+      "minItems": 1,
+      "maxItems": 1,
+      "additionalItems": false
+    },
+
+    "simpleSegmentArray": {
+      "type": "array",
+      "description": "Simple segment: [start, type] or [start, type, name]",
+      "items": [
+        { "$ref": "#/definitions/segmentStart" },
+        { "$ref": "#/definitions/simpleSegmentType" },
+        { "$ref": "#/definitions/segmentName" }
+      ],
+      "minItems": 2,
+      "maxItems": 3,
+      "additionalItems": false
+    },
+
+    "imageSegmentArray": {
+      "type": "array",
+      "description": "N64 image segment: [start, type, name, width, height]",
+      "items": [
+        { "$ref": "#/definitions/segmentStart" },
+        { "$ref": "#/definitions/imageSegmentType" },
+        { "$ref": "#/definitions/segmentName" },
+        { "type": "integer", "description": "Image width in pixels" },
+        { "type": "integer", "description": "Image height in pixels" }
+      ],
+      "minItems": 5,
+      "maxItems": 5,
+      "additionalItems": false
+    },
+
+    "ciSegmentArray": {
+      "type": "array",
+      "description": "N64 color-indexed image segment: [start, type, name, width, height] or [start, type, name, width, height, palette_name]",
+      "items": [
+        { "$ref": "#/definitions/segmentStart" },
+        { "$ref": "#/definitions/ciSegmentType" },
+        { "$ref": "#/definitions/segmentName" },
+        { "type": "integer", "description": "Image width in pixels" },
+        { "type": "integer", "description": "Image height in pixels" },
+        { "type": "string", "description": "Palette segment name (defaults to the segment name)" }
+      ],
+      "minItems": 5,
+      "maxItems": 6,
+      "additionalItems": false
+    },
+
+    "commonSegmentDictProperties": {
+      "description": "Properties common to all dict-form segments",
+      "properties": {
+        "start": { "$ref": "#/definitions/segmentStart" },
+        "type": { "type": "string" },
+        "name": { "$ref": "#/definitions/segmentName" },
+        "dir": {
+          "type": "string",
+          "description": "Directory prefix for output files (alternative to name for grouping)"
+        },
+        "vram": {
+          "type": "integer",
+          "description": "VRAM base address of this segment"
+        },
+        "vram_class": {
+          "type": "string",
+          "description": "Name of a vram_class to use for the VRAM address; mutually exclusive with vram_symbol and follows_vram"
+        },
+        "vram_symbol": {
+          "type": "string",
+          "description": "Linker symbol name used to express this segment's VRAM address; mutually exclusive with vram_class"
+        },
+        "follows_vram": {
+          "type": "string",
+          "description": "Name of another segment whose VRAM end this segment follows; mutually exclusive with vram_class"
+        },
+        "align": {
+          "type": "integer",
+          "description": "Alignment for this segment in the linker script"
+        },
+        "subalign": {
+          "anyOf": [
+            { "type": "integer" },
+            { "type": "null" }
+          ],
+          "description": "SUBALIGN value for this top-level segment (overrides global subalign)"
+        },
+        "extract": {
+          "type": "boolean",
+          "description": "Whether to extract/write output files for this segment"
+        },
+        "exclusive_ram_id": {
+          "type": "string",
+          "description": "Tag used to mark segments that occupy the same VRAM range (overlays)"
+        },
+        "linker_entry": {
+          "type": "boolean",
+          "description": "Whether to emit a linker entry for this segment",
+          "default": true
+        },
+        "find_file_boundaries": {
+          "type": "boolean",
+          "description": "Override the global find_file_boundaries option for this segment"
+        },
+        "section_order": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Override the global section order for this segment"
+        },
+        "symbol_name_format": {
+          "type": "string",
+          "description": "Override the global symbol_name_format for symbols in this segment"
+        },
+        "symbol_name_format_no_rom": {
+          "type": "string",
+          "description": "Override the global symbol_name_format_no_rom for symbols in this segment"
+        },
+        "path": {
+          "type": "string",
+          "description": "Explicit file path for this segment's output, overriding default naming"
+        },
+        "bss_contains_common": {
+          "type": "boolean",
+          "description": "Whether the BSS section of this segment contains COMMON symbols"
+        },
+        "linker_section_order": {
+          "type": "string",
+          "description": "Override the linking order of this segment's section in the linker script"
+        },
+        "linker_section": {
+          "type": "string",
+          "description": "Override the actual section name used when linking this segment"
+        },
+        "ld_fill_value": {
+          "anyOf": [
+            { "type": "integer" },
+            { "type": "null" }
+          ],
+          "description": "Override the global ld_fill_value for this segment (top-level only)"
+        },
+        "ld_align_segment_start": {
+          "type": "integer",
+          "description": "Align the start of this segment to the given value, overriding the global setting"
+        },
+        "suggestion_rodata_section_start": {
+          "type": "boolean",
+          "description": "Override the global suggestion_rodata_section_start for this segment"
+        },
+        "pair_segment": {
+          "type": "string",
+          "description": "Name of the segment this segment is paired with for rodata migration"
+        }
+      }
+    },
+
+    "codeSegmentDict": {
+      "type": "object",
+      "description": "A code segment containing subsegments",
+      "allOf": [{ "$ref": "#/definitions/commonSegmentDictProperties" }],
+      "properties": {
+        "type": { "type": "string", "enum": ["code"] },
+        "bss_size": {
+          "type": "integer",
+          "description": "Size in bytes of the BSS region appended to this code segment's VRAM range"
+        },
+        "subsegments": {
+          "type": "array",
+          "description": "Child segments within this code segment",
+          "items": { "$ref": "#/definitions/subsegment" }
+        }
+      },
+      "required": ["type", "subsegments"]
+    },
+
+    "imageSegmentDict": {
+      "type": "object",
+      "description": "An N64 image segment",
+      "allOf": [{ "$ref": "#/definitions/commonSegmentDictProperties" }],
+      "properties": {
+        "type": {
+          "anyOf": [
+            { "$ref": "#/definitions/imageSegmentType" },
+            { "$ref": "#/definitions/ciSegmentType" }
+          ]
+        },
+        "width": { "type": "integer", "description": "Image width in pixels" },
+        "height": { "type": "integer", "description": "Image height in pixels" },
+        "flip_x": { "type": "boolean", "description": "Flip the image horizontally" },
+        "flip_y": { "type": "boolean", "description": "Flip the image vertically" }
+      },
+      "required": ["type", "width", "height"]
+    },
+
+    "genericSegmentDict": {
+      "type": "object",
+      "description": "A non-code, non-image dict-form segment",
+      "allOf": [{ "$ref": "#/definitions/commonSegmentDictProperties" }],
+      "properties": {
+        "type": { "$ref": "#/definitions/simpleSegmentType" },
+        "subsegments": {
+          "type": "array",
+          "description": "Child segments (for group-like types)",
+          "items": { "$ref": "#/definitions/subsegment" }
+        }
+      },
+      "required": ["type"]
+    },
+
+    "topLevelSegment": {
+      "description": "A top-level ROM segment: end marker, typed array, or dict",
+      "anyOf": [
+        { "$ref": "#/definitions/segmentEndMarker" },
+        { "$ref": "#/definitions/simpleSegmentArray" },
+        { "$ref": "#/definitions/imageSegmentArray" },
+        { "$ref": "#/definitions/ciSegmentArray" },
+        { "$ref": "#/definitions/codeSegmentDict" },
+        { "$ref": "#/definitions/imageSegmentDict" },
+        { "$ref": "#/definitions/genericSegmentDict" }
+      ]
+    },
+
+    "subsegment": {
+      "description": "A subsegment within a code or group segment: end marker, typed array, or dict",
+      "anyOf": [
+        { "$ref": "#/definitions/segmentEndMarker" },
+        { "$ref": "#/definitions/simpleSegmentArray" },
+        { "$ref": "#/definitions/imageSegmentArray" },
+        { "$ref": "#/definitions/ciSegmentArray" },
+        {
+          "type": "object",
+          "description": "Dict-form subsegment",
+          "allOf": [{ "$ref": "#/definitions/commonSegmentDictProperties" }],
+          "properties": {
+            "type": {
+              "anyOf": [
+                { "$ref": "#/definitions/simpleSegmentType" },
+                { "$ref": "#/definitions/imageSegmentType" },
+                { "$ref": "#/definitions/ciSegmentType" }
+              ]
+            },
+            "vram": {
+              "type": "integer",
+              "description": "Override VRAM address for this subsegment (useful for BSS subsegments)"
+            }
+          },
+          "required": ["type"]
+        }
+      ]
+    }
+  }
+}
