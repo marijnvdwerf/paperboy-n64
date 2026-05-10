@@ -64,14 +64,28 @@ struct GameContext : GameContextBase {
     void func_80007EC4();
     void func_80007F10();
     s32 func_80007F54(s32, u8**);
+
+    GameSubContext* func_800080F8();
+    void func_80008100();
+    StructYY* func_8000812C();
+    s32 func_80008138();
+    s32 func_80008148();
+    StructYY* func_80008158();
+    s32 func_80008164();
+    static s32 func_80008174();
+    static void* func_80008184();
+    s32 func_80008194();
 };
 
 class StructYYBase {
   public:
     /* 0x00 */ s32 unk0;
-    /* 0x04 */ char pad4[0x6C];
+    /* 0x04 */ char pad4[0x68];
+    /* 0x6C */ s32 unk6C;
     /* 0x70 */ s32 unk70;
-    /* 0x74 */ char pad74[0x28];
+    /* 0x74 */ char pad74[0x4];
+    /* 0x78 */ s32 unk78;
+    /* 0x7C */ char pad7C[0x20];
     /* 0x9C */ // vtable
 
     virtual ~StructYYBase();
@@ -85,6 +99,9 @@ class StructYYBase {
     virtual void vfunc8();
     virtual void vfunc9(s32, s32, s32, s32);
     virtual void vfunc10();
+    virtual void vfunc11();
+    virtual void vfunc12();
+    virtual void vfunc13();
 };
 
 class StructYY : public StructYYBase {
@@ -206,10 +223,8 @@ extern s32 D_801286D4;
 
 #ifdef NON_MATCHING
 extern "C" void func_80007660(void) {
-    u32 total_size = 0;
-
-    total_size += ((D_8006AAF0 * D_8006AAF4 * D_8006AAF8) >> 2) + 0x100;
-    D_8006AAD0 = func_8004ABD0(&D_800768F0, ((D_8006AAF0 * D_8006AAF4 * D_8006AAF8) >> 2) + 0x100, 6);
+    s32 total_size = ((D_8006AAF0 * D_8006AAF4 * D_8006AAF8) >> 2) + 0x100;
+    D_8006AAD0 = func_8004ABD0(&D_800768F0, total_size, 6);
 
     total_size += 0x3C800;
     D_8006AAD4 = func_8004ABD0(&D_800768F0, 0x3C800, 6);
@@ -226,13 +241,11 @@ extern "C" void func_80007660(void) {
     total_size += 0x1C000;
     D_8006AAE4 = func_8004ABD0(&D_800768F0, 0x1C000, 3);
 
-    {
-        u32 temp_s0 = ((D_8006AAF0 * D_8006AAF4 * 0x10) >> 3) + 0x100;
-        total_size += temp_s0;
+    s32 temp_s0 = ((D_8006AAF0 * D_8006AAF4 << 4) >> 3) + 0x100;
+    total_size += temp_s0;
 
-        D_8006AAE8 = func_8004ABD0(&D_800768F0, (D_8006D5F0 - total_size) - 0x80, 3);
-        D_8006AAEC = func_8004ABD0(&D_800768F0, temp_s0, 6);
-    }
+    D_8006AAE8 = func_8004ABD0(&D_800768F0, (D_8006D5F0 - total_size) - 0x80, 3);
+    D_8006AAEC = func_8004ABD0(&D_800768F0, temp_s0, 6);
 
     func_8002BECC(D_8006AAD0);
     func_8002BD30(D_8006AAD4);
@@ -478,22 +491,33 @@ GameContext::GameContext() {
 INCLUDE_ASM("asm/nonmatchings/8260", __11GameContext); // ctor
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_800080F8);
-
-INCLUDE_ASM("asm/nonmatchings/8260", func_80008100);
-
-INCLUDE_ASM("asm/nonmatchings/8260", func_8000812C);
-
-INCLUDE_ASM("asm/nonmatchings/8260", func_80008138);
-
-INCLUDE_ASM("asm/nonmatchings/8260", func_80008148);
-
-INCLUDE_ASM("asm/nonmatchings/8260", func_80008158);
-
-INCLUDE_ASM("asm/nonmatchings/8260", func_80008164);
-
-INCLUDE_ASM("asm/nonmatchings/8260", func_80008174);
-
-INCLUDE_ASM("asm/nonmatchings/8260", func_80008184);
-
-INCLUDE_ASM("asm/nonmatchings/8260", func_80008194);
+GameSubContext* GameContext::func_800080F8() {
+    return &this->unk54;
+}
+void GameContext::func_80008100() {
+    this->unk48->vfunc13();
+}
+StructYY* GameContext::func_8000812C() {
+    return this->unk48;
+}
+s32 GameContext::func_80008138() {
+    return this->unk48->unk78;
+}
+s32 GameContext::func_80008148() {
+    return this->unk48->unk6C;
+}
+StructYY* GameContext::func_80008158() {
+    return this->unk48;
+}
+s32 GameContext::func_80008164() {
+    return this->unk48->unk0 & 1;
+}
+s32 GameContext::func_80008174() {
+    return D_8006AB04 != 0;
+}
+void* GameContext::func_80008184() {
+    return D_8006AB04;
+}
+s32 GameContext::func_80008194() {
+    return this->unk10;
+}
