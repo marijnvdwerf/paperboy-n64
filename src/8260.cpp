@@ -65,7 +65,7 @@ class StructYY {
     /* 0x70 */ s32 unk70;
     /* 0x74 */ char pad74[0x28];
 
-    virtual void vfunc0();
+    virtual ~StructYY();
     virtual void vfunc1();
     virtual void vfunc2(const char*, s32);
     virtual void vfunc3();
@@ -293,7 +293,10 @@ extern "C" void func_80007EC4(GameContext* arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007F10);
+extern "C" void func_80007F10(GameContext* arg0) {
+    delete arg0->unk48;
+    arg0->unk48 = NULL;
+}
 
 extern "C" s32 func_80007F54(GameContext* arg0, s32, u8**) {
     arg0->unk48 = (StructYY*)func_8000D0B0(func_8004B414(0x11AB0));

@@ -58,9 +58,10 @@ The diff shows TARGET (original ROM) vs CURRENT (your build) side by side.
 
 ### C++ vtables
 - The SN compiler places the vtable pointer AFTER all data members (not at the start like GCC/MSVC)
-- The compiler auto-generates a destructor at vtable slot 0, even if no destructor is declared
 - Each vtable entry is 8 bytes: `{s16 this_offset, s16 pad, void *func_ptr}`
 - With 1-indexed vfunc names (vfunc_01, vfunc_02, ...), vfunc_K is at vtable byte offset K*8. Example: vfunc_31 is at offset 0xF8 (31*8), vfunc_27 is at offset 0xD8 (27*8)
+- Virtual destructors occupy a vtable slot in source-declaration order — they are NOT auto-placed at slot 0. If a class has `virtual void vfunc1(); virtual ~Foo(); virtual void vfunc3();`, the dtor is at slot 2 (offset 0x10), not slot 0.
+- A virtual destructor's vtable entry is invoked with an integer "delete mode" argument (e.g. 3 for full delete). `delete ptr;` compiles to a virtual call to the dtor slot with that arg — if you see `vfuncN(3)` followed by clearing the pointer, it's likely `delete`.
 - Virtual function calls in asm look like: load vtable ptr from object, load entry offset+func, adjust `this` by offset, `jalr` the func ptr
 - If a struct needs both a vtable at a known offset AND child class data after the vptr, use inheritance: declare virtuals in a base class, then add child data in the derived class. Without inheritance, all data goes before the single vptr, making it impossible to have data at offsets past the vptr.
 
