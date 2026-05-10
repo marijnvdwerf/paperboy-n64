@@ -410,11 +410,7 @@ void GameContext::func_80007D70() {
 }
 
 void GameContext::func_80007DE0() {
-    StructYY* temp_a0;
-    StructWW* temp_v0;
-
-    temp_a0 = this->unk48;
-    temp_a0->vfunc9(this->unk4, this->unk8, this->unkC, this->unk50);
+    this->unk48->vfunc9(this->unk4, this->unk8, this->unkC, this->unk50);
 
 #ifdef PAL
     osViBlack(1);
@@ -425,9 +421,8 @@ void GameContext::func_80007DE0() {
     } else {
         D_80076404[0] = 0;
     }
-    temp_v0 = new StructWW();
-    this->unk4C = temp_v0;
-    temp_v0->unk74 = (s32)(this->unk48->unk70 + 0x20);
+    this->unk4C = new StructWW();
+    this->unk4C->unk74 = (s32)(this->unk48->unk70 + 0x20);
     func_80009350(this->unk4C, 0x14);
     if (&D_800005E8 != NULL) {
         func_80006730(D_80076404, D_800005E8, 0x100);
