@@ -185,6 +185,11 @@ extern char first_ROM_START[];
 extern char first_ROM_END[];
 extern char first_VRAM[];
 extern char first_VRAM_END[];
+typedef void (*InitFunc)();
+extern InitFunc first_CTORS_START;
+extern InitFunc first_CTORS_END;
+extern InitFunc first_DTORS_START;
+extern InitFunc first_DTORS_END;
 extern s32 D_80076170;
 extern s32 D_80076630;
 extern s32 D_801286D4;
@@ -349,9 +354,31 @@ extern "C" void func_80007A60(GameContext* arg0) {
     func_80007CB8();
 }
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007CB8);
+extern "C" void func_80007CB8() {
+    InitFunc* p = &first_CTORS_START;
+    InitFunc* end = &first_CTORS_END;
+    if (p < end) {
+        do {
+            if (*p != NULL) {
+                (*p)();
+            }
+            p += 4;
+        } while (p < end);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007D14);
+extern "C" void func_80007D14() {
+    InitFunc* p = &first_DTORS_START;
+    InitFunc* end = &first_DTORS_END;
+    if (p < end) {
+        do {
+            if (*p != NULL) {
+                (*p)();
+            }
+            p += 4;
+        } while (p < end);
+    }
+}
 
 extern "C" void func_80007D70(GameContext* arg0) {
     if (arg0->unk4C != NULL) {

@@ -252,6 +252,8 @@ segments:
       - [0x79F20, rodata]
       - [0x7EBA0, .rdata, A49A0]
       - [0x7EC08, rodata]
+      - [0x85BB0, dtors]
+      - [0x85BC0, ctors]
       - [0x85BC0, c, pal_pad85BC0]
       - [0x85BC0, asm]
       - [0x88330, cpp]
