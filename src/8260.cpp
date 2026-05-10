@@ -1,5 +1,8 @@
 #include "common.h"
+#include "os_pi.h"
 #include "os_thread.h"
+
+class Actor;
 
 struct GameContextBase {
     virtual void func1();
@@ -44,7 +47,7 @@ struct GameContext : GameContextBase {
     /* 0x010 */ s32 unk10;
     /* 0x014 */ OSMesgQueue unk14;
     /* 0x02C */ OSMesg unk2C;
-    /* 0x030 */ char pad02C[0x18];
+    /* 0x030 */ OSIoMesg unk30;
     /* 0x048 */ StructYY* unk48;
     /* 0x04C */ StructWW* unk4C;
     /* 0x050 */ s32 unk50;
@@ -93,18 +96,49 @@ class StructWW : public StructWWBase {
 
 extern "C" {
 // Functions
+void func_80006310(void*, s32, u32);
 void func_80006730(u8*, u8*, s32);
+void func_8000812C();
+void func_800085B8(Actor*);
+void func_80008FA8(Actor*);
 void func_800092F8(StructWW*);
 void func_80009350(void*, s32);
 StructWW* func_80009458(s32);
+void func_80011500(s32);
+void func_80019080(s32);
+void func_80020DA4(s32);
+void func_8002151C(s32);
+void func_8002377C(s32);
+void func_80024C10(s32);
+void func_80026B50(s32);
+void func_80026F10(s32);
+void func_800284D8(s32);
+void func_80029654(s32);
+void func_8002C2CC(s32);
+void func_8002DBBC(s32);
+void func_8002DFF0(s32);
+void func_8002E874(s32);
+void func_800308D8(s32);
+void func_80037C08(s32);
+void func_80038C90(s32);
+void func_80039A94(s32);
+void func_8003A340(s32);
+void func_8003B1B4(s32);
+void func_8003F97C(s32);
 s32 func_8004B414(s32);
 void func_80007660();
 void func_80007A60(GameContext*);
+void func_80007CB8();
+void func_80007D14();
 void func_80007D70(GameContext*);
 void func_80007EC4(GameContext*);
 void func_80007F10(GameContext*);
 s32 func_80007F54(GameContext*, s32, u8**);
+void func_800BFF50(GameSubContext*);
 void* func_8000D0B0(s32);
+void func_8011EC68(s32);
+void func_8012016C(s32);
+void func_80124198(s32);
 int sprintf(char*, const char*, ...);
 #ifdef PAL
 void func_8005FA60(s32);
@@ -143,9 +177,17 @@ extern u32 D_8006AAF8;
 extern u32 D_8006D5F0;
 extern u8 D_800768F0;
 extern void* D_8006AB04;
+extern Actor* D_8006AB10;
 extern u32 D_80000668;
 extern u32 D_8000066C;
 extern f32 D_8006AB00;
+extern char first_ROM_START[];
+extern char first_ROM_END[];
+extern char first_VRAM[];
+extern char first_VRAM_END[];
+extern s32 D_80076170;
+extern s32 D_80076630;
+extern s32 D_801286D4;
 }
 
 #ifdef NON_MATCHING
@@ -258,7 +300,55 @@ extern "C" s32 func_800079F4(s32 argc, u8** argv) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007A60);
+extern "C" void func_80007A60(GameContext* arg0) {
+    s32 size = (s32)(first_VRAM_END - first_VRAM);
+    func_80006310(first_VRAM, 0, size);
+    osInvalDCache(first_VRAM, size);
+    osInvalICache(first_VRAM, size);
+    osPiStartDma(&arg0->unk30, 0, 0, (u32)first_ROM_START, first_VRAM, (s32)(first_ROM_END - first_ROM_START),
+                 &arg0->unk14);
+    osRecvMesg(&arg0->unk14, NULL, OS_MESG_BLOCK);
+
+    func_8003A340(D_8006AAE8);
+    func_800308D8(D_8006AAE8);
+    func_8003A340(D_8006AAE8);
+    func_800308D8(D_8006AAE8);
+    func_80038C90(D_8006AAE8);
+    func_80024C10(D_8006AAE8);
+    func_8003B1B4(D_8006AAE8);
+    func_80037C08(D_8006AAE8);
+    func_80020DA4(D_8006AAE8);
+    func_80011500(D_8006AAE8);
+    func_800284D8(D_8006AAE8);
+    func_8003B1B4(D_8006AAE8);
+    func_8011EC68(D_8006AAE8);
+    func_8012016C(D_8006AAE8);
+    func_80039A94(D_8006AAE8);
+    func_8002E874(D_8006AAE8);
+    func_8002151C(D_8006AAE8);
+    func_80124198(D_8006AAE8);
+    func_8002DFF0(D_8006AAE8);
+    func_8002C2CC(D_8006AAE8);
+    func_8002DBBC(D_8006AAE8);
+    func_80019080(D_8006AAE8);
+    func_8002377C(D_8006AAE8);
+    func_80029654(D_8006AAE8);
+    func_8003F97C(D_8006AAE4);
+    D_80076170 = D_8006AAE8;
+    D_80076630 = D_8006AAE8;
+    func_80026B50(D_8006AAE8);
+    func_80026F10(D_8006AAE8);
+    D_801286D4 = D_8006AAE8;
+    func_80007D14();
+
+    Actor* actor = D_8006AB10;
+    func_800085B8(actor);
+    while (arg0->unk54.unk0B4 != 0) {
+        func_800BFF50(&arg0->unk54);
+    }
+    func_80008FA8(actor);
+    func_80007CB8();
+}
 
 INCLUDE_ASM("asm/nonmatchings/8260", func_80007CB8);
 
