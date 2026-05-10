@@ -82,7 +82,46 @@ extern u32 D_8006D5F0;
 extern u8 D_800768F0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/7FE0", func_800073E0);
+extern "C" void func_800073E0(u8* src, s8* dest, s32 len) {
+    u8* buf;
+    u8* end;
+    u8 c;
+
+    for (buf = src, end = src + len; buf < end; buf++) {
+        c = *buf;
+        if (c == '\0') {
+            if (buf != src) {
+                *(dest++) = '\0';
+                return;
+            } else {
+                *(dest++) = ' ';
+                continue;
+            }
+        } else if ((u8)(c - 0x1A) < 0x1A) {
+            *(dest++) = c + 0x27;
+        } else if ((u8)(c - 0x10) < 0xA) {
+            *(dest++) = c + 0x20;
+        } else if (c == 0xF) {
+            *(dest++) = ' ';
+        } else if ((u8)(c - 0x38) < 6) {
+            *(dest++) = c + 0xF2;
+        } else if ((u8)(c - 0x34) < 3) {
+            *(dest++) = c + 0xED;
+        } else if (c == 0x37) {
+            *(dest++) = '\'';
+        } else if (c == 0x3E) {
+            *(dest++) = ':';
+        } else if (c == 0x3F) {
+            *(dest++) = '=';
+        } else if (c == 0x40) {
+            *(dest++) = '?';
+        } else if (c == 0x41) {
+            *(dest++) = '@';
+        } else {
+            *(dest++) = '*';
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/7FE0", func_8000752C);
 
@@ -116,7 +155,7 @@ extern "C" void func_80007660(void) {
         D_8006AAEC = func_8004ABD0(&D_800768F0, temp_s0, 6);
     }
 
-    func_8002BECC(D_8006AAD0); 
+    func_8002BECC(D_8006AAD0);
     func_8002BD30(D_8006AAD4);
     func_80036BF4(D_8006AAD4);
     func_80044458(D_8006AAD8);
