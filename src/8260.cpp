@@ -1,4 +1,57 @@
 #include "common.h"
+#include "os_thread.h"
+
+struct GameContextBase {
+    virtual void func1();
+    virtual void func2();
+    virtual void func3();
+    virtual void func4();
+    virtual void func5();
+    virtual void func6();
+    virtual void func7();
+    virtual void func8();
+    virtual void func9();
+    virtual void func10();
+    virtual void func11();
+    virtual void func12();
+};
+
+struct GameSubContext {
+    /* 0x000 */ char pad0[0xB0];
+    /* 0x0B0 */ s32 unk0B0; // = 1
+    /* 0x0B4 */ s32 unk0B4; // = 1
+    /* 0x0B8 */ f32 unk0B8; // D_80000668 (80.0f)
+    /* 0x0BC */ f32 unk0BC; // D_8000066C (4.0f)
+    /* 0x0C0 */ f32 unk0C0; // D_8006AB00
+    /* 0x0C4 */ char pad0C4[0x4];
+    /* 0x0C8 */ s32 unk0C8; // = 1
+    /* 0x0CC */ s32 unk0CC; // = 0
+    /* 0x0D0 */ s32 unk0D0; // = 0
+    /* 0x0D4 */ s32 unk0D4; // = 1
+    /* 0x0D8 */ char pad0D8[0x524];
+    /* 0x5FC */
+
+    GameSubContext();
+};
+
+struct GameContext : GameContextBase {
+    /* 0x004 */ s32 unk4;
+    /* 0x008 */ s32 unk8;
+    /* 0x00C */ s32 unkC;
+    /* 0x010 */ s32 unk10;
+    /* 0x014 */ OSMesgQueue unk14;
+    /* 0x02C */ OSMesg unk2C;
+    /* 0x030 */ char pad02C[0x18];
+    /* 0x048 */ void* unk48;
+    /* 0x04C */ s32 unk4C = 0;
+    /* 0x050 */ s32 unk50;
+    /* 0x054 */ GameSubContext unk54;
+
+    GameContext();
+    virtual void func1();
+    virtual void func13();
+    virtual ~GameContext();
+};
 
 class StructYY {
   public:
@@ -8,7 +61,7 @@ class StructYY {
 
     virtual void vfunc0();
     virtual void vfunc1();
-    virtual void vfunc2();
+    virtual void vfunc2(const char*, s32);
     virtual void vfunc3();
     virtual void vfunc4();
     virtual void vfunc5();
@@ -39,14 +92,16 @@ class StructXX {
 };
 
 extern "C" {
+// Functions
 void func_80006730(u8*, u8*, s32);
 void func_80009350(void*, s32);
 StructWW* func_80009458(s32);
 s32 func_8004B414(s32);
 void func_80007660();
-void func_80007EC4(void*);
-void func_80007F10(void*);
-s32 func_80007F54(void*, s32, u8**);
+void func_80007EC4(GameContext*);
+void func_80007F10(GameContext*);
+s32 func_80007F54(GameContext*, s32, u8**);
+void* func_8000D0B0(s32);
 int sprintf(char*, const char*, ...);
 #ifdef PAL
 void func_8005FA60(s32);
@@ -62,11 +117,15 @@ void func_8003B3A0(s32);
 void func_8003DE3C(s32);
 void func_8003E42C(s32);
 void func_8004B3BC(s32);
+
+// Data
+extern char D_800005CC[];
 extern u8 D_800005D8[];
 extern u8 D_800005E8[];
 extern u8 D_80076404[];
 extern char D_80079360[];
-extern u8 D_8006A480[];
+extern GameContext D_8006A480;
+extern s32 D_8006AAFC;
 extern s32 D_8006AAD0;
 extern s32 D_8006AAD4;
 extern s32 D_8006AAD8;
@@ -80,6 +139,10 @@ extern u32 D_8006AAF4;
 extern u32 D_8006AAF8;
 extern u32 D_8006D5F0;
 extern u8 D_800768F0;
+extern void* D_8006AB04;
+extern u32 D_80000668;
+extern u32 D_8000066C;
+extern f32 D_8006AB00;
 }
 
 #ifdef NON_MATCHING
@@ -127,9 +190,9 @@ extern "C" void func_80007660(void) {
 INCLUDE_ASM("asm/nonmatchings/8260", func_80007660);
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007898);
+INCLUDE_ASM("asm/nonmatchings/8260", func_80007898); // global ctor
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_800078B8);
+INCLUDE_ASM("asm/nonmatchings/8260", func_800078B8); // global dtor
 
 extern "C" void func_800078DC(s32 errCode, const char* file, s32 line, const char* prettyMsg) {
     const char* msg;
@@ -185,9 +248,9 @@ extern "C" void func_800079A8(const char* msg, const char* file, s32 line, const
 
 extern "C" s32 func_800079F4(s32 argc, u8** argv) {
     func_80007660();
-    if (func_80007F54(D_8006A480, argc, argv) != 0) {
-        func_80007EC4(D_8006A480);
-        func_80007F10(D_8006A480);
+    if (func_80007F54(&D_8006A480, argc, argv) != 0) {
+        func_80007EC4(&D_8006A480);
+        func_80007F10(&D_8006A480);
     }
     return 0;
 }
@@ -232,11 +295,44 @@ INCLUDE_ASM("asm/nonmatchings/8260", func_80007EC4);
 
 INCLUDE_ASM("asm/nonmatchings/8260", func_80007F10);
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007F54);
+extern "C" s32 func_80007F54(GameContext* arg0, s32, u8**) {
+    arg0->unk48 = func_8000D0B0(func_8004B414(0x11AB0));
+    if (*(s32*)arg0->unk48 & 1) {
+        func_80007F10(arg0);
+    }
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007FE0);
+    // TODO: migrate string
+    ((StructYY*)arg0->unk48)->vfunc2(D_800005CC, D_8006AAFC);
+    osCreateMesgQueue(&arg0->unk14, &arg0->unk2C, 1);
+    return 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80008040);
+INCLUDE_ASM("asm/nonmatchings/8260", func_80007FE0); // virt13
+
+#ifdef NON_MATCHING
+// Pending data migration
+
+GameContext::GameContext() {
+    D_8006AB04 = this;
+    unk4 = D_8006AAF0;
+    unk8 = D_8006AAF4;
+    unkC = D_8006AAF8;
+    unk48 = 0;
+    this->unk54.unk0B0 = 1;
+    unk50 = 0x58;
+    this->unk54.unk0B4 = 1;
+    this->unk54.unk0C8 = 1;
+    this->unk54.unk0CC = 0;
+    this->unk54.unk0D0 = 0;
+    this->unk54.unk0D4 = 1;
+    unk10 = 1;
+    this->unk54.unk0B8 = 80; // D_80000668
+    this->unk54.unk0BC = 4;  // D_8000066C
+    this->unk54.unk0C0 = D_8006AB00;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/8260", __11GameContext); // ctor
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/8260", func_800080F8);
 
