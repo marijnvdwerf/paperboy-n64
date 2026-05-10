@@ -27,3 +27,7 @@ undefined_syms_auto.txt
 __pycache__/
 .venv/
 venv/
+
+# Editor / LSP
+.cache/
+compile_commands.json

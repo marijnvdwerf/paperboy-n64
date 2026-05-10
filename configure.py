@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import json
 import os
 import shutil
 import sys
@@ -158,6 +159,34 @@ def create_build_script(linker_entries: list[LinkerEntry]):
             ninja.default(z64_path)
 
 
+def create_compile_commands(linker_entries: list[LinkerEntry]):
+    cwd = os.getcwd()
+    entries = []
+    for entry in linker_entries:
+        if entry.object_path is None:
+            continue
+        seg = entry.segment
+        if seg.type[0] == ".":
+            continue
+
+        src = str(entry.src_paths[0])
+        if src.endswith(".c"):
+            flags = C_CPP_FLAGS
+        elif src.endswith(".cpp"):
+            flags = CXX_CPP_FLAGS
+        else:
+            continue
+
+        entries.append({
+            "directory": cwd,
+            "command": f"{CROSS_CPP} {flags} {CC_FLAGS} -c {src}",
+            "file": src,
+        })
+
+    with open("compile_commands.json", "w") as f:
+        json.dump(entries, f, indent=2)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--clean", action="store_true")
@@ -172,5 +201,6 @@ if __name__ == "__main__":
 
     split.main([YAML_FILE], modes=["all"], verbose=False)
     create_build_script(split.linker_writer.entries)
+    create_compile_commands(split.linker_writer.entries)
 
     print("Build configured. Run 'ninja' to build.")
