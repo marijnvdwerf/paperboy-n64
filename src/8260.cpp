@@ -58,7 +58,12 @@ struct GameContext : GameContextBase {
     virtual void func13();
     virtual ~GameContext();
 
+    void func_80007A60();
+    void func_80007D70();
     void func_80007DE0();
+    void func_80007EC4();
+    void func_80007F10();
+    s32 func_80007F54(s32, u8**);
 };
 
 class StructYY {
@@ -127,13 +132,8 @@ void func_8003B1B4(s32);
 void func_8003F97C(s32);
 s32 func_8004B414(s32);
 void func_80007660();
-void func_80007A60(GameContext*);
 void func_80007CB8();
 void func_80007D14();
-void func_80007D70(GameContext*);
-void func_80007EC4(GameContext*);
-void func_80007F10(GameContext*);
-s32 func_80007F54(GameContext*, s32, u8**);
 void func_800BFF50(GameSubContext*);
 void* func_8000D0B0(s32);
 void func_8011EC68(s32);
@@ -298,20 +298,20 @@ extern "C" void func_800079A8(const char* msg, const char* file, s32 line, const
 
 extern "C" s32 func_800079F4(s32 argc, u8** argv) {
     func_80007660();
-    if (func_80007F54(&D_8006A480, argc, argv) != 0) {
-        func_80007EC4(&D_8006A480);
-        func_80007F10(&D_8006A480);
+    if (D_8006A480.func_80007F54(argc, argv) != 0) {
+        D_8006A480.func_80007EC4();
+        D_8006A480.func_80007F10();
     }
     return 0;
 }
 
-extern "C" void func_80007A60(GameContext* arg0) {
+void GameContext::func_80007A60() {
     s32 size = (s32)(first_VRAM_END - first_VRAM);
     func_80006310(first_VRAM, 0, size);
     osInvalDCache(first_VRAM, size);
     osInvalICache(first_VRAM, size);
-    osPiStartDma(&arg0->unk30, 0, 0, (u32)first_ROM_START, first_VRAM, (s32)(first_ROM_END - first_ROM_START), &arg0->unk14);
-    osRecvMesg(&arg0->unk14, NULL, OS_MESG_BLOCK);
+    osPiStartDma(&this->unk30, 0, 0, (u32)first_ROM_START, first_VRAM, (s32)(first_ROM_END - first_ROM_START), &this->unk14);
+    osRecvMesg(&this->unk14, NULL, OS_MESG_BLOCK);
 
     func_8003A340(D_8006AAE8);
     func_800308D8(D_8006AAE8);
@@ -347,8 +347,8 @@ extern "C" void func_80007A60(GameContext* arg0) {
 
     Actor* actor = D_8006AB10;
     func_800085B8(actor);
-    while (arg0->unk54.unk0B4 != 0) {
-        func_800BFF50(&arg0->unk54);
+    while (this->unk54.unk0B4 != 0) {
+        func_800BFF50(&this->unk54);
     }
     func_80008FA8(actor);
     func_80007CB8();
@@ -380,13 +380,13 @@ extern "C" void func_80007D14() {
     }
 }
 
-extern "C" void func_80007D70(GameContext* arg0) {
-    if (arg0->unk4C != NULL) {
-        func_800092F8(arg0->unk4C);
-        delete arg0->unk4C;
-        arg0->unk4C = NULL;
+void GameContext::func_80007D70() {
+    if (this->unk4C != NULL) {
+        func_800092F8(this->unk4C);
+        delete this->unk4C;
+        this->unk4C = NULL;
     }
-    arg0->unk48->vfunc10();
+    this->unk48->vfunc10();
 }
 
 void GameContext::func_80007DE0() {
@@ -417,32 +417,32 @@ void GameContext::func_80007DE0() {
     D_80076404[0] = 0;
 }
 
-extern "C" void func_80007EC4(GameContext* arg0) {
-    if (arg0->unk48->unk0 & 1) {
-        arg0->func_80007DE0();
-        func_80007A60(arg0);
-        func_80007D70(arg0);
+void GameContext::func_80007EC4() {
+    if (this->unk48->unk0 & 1) {
+        this->func_80007DE0();
+        this->func_80007A60();
+        this->func_80007D70();
     }
 }
 
-extern "C" void func_80007F10(GameContext* arg0) {
-    delete arg0->unk48;
-    arg0->unk48 = NULL;
+void GameContext::func_80007F10() {
+    delete this->unk48;
+    this->unk48 = NULL;
 }
 
-extern "C" s32 func_80007F54(GameContext* arg0, s32, u8**) {
-    arg0->unk48 = (StructYY*)func_8000D0B0(func_8004B414(0x11AB0));
-    if (arg0->unk48->unk0 & 1) {
-        func_80007F10(arg0);
+s32 GameContext::func_80007F54(s32, u8**) {
+    this->unk48 = (StructYY*)func_8000D0B0(func_8004B414(0x11AB0));
+    if (this->unk48->unk0 & 1) {
+        this->func_80007F10();
     }
 
     // TODO: migrate string
-    arg0->unk48->vfunc2(D_800005CC, D_8006AAFC);
-    osCreateMesgQueue(&arg0->unk14, &arg0->unk2C, 1);
+    this->unk48->vfunc2(D_800005CC, D_8006AAFC);
+    osCreateMesgQueue(&this->unk14, &this->unk2C, 1);
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007FE0); // virt13
+INCLUDE_ASM("asm/nonmatchings/8260", func_80007FE0); // virtual dtor
 
 #ifdef NON_MATCHING
 // Pending data migration
