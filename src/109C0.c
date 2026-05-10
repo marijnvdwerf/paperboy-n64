@@ -4,13 +4,13 @@ typedef void (*InitFunc)(void);
 
 // Functions
 void func_8000FDC0();
-void func_8000FEEC(void *);
-void D_8000FF88(void *);
+void func_8000FEEC(void*);
+void D_8000FF88(void*);
 void func_80010000();
 void func_8001005C();
-void func_800079F4(s32, void *);
+void func_800079F4(s32, void*);
 void func_80048DD4();
-void func_8004B268(void *, void *, s32, s32);
+void func_8004B268(void*, void*, s32, s32);
 
 // Data
 extern u8 D_800768F0;
@@ -45,7 +45,7 @@ void boot(void) {
     osStartThread(&D_80086640);
 }
 
-void func_8000FEEC(void *arg) {
+void func_8000FEEC(void* arg) {
     osCreateViManager(0xFE);
     osViSetMode(&D_80077CD0);
     osViBlack(1);
@@ -57,7 +57,7 @@ void func_8000FEEC(void *arg) {
     while (1) {}
 }
 
-void D_8000FF88(void *arg) {
+void D_8000FF88(void* arg) {
     func_8001005C();
     D_8006D5F0 = 0x400000 - OS_K0_TO_PHYSICAL(&D_80148370);
     func_8004B268(&D_800768F0, &D_80148370, D_8006D5F0, 0x40);
