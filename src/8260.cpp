@@ -75,17 +75,26 @@ class StructYY {
     virtual void vfunc7();
     virtual void vfunc8();
     virtual void vfunc9(s32, s32, s32, s32);
+    virtual void vfunc10();
 };
 
-class StructWW {
+class StructWWBase {
   public:
-    /* 0x00 */ char pad0[0x74];
+    /* 0x00 */ char pad0[0x14];
+    /* 0x14 */ // vtable
+    virtual ~StructWWBase();
+};
+
+class StructWW : public StructWWBase {
+  public:
+    /* 0x18 */ char pad18[0x5C];
     /* 0x74 */ s32 unk74;
 };
 
 extern "C" {
 // Functions
 void func_80006730(u8*, u8*, s32);
+void func_800092F8(StructWW*);
 void func_80009350(void*, s32);
 StructWW* func_80009458(s32);
 s32 func_8004B414(s32);
@@ -255,7 +264,14 @@ INCLUDE_ASM("asm/nonmatchings/8260", func_80007CB8);
 
 INCLUDE_ASM("asm/nonmatchings/8260", func_80007D14);
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007D70);
+extern "C" void func_80007D70(GameContext* arg0) {
+    if (arg0->unk4C != NULL) {
+        func_800092F8(arg0->unk4C);
+        delete arg0->unk4C;
+        arg0->unk4C = NULL;
+    }
+    arg0->unk48->vfunc10();
+}
 
 void GameContext::func_80007DE0() {
     StructYY* temp_a0;
