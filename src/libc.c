@@ -79,7 +79,7 @@ INCLUDE_ASM("asm/nonmatchings/libc", strrchr);
 
 INCLUDE_ASM("asm/nonmatchings/libc", strstr);
 
-INCLUDE_ASM("asm/nonmatchings/libc", strlwr);
+INCLUDE_ASM("asm/nonmatchings/libc", strupr);
 
 s32 tolower(s32 c) {
     if ((u32)(c - 'A') < 26) {
@@ -100,3 +100,5 @@ INCLUDE_ASM("asm/nonmatchings/libc", func_80006960);
 INCLUDE_ASM("asm/nonmatchings/libc", func_80006A10);
 
 INCLUDE_ASM("asm/nonmatchings/libc", func_80006A4C);
+
+INCLUDE_ASM("asm/nonmatchings/libc", func_80006A58);
