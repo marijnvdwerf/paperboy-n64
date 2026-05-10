@@ -64,7 +64,7 @@ s32 func_80008C74(Actor* actor);
 void func_80008C80(Actor* actor, s32 arg);
 void func_800090BC(s32 arg);
 void func_8004B0D4(void* a, s32 b);
-void* func_8004B414(s32 size);
+void* __builtin_new(s32 size);
 SceneNode* func_800BFF2C(void* mem);
 void func_800BFDC0(SceneNode* node);
 void func_800BFE30(SceneNode* node);
@@ -99,7 +99,7 @@ void func_800BFF50(Actor* self) {
     Obj* child;
     UnkStruct48* unk48;
 
-    D_801295E0 = func_800BFF2C(func_8004B414(0xC));
+    D_801295E0 = func_800BFF2C(__builtin_new(0xC));
     if (func_80008C68(self) == 7) {
         unk48 = D_8006AB04->unk48;
         result = unk48->vfunc14();
@@ -135,22 +135,22 @@ void func_800BFF50(Actor* self) {
     state = func_80008C74(self);
     switch (state) {
         case 5:
-            child = func_800C15F8(func_8004B414(0x28));
+            child = func_800C15F8(__builtin_new(0x28));
             break;
         case 4:
-            child = func_800C1944(func_8004B414(0x24));
+            child = func_800C1944(__builtin_new(0x24));
             break;
         case 3:
-            child = func_800C26D4(func_8004B414(0x28));
+            child = func_800C26D4(__builtin_new(0x28));
             break;
         case 1:
-            child = func_800C1E60(func_8004B414(0x28));
+            child = func_800C1E60(__builtin_new(0x28));
             break;
         case 7:
-            child = func_800C22EC(func_8004B414(0x24));
+            child = func_800C22EC(__builtin_new(0x24));
             break;
         case 6:
-            child = func_800C1094(func_8004B414(0x238));
+            child = func_800C1094(__builtin_new(0x238));
             break;
     }
     func_800090BC(D_8006AB10);

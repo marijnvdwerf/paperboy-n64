@@ -66,14 +66,15 @@ struct GameContext : GameContextBase {
     s32 func_80007F54(s32, u8**);
 };
 
-class StructYY {
+class StructYYBase {
   public:
     /* 0x00 */ s32 unk0;
     /* 0x04 */ char pad4[0x6C];
     /* 0x70 */ s32 unk70;
     /* 0x74 */ char pad74[0x28];
+    /* 0x9C */ // vtable
 
-    virtual ~StructYY();
+    virtual ~StructYYBase();
     virtual void vfunc1();
     virtual void vfunc2(const char*, s32);
     virtual void vfunc3();
@@ -84,6 +85,13 @@ class StructYY {
     virtual void vfunc8();
     virtual void vfunc9(s32, s32, s32, s32);
     virtual void vfunc10();
+};
+
+class StructYY : public StructYYBase {
+  public:
+    /* 0x00A0 */ char tail[0x11A10];
+
+    StructYY();
 };
 
 class StructWWBase {
@@ -97,6 +105,9 @@ class StructWW : public StructWWBase {
   public:
     /* 0x18 */ char pad18[0x5C];
     /* 0x74 */ s32 unk74;
+    /* 0x78 */ char pad78[0xC];
+
+    StructWW();
 };
 
 extern "C" {
@@ -108,7 +119,6 @@ void func_800085B8(Actor*);
 void func_80008FA8(Actor*);
 void func_800092F8(StructWW*);
 void func_80009350(void*, s32);
-StructWW* func_80009458(s32);
 void func_80011500(s32);
 void func_80019080(s32);
 void func_80020DA4(s32);
@@ -130,12 +140,11 @@ void func_80039A94(s32);
 void func_8003A340(s32);
 void func_8003B1B4(s32);
 void func_8003F97C(s32);
-s32 func_8004B414(s32);
+s32 __builtin_new(s32);
 void func_80007660();
 void func_80007CB8();
 void func_80007D14();
 void func_800BFF50(GameSubContext*);
-void* func_8000D0B0(s32);
 void func_8011EC68(s32);
 void func_8012016C(s32);
 void func_80124198(s32);
@@ -405,7 +414,7 @@ void GameContext::func_80007DE0() {
     } else {
         D_80076404[0] = 0;
     }
-    temp_v0 = func_80009458(func_8004B414(0x84));
+    temp_v0 = new StructWW();
     this->unk4C = temp_v0;
     temp_v0->unk74 = (s32)(this->unk48->unk70 + 0x20);
     func_80009350(this->unk4C, 0x14);
@@ -431,7 +440,7 @@ void GameContext::func_80007F10() {
 }
 
 s32 GameContext::func_80007F54(s32, u8**) {
-    this->unk48 = (StructYY*)func_8000D0B0(func_8004B414(0x11AB0));
+    this->unk48 = new StructYY();
     if (this->unk48->unk0 & 1) {
         this->func_80007F10();
     }
