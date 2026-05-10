@@ -19,6 +19,7 @@ vfunc12__12StructWWBase = 0x8003C770; // type:func
 vfunc13__12StructWWBase = 0x8003D7B8; // type:func
 _._14GameSubContext = 0x800091C0; // type:func
 __12StructWWBase = 0x8003DC68; // type:func
+func_80009270__8StructWWl = 0x80009270; // type:func
 __8StructWW = 0x80009458; // type:func
 __8StructYY = 0x8000D0B0; // type:func
 __builtin_delete = 0x8004B3F0; // type:func

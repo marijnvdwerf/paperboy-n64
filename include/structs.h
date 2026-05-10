@@ -59,6 +59,12 @@ class StructWW : public StructWWBase {
 
     StructWW();
     virtual ~StructWW();
+
+    void func_80009210();
+    void func_80009270(s32);
+    void func_800092F8();
+    void func_80009350(s32);
+    static StructWW* func_800094A0();
 };
 
 #endif

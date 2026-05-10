@@ -10,16 +10,16 @@ extern u8 D_80076404[];
 void func_80006730(u8*, u8*, s32);
 }
 
-extern "C" void func_80009210(StructWW* arg0) {
-    if (arg0->unk80 != NULL) {
-        arg0->unk80->vfunc2();
-        arg0->unk7C->vfunc5(arg0->unk80);
-        arg0->unk80 = NULL;
+void StructWW::func_80009210() {
+    if (this->unk80 != NULL) {
+        this->unk80->vfunc2();
+        this->unk7C->vfunc5(this->unk80);
+        this->unk80 = NULL;
     }
 }
 
-extern "C" void func_80009270(StructWW* arg0, s32 arg1) {
-    func_80009210(arg0);
+void StructWW::func_80009270(s32 arg1) {
+    this->func_80009210();
 
     if (&D_80000800 != NULL) {
         func_80006730(D_80076404, D_80000800, 0x100);
@@ -28,21 +28,21 @@ extern "C" void func_80009270(StructWW* arg0, s32 arg1) {
         D_80076404[0] = 0;
     }
 
-    arg0->unk80 = arg0->unk7C->vfunc4(arg1);
+    this->unk80 = this->unk7C->vfunc4(arg1);
 }
 
-extern "C" void func_800092F8(StructWW* arg0) {
-    arg0->unk78 = 0;
-    func_80009210(arg0);
-    arg0->vfunc6(arg0->unk7C);
-    arg0->unk7C = 0;
-    arg0->vfunc2();
+void StructWW::func_800092F8() {
+    this->unk78 = 0;
+    this->func_80009210();
+    this->vfunc6(this->unk7C);
+    this->unk7C = 0;
+    this->vfunc2();
 }
 
-extern "C" void func_80009350(StructWW* arg0, s32) {
-    arg0->unk78 = 1;
-    arg0->vfunc1();
-    arg0->unk7C = arg0->vfunc5();
+void StructWW::func_80009350(s32) {
+    this->unk78 = 1;
+    this->vfunc1();
+    this->unk7C = this->vfunc5();
 
     if (&D_80000800 != NULL) {
         func_80006730(D_80076404, D_80000800, 0x100);
@@ -51,7 +51,7 @@ extern "C" void func_80009350(StructWW* arg0, s32) {
         D_80076404[0] = 0;
     }
 
-    arg0->unk7C->vfunc1(D_80000818);
+    this->unk7C->vfunc1(D_80000818);
 
     if (&D_80000820 != NULL) {
         func_80006730(D_80076404, D_80000820, 0x100);
@@ -72,6 +72,6 @@ StructWW::StructWW() {
     D_8006AB20 = this;
 }
 
-extern "C" void* func_800094A0() {
-    return D_8006AB20;
+StructWW* StructWW::func_800094A0() {
+    return (StructWW*)D_8006AB20;
 }

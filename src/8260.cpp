@@ -120,8 +120,6 @@ void func_80006730(u8*, u8*, s32);
 void func_8000812C();
 void func_800085B8(Actor*);
 void func_80008FA8(Actor*);
-void func_800092F8(StructWW*);
-void func_80009350(void*, s32);
 void func_80011500(s32);
 void func_80019080(s32);
 void func_80020DA4(s32);
@@ -387,7 +385,7 @@ extern "C" void func_80007D14() {
 
 void GameContext::func_80007D70() {
     if (this->unk4C != NULL) {
-        func_800092F8(this->unk4C);
+        this->unk4C->func_800092F8();
         delete this->unk4C;
         this->unk4C = NULL;
     }
@@ -408,7 +406,7 @@ void GameContext::func_80007DE0() {
     }
     this->unk4C = new StructWW();
     this->unk4C->unk74 = (s32)(this->unk48->unk70 + 0x20);
-    func_80009350(this->unk4C, 0x14);
+    this->unk4C->func_80009350(0x14);
     if (&D_800005E8 != NULL) {
         func_80006730(D_80076404, D_800005E8, 0x100);
         D_80076404[0xFF] = 0;
