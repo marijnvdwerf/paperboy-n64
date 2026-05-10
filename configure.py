@@ -26,7 +26,7 @@ CC1N64 = "tools/bin/cc1n64.exe"
 CC1PLN64 = "tools/bin/cc1pln64.exe"
 MODERN_ASN64 = "tools/modern-asn64/modern-asn64.py"
 
-INCLUDES = "-Iinclude"
+INCLUDES = "-Iinclude -Iultralib/include -Iultralib/include/PR"
 AS_FLAGS = f"-EB -march=vr4300 -mtune=vr4300 -G0 {INCLUDES}"
 
 COMMON_DEFINES = (
@@ -34,6 +34,7 @@ COMMON_DEFINES = (
     " -Dmips -D__mips__ -D__mips -Dn64 -D__n64__ -D__n64"
     " -D_PSYQ -D__EXTENSIONS__ -D_MIPSEB -D__CHAR_UNSIGNED__"
     " -DINCLUDE_ASM_USE_MACRO_INC=1"
+    " -D_FINALROM -DNDEBUG -DBUILD_VERSION=VERSION_J"
 )
 
 C_CPP_FLAGS = f"{COMMON_DEFINES} -lang-c -D_LANGUAGE_C {INCLUDES}"
