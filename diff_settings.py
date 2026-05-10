@@ -12,7 +12,7 @@ def apply(config, args):
     config["myimg"] = f"build/{variant}/paperboy.z64"
     config["mapfile"] = f"build/{variant}/paperboy.map"
     config["source_directories"] = ["src", "include"]
-    config["make_command"] = []
+    config["make_command"] = ["ninja"]
     config["objdump_flags"] = ["-M", "reg-names=32"]
     config["build_dir"] = f"build/{variant}/"
     config["expected_dir"] = "expected/"
