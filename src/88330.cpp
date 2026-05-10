@@ -80,11 +80,6 @@ Obj* func_800C26D4(void* mem);
 
 extern s32 D_80000300;
 
-#ifdef PAL
-void pal_func_8005F6B0(f32 arg);
-void pal_func_8005FA60(s32 arg);
-#endif
-
 extern s32 D_8006AAE4;
 extern UnkStructTop* D_8006AB04;
 extern s32 D_8006AB10;
@@ -166,9 +161,9 @@ void func_800BFF50(Actor* self) {
 
 #ifdef PAL
     if (D_80000300 == 0) {
-        pal_func_8005F6B0(0.833f);
+        osViSetYScale(0.833f);
     }
-    pal_func_8005FA60(0);
+    osViBlack(0);
 #endif
 
     func_800BFE30(D_801295E0);

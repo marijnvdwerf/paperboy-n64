@@ -167,9 +167,6 @@ void func_8011EC68(s32);
 void func_8012016C(s32);
 void func_80124198(s32);
 int sprintf(char*, const char*, ...);
-#ifdef PAL
-void func_8005FA60(s32);
-#endif
 s32 func_8004ABD0(void*, s32, s32, ...);
 void func_8002BECC(s32);
 void func_8002BD30(s32);
@@ -420,7 +417,7 @@ void GameContext::func_80007DE0() {
     temp_a0->vfunc9(this->unk4, this->unk8, this->unkC, this->unk50);
 
 #ifdef PAL
-    func_8005FA60(1);
+    osViBlack(1);
 #endif
     if (&D_800005D8 != NULL) {
         func_80006730(D_80076404, D_800005D8, 0x100);
