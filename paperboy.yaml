@@ -51,7 +51,7 @@ segments:
     subsegments:
       - [0x1000, hasm]
       - [0x1060, rodata]
-      - [0x10A0, .rdata, 7FE0]
+      - [0x10A0, .rdata, 8260]
       - [0x11C0, rodata] # part of previous I think
       - [0x1270, rodata]
       - [0x1320, rodata]
@@ -115,6 +115,7 @@ segments:
       - [0x6BD0, asm]
       - [0x7660, asm]
       - [0x7FE0, cpp]
+      - [0x8260, cpp]
       - [0x8DA0, asm]
       - [0x8EB0, asm]
       - [0x9E10, asm]
