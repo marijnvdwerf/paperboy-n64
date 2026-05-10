@@ -30,11 +30,12 @@ class N64SegDtors(CommonSegRodata):
             if type(s).__name__ == "N64SegDtors"
         ]
 
+        prefix = self.parent.name
         result = []
         if dtors_siblings and dtors_siblings[0] is self:
-            result.append(LinkerEntrySymbol(self, "entry_DTORS_START"))
+            result.append(LinkerEntrySymbol(self, f"{prefix}_DTORS_START"))
         result.extend(entries)
         if dtors_siblings and dtors_siblings[-1] is self:
-            result.append(LinkerEntrySymbol(self, "entry_DTORS_END"))
+            result.append(LinkerEntrySymbol(self, f"{prefix}_DTORS_END"))
 
         return result
