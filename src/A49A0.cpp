@@ -337,7 +337,7 @@ void func_800FA5F4(SceneNode*, u32, SceneNode*);
 void func_800FA608(SceneNode*, u8);
 void func_800FAFEC(SceneNode*);
 void func_80101C44(SceneNode*);
-void func_80114BB0(SoundState* a0, void* a1, s32 a2, s32 a3, f32 a4, f32 a5, s32 a6);
+void func_80114BB0(SoundState* a0, const char* a1, s32 a2, s32 a3, f32 a4, f32 a5, s32 a6);
 
 extern GameTop* D_8006AB04;
 extern Actor* D_8006AB10;
