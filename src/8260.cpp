@@ -1,6 +1,7 @@
 #include "common.h"
 #include "os_pi.h"
 #include "os_thread.h"
+#include "structs.h"
 
 class Actor;
 
@@ -110,22 +111,6 @@ class StructYY : public StructYYBase {
     /* 0x00A0 */ char tail[0x11A10];
 
     StructYY();
-};
-
-class StructWWBase {
-  public:
-    /* 0x00 */ char pad0[0x14];
-    /* 0x14 */ // vtable
-    virtual ~StructWWBase();
-};
-
-class StructWW : public StructWWBase {
-  public:
-    /* 0x18 */ char pad18[0x5C];
-    /* 0x74 */ s32 unk74;
-    /* 0x78 */ char pad78[0xC];
-
-    StructWW();
 };
 
 extern "C" {

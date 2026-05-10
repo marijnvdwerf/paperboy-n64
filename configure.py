@@ -47,6 +47,14 @@ VARIANTS = {
     "pal": {"defines": "-DPAL=1", "ld_flags": "-T ../../undefined_syms_pal.txt", "verify": False},
 }
 
+# Post-build ROM patches per variant: list of (rom_offset, hex_bytes).
+PATCHES = {
+    "ntsc": [
+        (0x14A8, "6573203D20363430"),
+    ],
+    "pal": [],
+}
+
 
 def clean():
     shutil.rmtree("asm", ignore_errors=True)
@@ -107,7 +115,7 @@ def create_build_script(linker_entries: list[LinkerEntry]):
     ninja.rule(
         "z64",
         description="rom $out",
-        command=f"{CROSS_OBJCOPY} $in $out -O binary",
+        command=f"{CROSS_OBJCOPY} $in $out -O binary && python3 tools/patch_rom.py $out $patches",
     )
 
     ninja.rule(
@@ -151,7 +159,9 @@ def create_build_script(linker_entries: list[LinkerEntry]):
             variables={"build_dir": build_dir, "extra_ld_flags": variant["ld_flags"]},
         )
 
-        ninja.build(z64_path, "z64", elf_path)
+        patches = PATCHES.get(name, [])
+        patch_args = " ".join(f"{off:#x}:{hx}" for off, hx in patches)
+        ninja.build(z64_path, "z64", elf_path, variables={"patches": patch_args})
 
         if variant["verify"]:
             ninja.build(ok_path, "sha1sum", "checksum.sha1", implicit=[z64_path])
