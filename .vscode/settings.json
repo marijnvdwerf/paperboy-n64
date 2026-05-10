@@ -1,0 +1,8 @@
+{
+    "explorer.excludeGitIgnore": false,
+    "search.useIgnoreFiles": false,
+    "search.exclude": {
+        "build/": true,
+        "expected/": true
+    }
+}
