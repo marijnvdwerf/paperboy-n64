@@ -115,7 +115,14 @@ segments:
       - [0x6A50, rodata]
 
       - [0x6B40, dtors]
+      - [0x6B50, dtors]
+      - [0x6B60, dtors]
+      - [0x6B70, dtors]
+      - [0x6B80, dtors]
       - [0x6B90, ctors]
+      - [0x6BA0, ctors]
+      - [0x6BB0, ctors]
+      - [0x6BC0, ctors]
 
       - [0x6BD0, asm]
       - [0x7660, asm]
