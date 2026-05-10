@@ -305,15 +305,7 @@ extern "C" void func_80007A60(GameContext* arg0) {
     func_80006310(first_VRAM, 0, size);
     osInvalDCache(first_VRAM, size);
     osInvalICache(first_VRAM, size);
-    osPiStartDma(
-        &arg0->unk30,
-        0,
-        0,
-        (u32)first_ROM_START,
-        first_VRAM,
-        (s32)(first_ROM_END - first_ROM_START),
-        &arg0->unk14
-    );
+    osPiStartDma(&arg0->unk30, 0, 0, (u32)first_ROM_START, first_VRAM, (s32)(first_ROM_END - first_ROM_START), &arg0->unk14);
     osRecvMesg(&arg0->unk14, NULL, OS_MESG_BLOCK);
 
     func_8003A340(D_8006AAE8);
