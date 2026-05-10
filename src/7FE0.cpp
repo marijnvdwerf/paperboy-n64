@@ -1,12 +1,5 @@
 #include "common.h"
 
-typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned int u32;
-typedef signed char s8;
-typedef signed short s16;
-typedef signed int s32;
-
 class StructYY {
   public:
     /* 0x00 */ char pad0[0x70];
@@ -58,18 +51,85 @@ int sprintf(char*, const char*, ...);
 #ifdef PAL
 void func_8005FA60(s32);
 #endif
+s32 func_8004ABD0(void*, s32, s32, ...);
+void func_8002BECC(s32);
+void func_8002BD30(s32);
+void func_80036BF4(s32);
+void func_80044458(s32);
+void func_8004527C(s32);
+void func_8003D76C(s32);
+void func_8003B3A0(s32);
+void func_8003DE3C(s32);
+void func_8003E42C(s32);
+void func_8004B3BC(s32);
 extern u8 D_800005D8[];
 extern u8 D_800005E8[];
 extern u8 D_80076404[];
 extern char D_80079360[];
 extern u8 D_8006A480[];
+extern s32 D_8006AAD0;
+extern s32 D_8006AAD4;
+extern s32 D_8006AAD8;
+extern s32 D_8006AADC;
+extern s32 D_8006AAE0;
+extern s32 D_8006AAE4;
+extern s32 D_8006AAE8;
+extern s32 D_8006AAEC;
+extern u32 D_8006AAF0;
+extern u32 D_8006AAF4;
+extern u32 D_8006AAF8;
+extern u32 D_8006D5F0;
+extern u8 D_800768F0;
 }
 
 INCLUDE_ASM("asm/nonmatchings/7FE0", func_800073E0);
 
 INCLUDE_ASM("asm/nonmatchings/7FE0", func_8000752C);
 
+#ifdef NON_MATCHING
+extern "C" void func_80007660(void) {
+    u32 total_size = 0;
+
+    total_size += ((D_8006AAF0 * D_8006AAF4 * D_8006AAF8) >> 2) + 0x100;
+    D_8006AAD0 = func_8004ABD0(&D_800768F0, ((D_8006AAF0 * D_8006AAF4 * D_8006AAF8) >> 2) + 0x100, 6);
+
+    total_size += 0x3C800;
+    D_8006AAD4 = func_8004ABD0(&D_800768F0, 0x3C800, 6);
+
+    total_size += 0x28000;
+    D_8006AAD8 = func_8004ABD0(&D_800768F0, 0x28000, 4);
+
+    total_size += 0x38000;
+    D_8006AADC = func_8004ABD0(&D_800768F0, 0x38000, 6);
+
+    total_size += 0x8800;
+    D_8006AAE0 = func_8004ABD0(&D_800768F0, 0x8800, 3);
+
+    total_size += 0x1C000;
+    D_8006AAE4 = func_8004ABD0(&D_800768F0, 0x1C000, 3);
+
+    {
+        u32 temp_s0 = ((D_8006AAF0 * D_8006AAF4 * 0x10) >> 3) + 0x100;
+        total_size += temp_s0;
+
+        D_8006AAE8 = func_8004ABD0(&D_800768F0, (D_8006D5F0 - total_size) - 0x80, 3);
+        D_8006AAEC = func_8004ABD0(&D_800768F0, temp_s0, 6);
+    }
+
+    func_8002BECC(D_8006AAD0); 
+    func_8002BD30(D_8006AAD4);
+    func_80036BF4(D_8006AAD4);
+    func_80044458(D_8006AAD8);
+    func_8004527C(D_8006AAD8);
+    func_8003D76C(D_8006AADC);
+    func_8003B3A0(D_8006AAEC);
+    func_8003DE3C(D_8006AAE0);
+    func_8003E42C(D_8006AAE0);
+    func_8004B3BC(D_8006AAE8);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/7FE0", func_80007660);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/7FE0", func_80007898);
 
