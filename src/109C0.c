@@ -62,8 +62,8 @@ void func_80010000(void) {
     InitFunc* p;
     InitFunc* end;
 
-    p = &entry_CTORS_START;
-    end = &entry_CTORS_END;
+    p = &entry_DTORS_START;
+    end = &entry_DTORS_END;
     if (p < end) {
         do {
             if (*p != NULL) {
@@ -78,8 +78,8 @@ void func_8001005C(void) {
     InitFunc* p;
     InitFunc* end;
 
-    p = &entry_DTORS_START;
-    end = &entry_DTORS_END;
+    p = &entry_CTORS_START;
+    end = &entry_CTORS_END;
     if (p < end) {
         do {
             if (*p != NULL) {
