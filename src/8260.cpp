@@ -35,6 +35,7 @@ struct GameSubContext {
     /* 0x5FC */
 
     GameSubContext();
+    ~GameSubContext();
 };
 
 class StructYY;
@@ -464,7 +465,9 @@ s32 GameContext::func_80007F54(s32, u8**) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/8260", func_80007FE0); // virtual dtor
+GameContext::~GameContext() {
+    D_8006AB04 = NULL;
+}
 
 #ifdef NON_MATCHING
 // Pending data migration
