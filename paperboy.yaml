@@ -32,6 +32,8 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 
+  extensions_path: tools/splat_ext
+
   ld_legacy_generation: True
 
 segments:
@@ -111,6 +113,9 @@ segments:
       - [0x5D40, rodata]
       - [0x5EE0, rodata]
       - [0x6A50, rodata]
+
+      - [0x6B40, dtors]
+      - [0x6B90, ctors]
 
       - [0x6BD0, asm]
       - [0x7660, asm]
