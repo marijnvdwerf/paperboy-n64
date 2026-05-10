@@ -15,9 +15,10 @@ extern u8* D_800865C0[];
 
 typedef void (*InitFunc)(void);
 
-extern InitFunc D_80005F40;
-extern InitFunc D_80005F90;
-extern InitFunc func_80005FD0;
+extern InitFunc entry_DTORS_START;
+extern InitFunc entry_DTORS_END;
+extern InitFunc entry_CTORS_START;
+extern InitFunc entry_CTORS_END;
 
 void func_8000FEEC(void);
 void D_8000FF88(void);
@@ -61,8 +62,8 @@ void func_80010000(void) {
     InitFunc* p;
     InitFunc* end;
 
-    p = &D_80005F90;
-    end = &func_80005FD0;
+    p = &entry_CTORS_START;
+    end = &entry_CTORS_END;
     if (p < end) {
         do {
             if (*p != NULL) {
@@ -77,8 +78,8 @@ void func_8001005C(void) {
     InitFunc* p;
     InitFunc* end;
 
-    p = &D_80005F40;
-    end = &D_80005F90;
+    p = &entry_DTORS_START;
+    end = &entry_DTORS_END;
     if (p < end) {
         do {
             if (*p != NULL) {
