@@ -125,7 +125,7 @@ segments:
       - [0x6BB0, dtors]
       - [0x6BC0, dtors]
 
-      - [0x6BD0, asm]
+      - [0x6BD0, c, libc]
       - [0x7660, asm]
       - [0x7FE0, cpp]
       - [0x8260, cpp]

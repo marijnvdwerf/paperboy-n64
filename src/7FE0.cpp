@@ -1,7 +1,7 @@
 #include "common.h"
 
 extern "C" {
-s32 func_80006940(s32);
+s32 toupper(s32);
 }
 
 extern "C" void func_800073E0(u8* src, s8* dest, s32 len) {
@@ -54,7 +54,7 @@ extern "C" void func_8000752C(u8* src, s8* dest, s32 len) {
             *dest = '\0';
             return;
         }
-        c = func_80006940(*src);
+        c = toupper(*src);
         if ((u8)(c - 0x41) < 0x1A) {
             *(dest++) = c + 0xD9;
         } else if ((u8)(c - 0x30) < 0xA) {

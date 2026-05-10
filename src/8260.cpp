@@ -115,7 +115,7 @@ class StructYY : public StructYYBase {
 
 extern "C" {
 // Functions
-void func_80006310(void*, s32, u32);
+void* memset(void*, s32, u32);
 void func_80006730(u8*, u8*, s32);
 void func_8000812C();
 void func_800085B8(Actor*);
@@ -310,7 +310,7 @@ extern "C" s32 func_800079F4(s32 argc, u8** argv) {
 
 void GameContext::func_80007A60() {
     s32 size = (s32)(first_VRAM_END - first_VRAM);
-    func_80006310(first_VRAM, 0, size);
+    memset(first_VRAM, 0, size);
     osInvalDCache(first_VRAM, size);
     osInvalICache(first_VRAM, size);
     osPiStartDma(&this->unk30, 0, 0, (u32)first_ROM_START, first_VRAM, (s32)(first_ROM_END - first_ROM_START), &this->unk14);
