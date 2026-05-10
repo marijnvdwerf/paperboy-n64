@@ -6,15 +6,15 @@ description: Decompile functions in this Paperboy N64 project. Use when asked to
 
 ## Getting a starting point with m2c
 
-To decompile a function, first generate a C approximation from the assembly:
+To decompile a function, first generate a C approximation from the assembly. Always pass all relevant rodata files to resolve float constants and jump tables:
 
 ```bash
-uv run m2c asm/nonmatchings/<file>/<func_name>.s
+uv run m2c asm/nonmatchings/<file>/<func_name>.s asm/data/<rodata1>.s asm/data/<rodata2>.s
 ```
 
 Example:
 ```bash
-uv run m2c asm/nonmatchings/2A500/func_80029900.s
+uv run m2c asm/nonmatchings/A49A0/func_800DCA68.s asm/data/7EC08.rodata.s asm/data/79F20.rodata.s
 ```
 
 m2c output needs manual cleanup — fix types, struct access patterns, and variable names.
@@ -60,8 +60,9 @@ The diff shows TARGET (original ROM) vs CURRENT (your build) side by side.
 - The SN compiler places the vtable pointer AFTER all data members (not at the start like GCC/MSVC)
 - The compiler auto-generates a destructor at vtable slot 0, even if no destructor is declared
 - Each vtable entry is 8 bytes: `{s16 this_offset, s16 pad, void *func_ptr}`
-- So declared virtual functions start at slot 1. If you see a vtable access at byte offset N, the entry index is N/8, and the declared virtual function index is (N/8 - 1) accounting for the destructor
+- With 1-indexed vfunc names (vfunc_01, vfunc_02, ...), vfunc_K is at vtable byte offset K*8. Example: vfunc_31 is at offset 0xF8 (31*8), vfunc_27 is at offset 0xD8 (27*8)
 - Virtual function calls in asm look like: load vtable ptr from object, load entry offset+func, adjust `this` by offset, `jalr` the func ptr
+- If a struct needs both a vtable at a known offset AND child class data after the vptr, use inheritance: declare virtuals in a base class, then add child data in the derived class. Without inheritance, all data goes before the single vptr, making it impossible to have data at offsets past the vptr.
 
 ### Switch statements
 - The compiler may emit switch cases in a different order than written in source — reorder cases to match the jump table in rodata
@@ -72,6 +73,17 @@ The diff shows TARGET (original ROM) vs CURRENT (your build) side by side.
 - Don't store struct field accesses in local variables if the value is only used across function calls. The compiler will reload from the struct after each call (caller-saved regs are clobbered). A local variable forces the compiler to allocate an extra s-register, increasing the stack frame size.
 - Example: use `sceneChild->child2->vfunc_18(...)` instead of `GameObjChild2* child2 = sceneChild->child2; child2->vfunc_18(...);`
 - When a virtual function accepts different argument types across call sites (pointer in one, integer in another), declare the parameter as `void*`
+- Avoid caching struct fields in locals inside loops — the compiler reloads them naturally and the local wastes an s-register. Use `data->children[i]` directly instead of `s32 base = data->childrenOffset; ... base + offset`.
+- `u32` types for count/capacity fields avoid unnecessary `(u32)` casts in comparisons
+
+### Stack variable declaration order
+- The SN compiler allocates stack locals from the bottom of the frame for the LAST declared variable. First declared = highest stack offset, last declared = lowest offset.
+- If asm-differ shows stack offsets are wrong (e.g. sp+0x10 vs sp+0x40), reorder the local array declarations at the top of the function.
+- Declare variables in descending stack-offset order: `sp10` last, `sp40` first.
+
+### Loop variables and branch-likely (beqzl)
+- Declaring a loop counter inside the `for` init (e.g. `for (u32 i = 0; ...)`) vs before the loop body can affect whether the compiler generates `beqzl` (branch-likely) or `beqz` (regular branch)
+- If the target uses `beqzl` and your code generates `beqz`, try moving variable initializations to different positions relative to the if-block
 
 ### Float literal arrays
 - When assigning float literals to a local array, use sequential index order (0, 1, 2, 3). The SN compiler emits rodata in source order of the literals, and sequential stores match the target better.
