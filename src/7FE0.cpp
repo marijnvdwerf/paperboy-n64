@@ -52,6 +52,7 @@ int sprintf(char*, const char*, ...);
 void func_8005FA60(s32);
 #endif
 s32 func_8004ABD0(void*, s32, s32, ...);
+s32 func_80006940(s32);
 void func_8002BECC(s32);
 void func_8002BD30(s32);
 void func_80036BF4(s32);
@@ -123,7 +124,41 @@ extern "C" void func_800073E0(u8* src, s8* dest, s32 len) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/7FE0", func_8000752C);
+extern "C" void func_8000752C(u8* src, s8* dest, s32 len) {
+    u8* end;
+    u8 c;
+
+    for (end = src + len; src < end; src++) {
+        if (*src == '\0') {
+            *dest = '\0';
+            return;
+        }
+        c = func_80006940(*src);
+        if ((u8)(c - 0x41) < 0x1A) {
+            *(dest++) = c + 0xD9;
+        } else if ((u8)(c - 0x30) < 0xA) {
+            *(dest++) = c + 0xE0;
+        } else if (c == 0x20) {
+            *(dest++) = 0xF;
+        } else if ((u8)(c - 0x2A) < 6) {
+            *(dest++) = c + 0xE;
+        } else if ((u8)(c - 0x21) < 3) {
+            *(dest++) = c + 0x13;
+        } else if (c == 0x27) {
+            *(dest++) = 0x37;
+        } else if (c == 0x3A) {
+            *(dest++) = 0x3E;
+        } else if (c == 0x3D) {
+            *(dest++) = 0x3F;
+        } else if (c == 0x3F) {
+            *(dest++) = 0x40;
+        } else if (c == 0x40) {
+            *(dest++) = 0x41;
+        } else {
+            *(dest++) = 0x38;
+        }
+    }
+}
 
 #ifdef NON_MATCHING
 extern "C" void func_80007660(void) {
