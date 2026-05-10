@@ -27,6 +27,7 @@ options:
   undefined_syms_auto_path: undefined_syms_auto.txt
   create_undefined_funcs_auto: True
   create_undefined_syms_auto: True
+  migrate_rodata_to_functions: True
 
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
@@ -50,6 +51,9 @@ segments:
     subsegments:
       - [0x1000, hasm]
       - [0x1060, rodata]
+      - [0x10A0, .rdata, 7FE0]
+      - [0x11C0, rodata] # part of previous I think
+      - [0x1270, rodata]
       - [0x1320, rodata]
       - [0x1400, rodata]
       - [0x14B0, rodata]

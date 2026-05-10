@@ -50,12 +50,19 @@ void func_80006730(u8*, u8*, s32);
 void func_80009350(void*, s32);
 StructWW* func_80009458(s32);
 s32 func_8004B414(s32);
+void func_80007660();
+void func_80007EC4(void*);
+void func_80007F10(void*);
+s32 func_80007F54(void*, s32, u8**);
+int sprintf(char*, const char*, ...);
 #ifdef PAL
 void func_8005FA60(s32);
 #endif
 extern u8 D_800005D8[];
 extern u8 D_800005E8[];
 extern u8 D_80076404[];
+extern char D_80079360[];
+extern u8 D_8006A480[];
 }
 
 INCLUDE_ASM("asm/nonmatchings/7FE0", func_800073E0);
@@ -68,7 +75,66 @@ INCLUDE_ASM("asm/nonmatchings/7FE0", func_80007898);
 
 INCLUDE_ASM("asm/nonmatchings/7FE0", func_800078B8);
 
-INCLUDE_ASM("asm/nonmatchings/7FE0", func_800078DC);
+extern "C" void func_800078DC(s32 errCode, const char* file, s32 line, const char* prettyMsg) {
+    const char* msg;
+    const char* p = prettyMsg;
+
+    // TODO: fix this in a natural way. This is just here to fix rodata ordering
+    const char* DEFAULT_MESSAGE = "<NO PRETTYMSG>";
+    const char* DEFAULT_FMT = "%s,\nfile %s, line %d, (%s)";
+
+    switch (errCode) {
+        case 0:
+            msg = "Invalid error condition";
+            break;
+        case -1:
+            msg = "General error occurred";
+            break;
+        case -2:
+            msg = "Invalid parameter detected";
+            break;
+        case -3:
+            msg = "Invalid value detected";
+            break;
+        case -4:
+            msg = "Out of memory error occured";
+            break;
+        case -5:
+            msg = "Critical resource busy";
+            break;
+        case -7:
+            msg = "Assertion Failed";
+            break;
+        default:
+            msg = "Unknown error condition occured";
+            break;
+    }
+    if (p == NULL) {
+        p = "<NO PRETTYMSG>";
+    }
+    sprintf(D_80079360, "%s,\nfile %s, line %d, (%s)", msg, file, line, p);
+    __asm__("break 1, 7");
+    while (1) {}
+}
+
+extern "C" void func_800079A8(const char* msg, const char* file, s32 line, const char* prettyMsg) {
+    const char* p = prettyMsg;
+    if (p == NULL) {
+        p = "<NO PRETTYMSG>";
+    }
+    sprintf(D_80079360, "%s,\nfile %s, line %d, (%s)", msg, file, line, p);
+    __asm__("break 1, 7");
+    while (1) {}
+}
+
+extern "C" s32 func_800079F4(s32 argc, u8** argv) {
+    func_80007660();
+    if (func_80007F54(D_8006A480, argc, argv) != 0) {
+        func_80007EC4(D_8006A480);
+        func_80007F10(D_8006A480);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/7FE0", func_80007A60);
 
