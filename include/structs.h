@@ -23,7 +23,7 @@ class StructVV {
     virtual void vfunc1(const char*);
     virtual void vfunc2();
     virtual void vfunc3();
-    virtual void vfunc4();
+    virtual StructUU* vfunc4(s32);
     virtual void vfunc5(StructUU*);
 };
 

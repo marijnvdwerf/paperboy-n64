@@ -18,7 +18,18 @@ extern "C" void func_80009210(StructWW* arg0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/9E10", func_80009270);
+extern "C" void func_80009270(StructWW* arg0, s32 arg1) {
+    func_80009210(arg0);
+
+    if (&D_80000800 != NULL) {
+        func_80006730(D_80076404, D_80000800, 0x100);
+        D_80076404[0xFF] = 0;
+    } else {
+        D_80076404[0] = 0;
+    }
+
+    arg0->unk80 = arg0->unk7C->vfunc4(arg1);
+}
 
 extern "C" void func_800092F8(StructWW* arg0) {
     arg0->unk78 = 0;
@@ -61,12 +72,6 @@ StructWW::StructWW() {
     D_8006AB20 = this;
 }
 
-INCLUDE_ASM("asm/nonmatchings/9E10", func_800094A0);
-
-INCLUDE_ASM("asm/nonmatchings/9E10", func_800094B0);
-
-INCLUDE_ASM("asm/nonmatchings/9E10", func_80009550);
-
-INCLUDE_ASM("asm/nonmatchings/9E10", func_80009938);
-
-INCLUDE_ASM("asm/nonmatchings/9E10", func_80009A64);
+extern "C" void* func_800094A0() {
+    return D_8006AB20;
+}

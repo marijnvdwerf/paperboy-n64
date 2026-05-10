@@ -132,6 +132,7 @@ segments:
       - [0x8DA0, asm]
       - [0x8EB0, asm]
       - [0x9E10, cpp]
+      - [0xA0B0, asm]
       - [0xA670, asm]
       - [0xB010, asm]
       - [0xB720, asm]
