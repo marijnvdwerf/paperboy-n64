@@ -14,11 +14,23 @@ class StructUU {
     virtual void vfunc2();
 };
 
-class StructVV {
+class StructVVParent {
   public:
     /* 0x00 */ char pad0[0x4];
     /* 0x04 */ // vtable
 
+    StructVVParent();
+    virtual ~StructVVParent();
+};
+
+class StructVV : public StructVVParent {
+  public:
+    /* 0x08 */ class StructWWBase* owner;
+    /* 0x0C */ StructVV* next;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+
+    StructVV();
     virtual ~StructVV();
     virtual void vfunc1(const char*);
     virtual void vfunc2();
@@ -63,7 +75,7 @@ class StructWWBase : public StructWWParent {
     /* 0x5C */ u8* heap;
     /* 0x60 */ u8* ptrbank;
     /* 0x64 */ u8* wbk;
-    /* 0x68 */ s32 unk68;
+    /* 0x68 */ StructVV* unk68;
     /* 0x6C */ s32 unk6C;
     /* 0x70 */ s32 unk70;
     /* 0x74 */ void* sched;
