@@ -79,6 +79,15 @@ class StructVV : public StructVVParent {
     virtual StructUU* vfunc4(s32);
     virtual void vfunc5(StructUU*);
     virtual StructWWBase* vfunc6();
+
+    StructWWBase* getOwner();
+    void setOwner(StructWWBase*);
+    void setNext(StructVV*);
+    StructVV* getNext();
+
+    void func_8003DCE0(LocalIOBase*);
+    void func_8003DE48();
+    void func_8003DE90();
 };
 
 class StructWWParent {

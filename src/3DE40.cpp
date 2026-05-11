@@ -42,12 +42,9 @@ void MusStop(u32 flags, s32 speed);
 s32 MusAsk(u32 flags);
 void func_8003C8A4(StructWWBase*);
 void func_8003F388(class Node2*, s32);
-void func_8003DE48(StructVV*);
-void func_8003DE90(StructVV*);
 void func_8003F4AC(class Node2*);
 void func_8003F5E0(class Node2*);
 s32 func_8003C804(StructWWBase*, void*);
-void func_8003DCE0(StructVV*, LocalIOBase*);
 char* strcpy(char*, const char*);
 char* strcat(char*, const char*);
 u8* strncpy(u8*, u8*, s32);
@@ -248,7 +245,7 @@ void StructWWBase::vfunc4() {
     StructVV* sv = this->unk68;
     this->unk70 = 0;
     while (sv != NULL) {
-        func_8003DE48(sv);
+        sv->func_8003DE48();
         sv = sv->next;
     }
     Node2* n2 = this->unk6C;
@@ -262,7 +259,7 @@ void StructWWBase::vfunc3() {
     StructVV* sv = this->unk68;
     this->unk70 = 1;
     while (sv != NULL) {
-        func_8003DE90(sv);
+        sv->func_8003DE90();
         sv = sv->next;
     }
     Node2* n2 = this->unk6C;

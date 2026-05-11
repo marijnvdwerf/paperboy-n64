@@ -4,100 +4,118 @@ description: Decompile functions in this Paperboy N64 project. Use when asked to
 
 # Decompiling Functions
 
-## Getting a starting point with m2c
+See `DECOMPILING.md` at the repo root for the long-form guide. This is the operational cheat sheet.
 
-To decompile a function, first generate a C approximation from the assembly. Always pass all relevant rodata files to resolve float constants and jump tables:
+## The loop
 
-```bash
-uv run m2c asm/nonmatchings/<file>/<func_name>.s asm/data/<rodata1>.s asm/data/<rodata2>.s
+1. Read `asm/nonmatchings/<segment>/<name>.s`.
+2. Get a draft with m2c (always pass relevant rodata, even with no jump table — resolves float consts):
+   ```bash
+   uv run m2c asm/nonmatchings/<file>/<func>.s asm/data/<rodata>.s [more.rodata.s]
+   ```
+3. Replace the `INCLUDE_ASM(...)` line in the corresponding `src/*.{c,cpp}` with your C/C++.
+4. `ninja` — this builds *and* runs `sha1sum -c checksum.sha1`. `build/ntsc/paperboy.z64: OK` is the only authoritative match signal. Both NTSC and PAL must pass.
+5. If not OK, iterate with `uv run asm-differ -o <func_name>` (we do NOT use asm-differ's auto-build).
+
+**asm-differ score is a heuristic.** Score 0 doesn't guarantee a ROM match (rodata/bss may differ); non-zero with only `i`-marked symbol substitutions usually does match. Trust the sha1sum.
+
+To park a not-yet-matching draft without blocking, wrap it: `#if 0 ... your C ... #else INCLUDE_ASM(...); #endif` (or `#if 1` to keep the C active while iterating).
+
+## Toolchain facts
+
+- C: `cc1n64.exe` (`-lang-c -D_LANGUAGE_C`). C++: `cc1pln64.exe` (`-lang-c++ -D_LANGUAGE_C_PLUS_PLUS`). Both via `wibo`.
+- Flags: `-O2 -G0`.
+- PAL build is compiled with `-DPAL=1`; PAL-only code in `#ifdef PAL`; PAL-only symbols in `undefined_syms_pal.txt`, shared in `undefined_syms.txt`.
+- C functions called from asm need `extern "C"` in C++ TUs to avoid mangling.
+
+## C++ patterns (critical)
+
+We model the original as C++ classes — don't flatten to struct-of-function-pointer.
+
+**Vtable position.** SN places the vptr **after** all data members of the class declaring the virtuals. For data both before and after the vptr, use inheritance: parent holds early data + at least one virtual (forces vtable at its tail); derived class adds later data + more virtuals.
+
+**Dtor slot = declaration order.** Virtual destructors do NOT auto-go to slot 0/1. If the rodata vtable has the dtor at slot 7, declare 6 other virtuals before `~Class()`.
+
+**Dtor delete-mode arg in `$a1`.** `2` = run dtor, don't free (stack scope exit). `3` = run dtor + free (`delete obj`). Seeing `jal _._Class; li $a1, 2|3` is normal — just declare the dtor, the compiler handles it.
+
+**Static devirtualization.** A virtual call on an object with statically-known dynamic type (e.g. stack local) compiles to a direct `jal`. On a pointer/ref, it's the usual `lw vptr; lh off; lw fn; jalr`. **Match the asm:** stack local for direct, pointer for indirect.
+
+**Operator new/delete mappings** (already in `symbol_addrs.txt`):
 ```
-
-Example:
-```bash
-uv run m2c asm/nonmatchings/A49A0/func_800DCA68.s asm/data/7EC08.rodata.s asm/data/79F20.rodata.s
+__builtin_new        = 0x8004B414   // operator new
+__builtin_delete     = 0x8004B3F0   // operator delete
+__builtin_vec_new    = 0x80064320   // operator new[]   (project custom heap)
+__builtin_vec_delete = 0x80064340   // operator delete[]
 ```
+Use `new u8[N]` / `delete[] ptr` for the `vec` variants.
 
-m2c output needs manual cleanup — fix types, struct access patterns, and variable names.
+**Vtable entry layout:** 8 bytes each = `{s16 this_offset, s16 pad, void* fn}`. With 1-indexed `vfuncNN`, slot K is at byte offset `K*8`.
 
-## Building and diffing
+## Name mangling (SN cfront-style)
 
-Always build before diffing. We don't use asm-differ's auto-build.
+| Declaration | Mangled |
+|---|---|
+| `Class::method()` | `method__<N>Class` |
+| `Class::method(Other*)` | `method__<N>ClassP<M>Other` |
+| `Class::method(s32)` | `method__<N>Classl` |
+| `~Class()` | `_._<N>Class` |
+| `Class()` ctor | `__<N>Class` |
+| Vtable | `_vt.<N>Class` |
 
-```bash
-ninja && uv run asm-differ -o <func_name>
-```
+`<N>` = strlen(class name). Primitives: `c` char, `i` int, `l` long/s32, `Pv` void*, `PCc` const char*. Return type NOT mangled. `T<n>` reuses arg `n`'s type (`lPvlT2` = `(long, void*, long, void*)`).
 
-Example:
-```bash
-ninja && uv run asm-differ -o func_80029900
-```
+## Adding/renaming a class method — workflow
 
-The diff shows TARGET (original ROM) vs CURRENT (your build) side by side.
+Splat scans `.c`/`.cpp` files for `INCLUDE_ASM` macros to decide which `.s` files to emit. **Update INCLUDE_ASM in source BEFORE reconfiguring**, or splat will delete the old `func_NNNN.s` and the build breaks.
 
-## Workflow
+1. Declare the method in the header (in `include/structs.h` if cross-TU, else inline in the .cpp).
+2. Update the source: either provide a definition, or change the `INCLUDE_ASM(..., func_NNNN)` line to reference the new mangled name.
+3. Add `<mangled> = 0xADDR; // type:func` to `symbol_addrs.txt`.
+4. `uv run python configure.py --clean` to reconfigure.
+5. `ninja`.
 
-1. Run m2c on the nonmatching asm to get a starting point
-2. Put the decompiled C code in the source file, replacing the `INCLUDE_ASM` line
-3. `ninja && uv run asm-differ -o <func_name>` to compare
-4. Iterate until the diff shows a match (score 0)
-5. Run `ninja` and verify `build/ntsc/paperboy.z64: OK` (checksum passes)
+Reconfigure deliberately — it can wipe in-progress asm. Don't reconfigure casually.
 
-## Project-specific notes
+## Link failures
 
-- SN toolchain: C files use `cc1n64.exe`, C++ files use `cc1pln64.exe` (both via wibo)
-- Compiler flags: `-G0 -O2`
-- C files are compiled with `-lang-c -D_LANGUAGE_C`
-- C++ files are compiled with `-lang-c++ -D_LANGUAGE_C_PLUS_PLUS`
-- C++ extern functions called from asm need `extern "C"` to prevent name mangling
-- C++ member functions need their mangled name in `symbol_addrs.txt` (e.g. `func_80007DE0__8StructXX = 0x80007DE0; // type:func`)
-- PAL-specific code is guarded with `#ifdef PAL`
-- PAL-only symbols go in `undefined_syms_pal.txt`, shared symbols in `undefined_syms.txt`
-- After any YAML changes, always run `uv run python configure.py --clean` before building
+`defined in discarded section` usually means a vtable references unresolved virtuals. Either map every declared virtual to a real address in `symbol_addrs.txt`, or remove the virtual decls until things resolve.
 
-## SN compiler behavior
+## Splitting TUs
 
-### C++ vtables
-- The SN compiler places the vtable pointer AFTER all data members (not at the start like GCC/MSVC)
-- Each vtable entry is 8 bytes: `{s16 this_offset, s16 pad, void *func_ptr}`
-- With 1-indexed vfunc names (vfunc_01, vfunc_02, ...), vfunc_K is at vtable byte offset K*8. Example: vfunc_31 is at offset 0xF8 (31*8), vfunc_27 is at offset 0xD8 (27*8)
-- Virtual destructors occupy a vtable slot in source-declaration order — they are NOT auto-placed at slot 0. If a class has `virtual void vfunc1(); virtual ~Foo(); virtual void vfunc3();`, the dtor is at slot 2 (offset 0x10), not slot 0.
-- A virtual destructor's vtable entry is invoked with an integer "delete mode" argument (e.g. 3 for full delete). `delete ptr;` compiles to a virtual call to the dtor slot with that arg — if you see `vfuncN(3)` followed by clearing the pointer, it's likely `delete`.
-- Virtual function calls in asm look like: load vtable ptr from object, load entry offset+func, adjust `this` by offset, `jalr` the func ptr
-- If a struct needs both a vtable at a known offset AND child class data after the vptr, use inheritance: declare virtuals in a base class, then add child data in the derived class. Without inheritance, all data goes before the single vptr, making it impossible to have data at offsets past the vptr.
+A single asm range can be two TUs glued by the linker. Symptom: a literal (e.g. `""` crash msg) appears at two different addresses — the SN compiler would have deduplicated within a TU. To split:
 
-### Switch statements
-- The compiler may emit switch cases in a different order than written in source — reorder cases to match the jump table in rodata
-- When decompiling a function with a switch/jump table, the rodata for the jump table must be migrated: add a `.rdata` subsegment in the YAML pointing to the C/C++ file, and remove/replace the old rodata entries
-- m2c needs the rodata file passed as a second argument to handle jump tables: `uv run m2c asm/nonmatchings/<file>/<func>.s asm/data/<rodata_file>.s`
+1. Find an aligned address between the TUs.
+2. Add `- [0xNNNN, cpp]` (and a matching `rodata` entry if needed) to `paperboy.yaml`.
+3. Reconfigure. Move source for the new range into the new `.cpp`. Move shared types to `include/structs.h`.
 
-### Register allocation and local variables
-- Don't store struct field accesses in local variables if the value is only used across function calls. The compiler will reload from the struct after each call (caller-saved regs are clobbered). A local variable forces the compiler to allocate an extra s-register, increasing the stack frame size.
-- Example: use `sceneChild->child2->vfunc_18(...)` instead of `GameObjChild2* child2 = sceneChild->child2; child2->vfunc_18(...);`
-- When a virtual function accepts different argument types across call sites (pointer in one, integer in another), declare the parameter as `void*`
-- Avoid caching struct fields in locals inside loops — the compiler reloads them naturally and the local wastes an s-register. Use `data->children[i]` directly instead of `s32 base = data->childrenOffset; ... base + offset`.
-- `u32` types for count/capacity fields avoid unnecessary `(u32)` casts in comparisons
+## Header / style conventions
 
-### Stack variable declaration order
-- The SN compiler allocates stack locals from the bottom of the frame for the LAST declared variable. First declared = highest stack offset, last declared = lowest offset.
-- If asm-differ shows stack offsets are wrong (e.g. sp+0x10 vs sp+0x40), reorder the local array declarations at the top of the function.
-- Declare variables in descending stack-offset order: `sp10` last, `sp40` first.
+- `include/structs.h` for cross-TU class defs; single-TU classes stay inline.
+- Field offset comments (`/* 0x18 */`) are mandatory — the offset is truth, not the name.
+- Field names start `unkXX`; rename only with evidence. No opportunistic renaming.
+- `clang-format` before commit.
 
-### Loop variables and branch-likely (beqzl)
-- Declaring a loop counter inside the `for` init (e.g. `for (u32 i = 0; ...)`) vs before the loop body can affect whether the compiler generates `beqzl` (branch-likely) or `beqz` (regular branch)
-- If the target uses `beqzl` and your code generates `beqz`, try moving variable initializations to different positions relative to the if-block
+## SN codegen tips (when "structurally right" doesn't match)
 
-### Float literal arrays
-- When assigning float literals to a local array, use sequential index order (0, 1, 2, 3). The SN compiler emits rodata in source order of the literals, and sequential stores match the target better.
-- Always pass the rodata file to m2c as a second argument, even when there's no jump table — it resolves float constants to their actual values: `uv run m2c asm/nonmatchings/<file>/<func>.s asm/data/<rodata_file>.s`
-- When decompiling a function with inline float constants, the `.rdata` subsegment boundary in the YAML must be extended to cover them, and the following `rodata` subsegment start address must be adjusted
+- **Instruction scheduling**: SN fills delay slots aggressively. Reorder C statements, hoist locals, swap `while`/`for`/`do-while`, combine NULL checks with `&&` vs split `if`s.
+- **Don't cache struct fields in locals** across function calls or inside loops — caller-saved regs get clobbered and a local burns an s-register, growing the frame. Use `obj->child->method()` directly.
+- **Stack local declaration order**: SN allocates locals so the LAST-declared gets the LOWEST offset. If `sp10` should be at `sp+0x10` and `sp40` at `sp+0x40`, declare `sp40` first, `sp10` last.
+- **Switch case order**: emit order = source order; rodata jumptable is target order. Reorder cases to match.
+- **Float arrays**: assign literals in sequential index order (0,1,2,...) — rodata is emitted in source order.
+- **Rodata migration**: when decomping a function with a jump table or inline float consts, extend the `.rdata` subsegment in the yaml to cover them and adjust the next rodata start.
+- **Branch-likely (`beqzl`/`bnel`)**: induced by where vars are initialized relative to the `if`/loop. Try moving init lines.
+- **Virtual with mixed arg types across call sites**: declare param as `void*`.
+- **`u32` for count/capacity fields**: avoids spurious `(u32)` casts in compares.
 
-### Instruction scheduling
-- The SN compiler aggressively fills branch delay slots — it may reorder stores, address computations, or `move` instructions into delay slots
-- Reordering C statements (e.g. moving `var = 0` before or after a function call) can affect which instruction lands in a delay slot
-- The compiler CSEs (common subexpression eliminates) `&global` into a register with `lui+addiu`, then uses `move` to pass it. The original code may have recomputed the address each time with `addiu reg, saved_hi, %lo(...)` — this is a known codegen difference that's hard to control from C source
+## Tools
 
-### Identifying library functions
-- Use `bunx ultra64 identify baserom.z64 --base 0x80000400` to identify libultra functions in the ROM
-- Always use the **baserom**, not the built ROM (which may not match yet)
-- The game's base vram is `0x80000400` — pass `--base 0x80000400` for correct addresses
-- Known: `osRecvMesg = 0x8005CEB0`
+- `uv run m2c asm/nonmatchings/<f>.s asm/data/<rodata>.s` — starting draft.
+- `uv run asm-differ -o <func>` — diff after building. `i` = symbol substitution, `r` = register diff.
+- `bunx ultra64 identify baserom.z64 --base 0x80000400` — identify libultra functions. Use **baserom**, not the built ROM. Game vram base is `0x80000400`. Known: `osRecvMesg = 0x8005CEB0`.
+
+## Project glossary
+
+- `libmus` (Software Creations audio): `MusInitialize`, `MusStop`, `MusAsk`, `musConfig` (0x44 bytes).
+- Audio scheduler msgs: `OS_SC_RETRACE_MSG`=1, `OS_SC_PRE_NMI_MSG`=4, custom `0x63`.
+- `D_80003EB8` = the empty `""` crash string; appearance at two addresses signals two TUs.
+- `func_800079A8(msg, 0, 0, 0)` is the crash/assert helper.
