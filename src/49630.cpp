@@ -78,7 +78,31 @@ s32 LocalIOBase::virt15(void* buf, s32 size, s32* outActual) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/49630", virt4__11LocalIOBase);
+s32 LocalIOBase::virt4(void* buf, s32 size, s32* outActual) {
+    s32 nbytes = size;
+    s32 remaining = this->unk10 - this->unk8;
+    if (remaining <= 0) {
+        *outActual = 0;
+        return 0x10;
+    }
+    s32 align = this->unk8 & 1;
+    this->unk8 -= align;
+    remaining += align;
+    if (remaining < size) {
+        nbytes = remaining;
+        *outActual = nbytes;
+        nbytes += nbytes & 1;
+    } else {
+        *outActual = nbytes;
+    }
+    if (D_800768B0) {
+        for (;;) {}
+    }
+    osInvalDCache(buf, nbytes);
+    osPiStartDma(&D_800768B4, 0, 0, this->unk2C + this->unk8, buf, nbytes, &D_800768D0);
+    osRecvMesg(&D_800768D0, NULL, OS_MESG_BLOCK);
+    return 0;
+}
 
 s32 LocalIOBase::virt3(u32 arg1) {
     if (arg1 >= (u32)this->unk10) {

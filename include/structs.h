@@ -23,7 +23,7 @@ class LocalIOParent {
     virtual s32 virt1();
     virtual s32 virt2();
     virtual s32 virt3(u32);
-    virtual void virt4();
+    virtual s32 virt4(void*, s32, s32*);
     virtual void virt5();
     virtual void virt6();
     virtual ~LocalIOParent();
@@ -38,7 +38,7 @@ class LocalIOBase : public LocalIOParent {
     virtual s32 virt1();
     virtual s32 virt2();
     virtual s32 virt3(u32);
-    virtual void virt4();
+    virtual s32 virt4(void*, s32, s32*);
     virtual void virt5();
     virtual void virt6();
     virtual ~LocalIOBase();
