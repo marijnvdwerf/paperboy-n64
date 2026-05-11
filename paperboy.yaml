@@ -215,6 +215,8 @@ segments:
       - [0x476E0, asm]
       - [0x477C0, c]
       - [0x49630, c]
+      - [0x49A80, asm]
+      - [0x49D50, asm]
       - [0x4A000, c]
       - [0x4ACE0, asm]
       - [0x4B220, c]
