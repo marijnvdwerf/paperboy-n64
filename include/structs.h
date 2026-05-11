@@ -5,18 +5,39 @@
 
 #include "common.h"
 
-class LocalIOBase {
+class LocalIOParent {
   public:
-    /* 0x00 */ char pad00[0x10];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
-    /* 0x14 */ char pad14[0x14];
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ u8* unk20;
+    /* 0x24 */ s32 unk24;
     /* 0x28 */ // vtable
+
+    LocalIOParent();
+    virtual s32 virt1();
+    virtual s32 virt2();
+    virtual s32 virt3(u32);
+    virtual void virt4();
+    virtual void virt5();
+    virtual void virt6();
+    virtual ~LocalIOParent();
+};
+
+class LocalIOBase : public LocalIOParent {
+  public:
+    /* 0x2C */ u32 unk2C;
 
     LocalIOBase();
 
-    virtual void virt1();
-    virtual void virt2();
-    virtual void virt3();
+    virtual s32 virt1();
+    virtual s32 virt2();
+    virtual s32 virt3(u32);
     virtual void virt4();
     virtual void virt5();
     virtual void virt6();
@@ -28,8 +49,12 @@ class LocalIOBase {
     virtual void virt12();
     virtual void virt13();
     virtual void virt14();
-    virtual void virt15();
-    virtual void virt16();
+    virtual s32 virt15(void*, s32, s32*);
+    virtual s32 virt16();
+
+    static s32 func_80048A30();
+    s32 func_80048A40(s32, s32, s32, s32);
+    static s32 func_80048D58();
 };
 
 class LocalIO : public LocalIOBase {};
