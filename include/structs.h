@@ -62,6 +62,14 @@ class StructVVParent {
 
     StructVVParent();
     virtual ~StructVVParent();
+    virtual void vfunc1(const char*) = 0;
+    virtual void vfunc2() = 0;
+    virtual s32 vfunc3() = 0;
+    virtual StructUU* vfunc4(s32) = 0;
+    virtual void vfunc5(StructUU*) = 0;
+    virtual class StructWWBase* vfunc6() = 0;
+
+    u32 func_8003CA28();
 };
 
 class StructVV : public StructVVParent {

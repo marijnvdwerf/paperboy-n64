@@ -34,7 +34,7 @@ extern InitFunc entry_DTORS_END;
 
 INCLUDE_ASM("asm/nonmatchings/109C0", func_8000FDC0);
 
-void func_8000FE7C(void) {
+void __pure_virtual(void) {
 }
 
 void boot(void) {

@@ -1,3 +1,4 @@
+__pure_virtual = 0x8000FE7C; // type:func
 boot = 0x8000FE84; // type:func
 func_80007DE0__11GameContext = 0x80007DE0; // type:func
 func_80009350 = 0x80009350; // type:func
@@ -76,6 +77,7 @@ __8StructVV = 0x8003E1C0; // type:func
 _._8StructVV = 0x8003E178; // type:func
 __14StructVVParent = 0x8003CA10; // type:func
 _._14StructVVParent = 0x8003C9E0; // type:func
+func_8003CA28__14StructVVParent = 0x8003CA28; // type:func
 __5Node2 = 0x8003FA94; // type:func
 __5Node3 = 0x8003C700; // type:func
 __8StructUU = 0x8003E8EC; // type:func
