@@ -13,19 +13,27 @@ class LocalIOBase {
     /* 0x28 */ // vtable
 
     LocalIOBase();
-    ~LocalIOBase();
+
     virtual void virt1();
+    virtual void virt2();
+    virtual void virt3();
+    virtual void virt4();
+    virtual void virt5();
+    virtual void virt6();
+    virtual ~LocalIOBase();
+    virtual s32 virt8(const char*, s32, s32);   /// "open"
+    virtual void virt9();                       /// "close"
+    virtual s32 virt10(s32, void*, s32, void*); /// 5-arg read
+    virtual s32 virt11(void*, s32);             /// 3-arg read
+    virtual void virt12();
+    virtual void virt13();
+    virtual void virt14();
+    virtual void virt15();
+    virtual void virt16();
 };
 
-class LocalIO : public LocalIOBase {
-  public:
-    virtual void virt1();
-};
-
-class LocalIO2 : public LocalIOBase {
-  public:
-    virtual void virt1();
-};
+class LocalIO : public LocalIOBase {};
+class LocalIO2 : public LocalIOBase {};
 
 class StructUUBase {
   public:
@@ -49,7 +57,7 @@ class StructUU : public StructUUBase {
 
 class StructVVParent {
   public:
-    /* 0x00 */ s32 unk0;
+    /* 0x00 */ u32 unk0;
     /* 0x04 */ // vtable
 
     StructVVParent();
@@ -60,7 +68,7 @@ class StructVV : public StructVVParent {
   public:
     /* 0x08 */ class StructWWBase* owner;
     /* 0x0C */ StructVV* next;
-    /* 0x10 */ void* unk10;
+    /* 0x10 */ u8* unk10;
     /* 0x14 */ StructUU* unk14;
 
     StructVV();

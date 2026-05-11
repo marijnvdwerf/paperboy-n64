@@ -8,17 +8,17 @@ INCLUDE_ASM("asm/nonmatchings/49630", func_80048A30);
 
 INCLUDE_ASM("asm/nonmatchings/49630", func_80048A40);
 
-INCLUDE_ASM("asm/nonmatchings/49630", func_80048B48);
+INCLUDE_ASM("asm/nonmatchings/49630", virt16__11LocalIOBase);
 
-INCLUDE_ASM("asm/nonmatchings/49630", func_80048B74);
+INCLUDE_ASM("asm/nonmatchings/49630", virt15__11LocalIOBase);
 
-INCLUDE_ASM("asm/nonmatchings/49630", func_80048C3C);
+INCLUDE_ASM("asm/nonmatchings/49630", virt4__11LocalIOBase);
 
-INCLUDE_ASM("asm/nonmatchings/49630", func_80048D28);
+INCLUDE_ASM("asm/nonmatchings/49630", virt3__11LocalIOBase);
 
-INCLUDE_ASM("asm/nonmatchings/49630", func_80048D48);
+INCLUDE_ASM("asm/nonmatchings/49630", virt2__11LocalIOBase);
 
-INCLUDE_ASM("asm/nonmatchings/49630", func_80048D50);
+INCLUDE_ASM("asm/nonmatchings/49630", virt1__11LocalIOBase);
 
 INCLUDE_ASM("asm/nonmatchings/49630", func_80048D58);
 

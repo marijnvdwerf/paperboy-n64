@@ -99,7 +99,8 @@ segments:
       - [0x48C0, rodata]
       - [0x4940, rodata]
       - [0x4990, rodata]
-      - [0x4AB0, rodata]
+      - [0x4AB0, rodata] # belongs with below
+      - [0x4B00, .rdata, 3E8E0] 
       - [0x4B90, rodata]
       - [0x4C90, rodata]
       - [0x4CE0, rodata]

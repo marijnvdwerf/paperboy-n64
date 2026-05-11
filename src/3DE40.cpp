@@ -31,9 +31,6 @@ extern void* D_80003F00;
 
 void func_8003DBD4(StructWWBase*);
 void func_800079A8(void*, s32, s32, s32);
-s32 func_80043340(LocalIOBase*, const char*, s32, s32);
-s32 func_800436DC(LocalIOBase*, s32, void*, s32, void*);
-void func_8004360C(LocalIOBase*);
 s32 func_80048D60(LocalIOBase*);
 s32 func_8004AA98(void*);
 void func_8004B390(void);
@@ -43,7 +40,6 @@ void* func_80064320(s32);
 void func_8003D6AC(StructWWBase*);
 void MusStop(u32 flags, s32 speed);
 s32 MusAsk(u32 flags);
-void func_80064340(void*);
 void func_8003C8A4(StructWWBase*);
 void func_8003F388(class Node2*, s32);
 void func_8003DE48(StructVV*);
@@ -70,7 +66,7 @@ extern "C" s32 vfunc1__12StructWWBase(StructWWBase* self, s32 arg1) {
     if (self->unk0 & 1) {
         self->vfunc2();
     }
-    if (func_80043340(io, D_80003D90, 2, 0)) {
+    if (io->LocalIOBase::virt8(D_80003D90, 2, 0)) {
         func_800079A8(&D_80003D9C, 0, 0, 0);
     }
     func_8004B3BC(D_80074114);
@@ -79,15 +75,15 @@ extern "C" s32 vfunc1__12StructWWBase(StructWWBase* self, s32 arg1) {
     if (self->ptrbank == NULL) {
         func_800079A8(&D_80003D9C, 0, 0, 0);
     }
-    if (func_800436DC(io, 0, self->ptrbank, io->unk10, &sp48)) {
+    if (io->LocalIOBase::virt10(0, self->ptrbank, io->unk10, &sp48)) {
         func_800079A8(&D_80003D9C, 0, 0, 0);
     }
-    func_8004360C(io);
-    if (func_80043340(io, D_80003DA0, 2, 0)) {
+    io->LocalIOBase::virt9();
+    if (io->LocalIOBase::virt8(D_80003DA0, 2, 0)) {
         func_800079A8(&D_80003D9C, 0, 0, 0);
     }
     self->wbk = (u8*)func_80048D60(io);
-    func_8004360C(io);
+    io->LocalIOBase::virt9();
     func_8004B3BC(D_80074114);
     size = func_8004AA98(&((D_800768F0_Row*)&D_800768F0)[D_80074114].fieldC) - 0x1000;
     self->heap = (u8*)func_80064320(size);
@@ -193,10 +189,10 @@ void StructWWBase::vfunc2() {
         }
     }
     if (this->heap != NULL) {
-        func_80064340(this->heap);
+        delete[] this->heap;
     }
     if (this->ptrbank != NULL) {
-        func_80064340(this->ptrbank);
+        delete[] this->ptrbank;
     }
     memset(&this->config, 0, sizeof(this->config));
     this->heap = NULL;

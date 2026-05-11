@@ -3,24 +3,51 @@
 
 extern "C" {
 extern s32 D_80074120;
-extern const char D_80003EB0[];
-extern void* D_80003EB8;
 extern void* D_80003F00;
 
-void func_800079A8(void*, s32, s32, s32);
-s32 func_80043340(LocalIOBase*, const char*, s32, s32);
-void func_8004360C(LocalIOBase*);
+extern char D_80003EB0[];
+extern char D_80003EB8[];
+
+void func_800079A8(const void*, s32, s32, s32);
 void func_8004B390(void);
 void func_8004B3BC(s32);
 void func_80064340(void*);
+void* func_80064320(s32);
 void func_8003E250(StructUU*, void*);
 void func_8003E830(StructUU*);
-void func_8003DCE0(StructVV*, LocalIOBase*);
 char* strcpy(char*, const char*);
 char* strcat(char*, const char*);
+u8* strncpy(u8*, u8*, s32);
+s32 atoi(const u8*);
 }
 
-INCLUDE_ASM("asm/nonmatchings/3E8E0", func_8003DCE0);
+extern "C" void func_8003DCE0(StructVV* arg0, LocalIOBase* arg1) {
+    u8 sp10[0x10];
+    u32 i;
+
+    if (arg1->virt11(sp10, 0x10) != 0) {
+        func_800079A8(D_80003EB8, 0, 0, 0);
+    }
+    arg0->unk0 = atoi(sp10);
+    if (arg0->unk0 == 0) {
+        func_800079A8(D_80003EB8, 0, 0, 0);
+    }
+
+    func_8004B3BC(D_80074120);
+    arg0->unk10 = new u8[arg0->unk0 * 8];
+    func_8004B390();
+    if (arg0->unk10 == NULL) {
+        func_800079A8(D_80003EB8, 0, 0, 0);
+    }
+    i = 0;
+    while (i < arg0->unk0) {
+        if (arg1->virt11(sp10, 0x10) != 0) {
+            func_800079A8(D_80003EB8, 0, 0, 0);
+        }
+        strncpy(arg0->unk10 + i * 8, sp10, 8);
+        i += 1;
+    }
+}
 
 // vv vfunc6
 StructWWBase* StructVV::vfunc6() {
@@ -88,12 +115,12 @@ StructUU* StructVV::vfunc4(s32 arg) {
     node = new StructUU();
     func_8004B390();
     if (node == NULL) {
-        func_800079A8(&D_80003EB8, 0, 0, 0);
+        func_800079A8(D_80003EB8, 0, 0, 0);
     }
     node->owner = this;
     node->next = this->unk14;
     this->unk14 = node;
-    func_8003E250(node, (u8*)this->unk10 + arg * 8);
+    func_8003E250(node, this->unk10 + arg * 8);
     return node;
 }
 
@@ -107,7 +134,7 @@ void StructVV::vfunc2() {
     }
     this->unk14 = NULL;
     if (this->unk10 != NULL) {
-        func_80064340(this->unk10);
+        delete[] this->unk10;
         this->unk10 = NULL;
     }
     this->unk0 = 0;
@@ -123,11 +150,11 @@ void StructVV::vfunc1(const char* arg1) {
     }
     strcpy(sp40, arg1);
     strcat(sp40, D_80003EB0);
-    if (func_80043340(&sp10, sp40, 0xA, 0x1000)) {
-        func_800079A8(&D_80003EB8, 0, 0, 0);
+    if (sp10.virt8(sp40, 0xA, 0x1000)) {
+        func_800079A8(D_80003EB8, 0, 0, 0);
     }
     func_8003DCE0(this, &sp10);
-    func_8004360C(&sp10);
+    sp10.virt9();
 }
 
 INCLUDE_ASM("asm/nonmatchings/3E8E0", func_8003E178); /// vv ~dtor
@@ -147,6 +174,5 @@ INCLUDE_ASM("asm/nonmatchings/3E8E0", func_8003E218);
 
 INCLUDE_ASM("asm/nonmatchings/3E8E0", func_8003E220);
 
-INCLUDE_ASM("asm/nonmatchings/3E8E0", func_8003E22C);
-
-INCLUDE_ASM("asm/nonmatchings/3E8E0", func_8003E248);
+// Auto generated virtual dtor of LocalIO2
+// INCLUDE_ASM("asm/nonmatchings/3E8E0", func_8003E22C);
