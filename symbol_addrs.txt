@@ -1,5 +1,4 @@
 boot = 0x8000FE84; // type:func
-func_80006730 = 0x80006730; // type:func
 func_80007DE0__11GameContext = 0x80007DE0; // type:func
 func_80009350 = 0x80009350; // type:func
 _._11GameContext = 0x80007FE0; // type:func
@@ -38,6 +37,7 @@ strcat = 0x800065C0; // type:func
 stricmp = 0x80006620; // type:func
 strncat = 0x80006670; // type:func
 strncmp = 0x800066D8; // type:func
+strncpy = 0x80006730; // type:func
 strnicmp = 0x80006778; // type:func
 strrchr = 0x8000680C; // type:func
 strstr = 0x8000686C; // type:func

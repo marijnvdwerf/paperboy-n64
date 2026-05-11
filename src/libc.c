@@ -109,7 +109,7 @@ int strncmp(const char* str1, const char* str2, u32 num) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/libc", func_80006730);
+INCLUDE_ASM("asm/nonmatchings/libc", strncpy);
 
 INCLUDE_ASM("asm/nonmatchings/libc", strnicmp);
 

@@ -7,7 +7,7 @@ extern u8 D_80000800[];
 extern char D_80000818[];
 extern u8 D_80000820[];
 extern u8 D_80076404[];
-void func_80006730(u8*, u8*, s32);
+void strncpy(u8*, u8*, s32);
 }
 
 void StructWW::func_80009210() {
@@ -22,7 +22,7 @@ void StructWW::func_80009270(s32 arg1) {
     this->func_80009210();
 
     if (&D_80000800 != NULL) {
-        func_80006730(D_80076404, D_80000800, 0x100);
+        strncpy(D_80076404, D_80000800, 0x100);
         D_80076404[0xFF] = 0;
     } else {
         D_80076404[0] = 0;
@@ -45,7 +45,7 @@ void StructWW::func_80009350(s32) {
     this->unk7C = this->vfunc5();
 
     if (&D_80000800 != NULL) {
-        func_80006730(D_80076404, D_80000800, 0x100);
+        strncpy(D_80076404, D_80000800, 0x100);
         D_80076404[0xFF] = 0;
     } else {
         D_80076404[0] = 0;
@@ -54,7 +54,7 @@ void StructWW::func_80009350(s32) {
     this->unk7C->vfunc1(D_80000818);
 
     if (&D_80000820 != NULL) {
-        func_80006730(D_80076404, D_80000820, 0x100);
+        strncpy(D_80076404, D_80000820, 0x100);
         D_80076404[0xFF] = 0;
     } else {
         D_80076404[0] = 0;
