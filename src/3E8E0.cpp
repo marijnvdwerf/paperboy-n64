@@ -159,7 +159,9 @@ void StructVV::vfunc1(const char* arg1) {
     sp10.virt9();
 }
 
-INCLUDE_ASM("asm/nonmatchings/3E8E0", func_8003E178); /// vv ~dtor
+StructVV::~StructVV() {
+    this->vfunc2();
+}
 
 StructVV::StructVV() {
     this->owner = NULL;
