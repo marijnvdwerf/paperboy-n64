@@ -124,7 +124,17 @@ s32 LocalIOBase::func_80048D58() {
     return 8;
 }
 
-INCLUDE_ASM("asm/nonmatchings/49630", func_80048D60);
+extern "C" u8* D_800763F8;
+
+extern "C" s32 func_80048D60(LocalIOBase* self) {
+    if (self->unk4 & 2) {
+        u32 offset = self->unk24 * 0x34;
+        // TODO: fake match — int+int casts to force reg-allocator order on the addu
+        LocalIOBase* parent = *(LocalIOBase**)((u32)offset + (u32)D_800763F8);
+        return self->unk8 + func_80048D60(parent);
+    }
+    return self->unk2C;
+}
 
 extern "C" void func_80048DD4() {
     osCreateMesgQueue(&D_800768D0, &D_800768CC, 1);
