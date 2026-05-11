@@ -405,7 +405,7 @@ void GameContext::func_80007DE0() {
         D_80076404[0] = 0;
     }
     this->unk4C = new StructWW();
-    this->unk4C->unk74 = (s32)(this->unk48->unk70 + 0x20);
+    this->unk4C->sched = (void*)(this->unk48->unk70 + 0x20);
     this->unk4C->func_80009350(0x14);
     if (&D_800005E8 != NULL) {
         strncpy(D_80076404, D_800005E8, 0x100);

@@ -1,6 +1,6 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/55220", func_80054620);
+INCLUDE_ASM("asm/nonmatchings/55220", __MusIntSchedInit);
 
 INCLUDE_ASM("asm/nonmatchings/55220", func_8005462C);
 

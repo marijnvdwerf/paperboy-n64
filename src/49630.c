@@ -26,9 +26,9 @@ INCLUDE_ASM("asm/nonmatchings/49630", func_80048D60);
 
 INCLUDE_ASM("asm/nonmatchings/49630", func_80048DD4);
 
-INCLUDE_ASM("asm/nonmatchings/49630", func_80048E00);
+INCLUDE_ASM("asm/nonmatchings/49630", _._11LocalIOBase);
 
-INCLUDE_ASM("asm/nonmatchings/49630", func_80048E48);
+INCLUDE_ASM("asm/nonmatchings/49630", __11LocalIOBase);
 
 INCLUDE_ASM("asm/nonmatchings/49630", func_80048E80);
 
