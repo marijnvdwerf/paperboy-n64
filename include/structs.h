@@ -5,6 +5,28 @@
 
 #include "common.h"
 
+class LocalIOBase {
+  public:
+    /* 0x00 */ char pad00[0x10];
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ char pad14[0x14];
+    /* 0x28 */ // vtable
+
+    LocalIOBase();
+    ~LocalIOBase();
+    virtual void virt1();
+};
+
+class LocalIO : public LocalIOBase {
+  public:
+    virtual void virt1();
+};
+
+class LocalIO2 : public LocalIOBase {
+  public:
+    virtual void virt1();
+};
+
 class StructUUBase {
   public:
     /* 0x00 */ // vtable

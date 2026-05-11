@@ -8,28 +8,6 @@ struct D_800768F0_Row {
     u8 _pad2[0xB];
 };
 
-class LocalIOBase {
-  public:
-    /* 0x00 */ char pad00[0x10];
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ char pad14[0x14];
-    /* 0x28 */ // vtable
-
-    LocalIOBase();
-    ~LocalIOBase();
-    virtual void virt1();
-};
-
-class LocalIO : public LocalIOBase {
-  public:
-    virtual void virt1();
-};
-
-class LocalIO2 : public LocalIOBase {
-  public:
-    virtual void virt1();
-};
-
 extern "C" {
 extern u8 D_800768F0[];
 extern s32 D_80074114;
@@ -76,6 +54,8 @@ s32 func_8003C804(StructWWBase*, void*);
 void func_8003DCE0(StructVV*, LocalIOBase*);
 char* strcpy(char*, const char*);
 char* strcat(char*, const char*);
+u8* strncpy(u8*, u8*, s32);
+s32 atoi(const char*);
 extern s32 D_800740D4;
 extern s32 D_800740F4;
 void* memset(void*, s32, s32);
@@ -399,141 +379,14 @@ StructWWBase::StructWWBase() {
 
 INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DCA4);
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DCC0);
-
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DCCC);
-
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DCD8);
-
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DCE0);
-
-// vv vfunc6
-StructWWBase* StructVV::vfunc6() {
-    return this->owner;
+extern "C" s32 func_8003DCC0(StructWWBase* self) {
+    return self->unk70;
 }
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DE3C);
-
-extern "C" void func_8003DE48(StructVV* self) {
-    StructUU* node = self->unk14;
-    if (node != NULL) {
-        do {
-            node->vfunc4();
-            node = node->next;
-        } while (node != NULL);
-    }
+extern "C" s32 func_8003DCCC(StructWWBase* self) {
+    return self->config.channels;
 }
 
-extern "C" void func_8003DE90(StructVV* self) {
-    StructUU* node = self->unk14;
-    if (node != NULL) {
-        do {
-            node->vfunc3();
-            node = node->next;
-        } while (node != NULL);
-    }
+extern "C" void func_8003DCD8(StructWWBase* self, void* arg) {
+    self->sched = arg;
 }
-
-// vv vfunc3
-s32 StructVV::vfunc3() {
-    return this->unk10 != NULL;
-}
-
-extern "C" void func_8003E830(StructUU*);
-
-// vv vfunc5
-void StructVV::vfunc5(StructUU* arg) {
-    StructUU* prev;
-    StructUU* cur;
-    if (arg != NULL) {
-        prev = NULL;
-        cur = this->unk14;
-        while (TRUE) {
-            if (cur == NULL) {
-                break;
-            }
-            if (cur == arg) {
-                if (prev == NULL) {
-                    this->unk14 = cur->next;
-                } else {
-                    prev->next = cur->next;
-                }
-                func_8003E830(cur);
-                delete cur;
-                return;
-            }
-            prev = cur;
-            cur = cur->next;
-        }
-    }
-}
-
-extern "C" void func_8003E250(StructUU*, void*);
-
-// vv vfunc4
-StructUU* StructVV::vfunc4(s32 arg) {
-    StructUU* node;
-    func_8004B3BC(D_80074120);
-    node = new StructUU();
-    func_8004B390();
-    if (node == NULL) {
-        func_800079A8(&D_80003EB8, 0, 0, 0);
-    }
-    node->owner = this;
-    node->next = this->unk14;
-    this->unk14 = node;
-    func_8003E250(node, (u8*)this->unk10 + arg * 8);
-    return node;
-}
-
-// vv vfunc2
-void StructVV::vfunc2() {
-    StructUU* p = this->unk14;
-    while (p != NULL) {
-        StructUU* next = p->next;
-        delete p;
-        p = next;
-    }
-    this->unk14 = NULL;
-    if (this->unk10 != NULL) {
-        func_80064340(this->unk10);
-        this->unk10 = NULL;
-    }
-    this->unk0 = 0;
-}
-
-// vv vfunc1
-void StructVV::vfunc1(const char* arg1) {
-    LocalIO2 sp10;
-    char sp40[0x40];
-
-    if (this->vfunc3()) {
-        this->vfunc2();
-    }
-    strcpy(sp40, arg1);
-    strcat(sp40, D_80003EB0);
-    if (func_80043340(&sp10, sp40, 0xA, 0x1000)) {
-        func_800079A8(&D_80003EB8, 0, 0, 0);
-    }
-    func_8003DCE0(this, &sp10);
-    func_8004360C(&sp10);
-}
-
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E178); /// vv ~dtor
-
-StructVV::StructVV() {
-    this->owner = NULL;
-    this->next = NULL;
-    this->unk10 = 0;
-    this->unk14 = 0;
-}
-
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E204);
-
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E210);
-
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E218);
-
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E220);
-
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E22C);
