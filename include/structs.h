@@ -5,18 +5,29 @@
 
 #include "common.h"
 
-class StructUU {
+class StructUUBase {
   public:
     /* 0x00 */ // vtable
 
-    virtual ~StructUU();
+    virtual ~StructUUBase();
     virtual void vfunc1();
     virtual void vfunc2();
+    virtual void vfunc3();
+    virtual void vfunc4();
+};
+
+class StructUU : public StructUUBase {
+  public:
+    /* 0x04 */ class StructVV* owner;
+    /* 0x08 */ StructUU* next;
+    /* 0x0C */ char rest[0x1C];
+
+    StructUU();
 };
 
 class StructVVParent {
   public:
-    /* 0x00 */ char pad0[0x4];
+    /* 0x00 */ s32 unk0;
     /* 0x04 */ // vtable
 
     StructVVParent();
@@ -27,22 +38,26 @@ class StructVV : public StructVVParent {
   public:
     /* 0x08 */ class StructWWBase* owner;
     /* 0x0C */ StructVV* next;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
+    /* 0x10 */ void* unk10;
+    /* 0x14 */ StructUU* unk14;
 
     StructVV();
     virtual ~StructVV();
     virtual void vfunc1(const char*);
     virtual void vfunc2();
-    virtual void vfunc3();
+    virtual s32 vfunc3();
     virtual StructUU* vfunc4(s32);
     virtual void vfunc5(StructUU*);
+    virtual StructWWBase* vfunc6();
 };
 
 class StructWWParent {
   public:
     /* 0x00 */ s32 unk0;
-    /* 0x04 */ char pad04[0x10];
+    /* 0x04 */ char pad04[0x4];
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
     /* 0x14 */ // vtable
 
     StructWWParent();
@@ -76,7 +91,7 @@ class StructWWBase : public StructWWParent {
     /* 0x60 */ u8* ptrbank;
     /* 0x64 */ u8* wbk;
     /* 0x68 */ StructVV* unk68;
-    /* 0x6C */ s32 unk6C;
+    /* 0x6C */ class Node2* unk6C;
     /* 0x70 */ s32 unk70;
     /* 0x74 */ void* sched;
 
@@ -88,10 +103,10 @@ class StructWWBase : public StructWWParent {
     virtual void vfunc4();
     virtual StructVV* vfunc5();
     virtual void vfunc6(StructVV*);
-    virtual void vfunc7();
+    virtual class Node2* vfunc7();
     virtual void vfunc8();
-    virtual void vfunc9();
-    virtual void vfunc10();
+    virtual class Node3* vfunc9();
+    virtual void vfunc10(void*);
     virtual void vfunc11();
     virtual void vfunc12();
     virtual void vfunc13();

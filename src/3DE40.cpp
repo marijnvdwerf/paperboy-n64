@@ -25,10 +25,16 @@ class LocalIO : public LocalIOBase {
     virtual void virt1();
 };
 
+class LocalIO2 : public LocalIOBase {
+  public:
+    virtual void virt1();
+};
+
 extern "C" {
 extern u8 D_800768F0[];
 extern s32 D_80074114;
 extern s32 D_80074120;
+extern s32 D_80074140;
 extern s32 D_800740D0;
 extern OSThread D_800AE1C0;
 extern OSMesgQueue D_800AE140;
@@ -39,15 +45,18 @@ extern u8 D_800AE130[];
 extern u8 D_800AE370[];
 extern const char D_80003D90[];
 extern const char D_80003DA0[];
+extern const char D_80003EB0[];
 extern void* D_80003D9C;
 extern void* D_80003DB0;
+extern void* D_80003EB8;
+extern void* D_80003F00;
 
 void func_8003DBD4(StructWWBase*);
 void func_800079A8(void*, s32, s32, s32);
-s32 func_80043340(LocalIO*, const char*, s32, s32);
-s32 func_800436DC(LocalIO*, s32, void*, s32, void*);
-void func_8004360C(LocalIO*);
-s32 func_80048D60(LocalIO*);
+s32 func_80043340(LocalIOBase*, const char*, s32, s32);
+s32 func_800436DC(LocalIOBase*, s32, void*, s32, void*);
+void func_8004360C(LocalIOBase*);
+s32 func_80048D60(LocalIOBase*);
 s32 func_8004AA98(void*);
 void func_8004B390(void);
 void func_8004B3BC(s32);
@@ -58,7 +67,17 @@ void MusStop(u32 flags, s32 speed);
 s32 MusAsk(u32 flags);
 void func_80064340(void*);
 void func_8003C8A4(StructWWBase*);
+void func_8003F388(class Node2*, s32);
+void func_8003DE48(StructVV*);
+void func_8003DE90(StructVV*);
+void func_8003F4AC(class Node2*);
+void func_8003F5E0(class Node2*);
+s32 func_8003C804(StructWWBase*, void*);
+void func_8003DCE0(StructVV*, LocalIOBase*);
+char* strcpy(char*, const char*);
+char* strcat(char*, const char*);
 extern s32 D_800740D4;
+extern s32 D_800740F4;
 void* memset(void*, s32, s32);
 }
 
@@ -137,9 +156,11 @@ extern "C" s32 vfunc1__12StructWWBase(StructWWBase* self, s32 arg1) {
 INCLUDE_ASM("asm/nonmatchings/3DE40", vfunc1__12StructWWBase);
 #endif
 
-// Stand-in node type for the linked list at unk6C.
-struct Node2Base {
+// Stand-in node type for the linked list at unk6C. 0x1B24 bytes.
+class Node2Base {
+  public:
     /* 0x00 */ // vtable
+
     virtual void n2_v1();
     virtual void n2_v2();
     virtual void n2_v3();
@@ -153,9 +174,22 @@ struct Node2Base {
     virtual void n2_v11();
     virtual ~Node2Base();
 };
-struct Node2 : public Node2Base {
-    /* 0x04 */ char pad4[8];
+
+class Node2 : public Node2Base {
+  public:
+    /* 0x04 */ char pad4[4];
+    /* 0x08 */ StructWWBase* owner;
     /* 0x0C */ Node2* next;
+    /* 0x10 */ char rest[0x1B14];
+
+    Node2();
+};
+
+class Node3 {
+  public:
+    /* 0x00 */ char data[0x50];
+
+    Node3();
 };
 
 void StructWWBase::vfunc2() {
@@ -217,25 +251,120 @@ extern "C" void func_8003D6AC(StructWWBase* arg) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003D76C);
+extern "C" void func_8003D76C(s32 arg0) {
+    D_80074114 = arg0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003D778);
+extern "C" void func_8003D778() {
+    osSendMesg(&D_800AE140, (OSMesg)&D_800740F4, OS_MESG_BLOCK);
+    osRecvMesg(&D_800AE1A0, NULL, OS_MESG_BLOCK);
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", vfunc13__12StructWWBase);
+void StructWWBase::vfunc13() {
+    Node2* node = this->unk6C;
+    while (node != NULL) {
+        func_8003F388(node, this->unk8);
+        node = node->next;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", vfunc4__12StructWWBase);
+void StructWWBase::vfunc4() {
+    StructVV* sv = this->unk68;
+    this->unk70 = 0;
+    while (sv != NULL) {
+        func_8003DE48(sv);
+        sv = sv->next;
+    }
+    Node2* n2 = this->unk6C;
+    while (n2 != NULL) {
+        func_8003F5E0(n2);
+        n2 = n2->next;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", vfunc3__12StructWWBase);
+void StructWWBase::vfunc3() {
+    StructVV* sv = this->unk68;
+    this->unk70 = 1;
+    while (sv != NULL) {
+        func_8003DE90(sv);
+        sv = sv->next;
+    }
+    Node2* n2 = this->unk6C;
+    while (n2 != NULL) {
+        func_8003F4AC(n2);
+        n2 = n2->next;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", vfunc10__12StructWWBase);
+void StructWWBase::vfunc10(void* arg) {
+    if (arg != NULL) {
+        this->vfunc12();
+        if (func_8003C804(this, arg)) {
+            delete arg;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", vfunc9__12StructWWBase);
+Node3* StructWWBase::vfunc9() {
+    Node3* node;
+    func_8004B3BC(D_80074140);
+    node = new Node3();
+    func_8004B390();
+    if (node == NULL) {
+        func_800079A8(&D_80003D9C, 0, 0, 0);
+    }
+    return node;
+}
 
 INCLUDE_ASM("asm/nonmatchings/3DE40", vfunc8__12StructWWBase);
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", vfunc7__12StructWWBase);
+Node2* StructWWBase::vfunc7() {
+    Node2* node;
+    func_8004B3BC(D_80074140);
+    node = new Node2();
+    func_8004B390();
+    if (node == NULL) {
+        func_800079A8(&D_80003D9C, 0, 0, 0);
+    }
+    node->owner = this;
+    node->next = this->unk6C;
+    this->unk6C = node;
+    return node;
+}
 
+#if 0
+// Best draft so far (score 1265): structurally correct but the SN
+// compiler chooses to inline the "found-in-walk" delete inside the
+// loop with a bnel, where the target outlines it before the loop with
+// a beq. Functional logic and operands match; register allocation and
+// block ordering differ.
+void StructWWBase::vfunc6(StructVV* node) {
+    if (node == NULL) {
+        return;
+    }
+    if (this->unk68 == NULL) {
+        return;
+    }
+    if (this->unk68 == node) {
+        this->unk68 = node->next;
+        delete node;
+    } else {
+        StructVV* prev = this->unk68;
+        StructVV* cur = prev->next;
+        while (cur != NULL) {
+            if (cur == node) {
+                prev->next = node->next;
+                delete node;
+                return;
+            }
+            prev = cur;
+            cur = cur->next;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/3DE40", vfunc6__12StructWWBaseP8StructVV);
+#endif
 
 StructVV* StructWWBase::vfunc5() {
     StructVV* node;
@@ -278,27 +407,126 @@ INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DCD8);
 
 INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DCE0);
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DE30);
+// vv vfunc6
+StructWWBase* StructVV::vfunc6() {
+    return this->owner;
+}
 
 INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DE3C);
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DE48);
+extern "C" void func_8003DE48(StructVV* self) {
+    StructUU* node = self->unk14;
+    if (node != NULL) {
+        do {
+            node->vfunc4();
+            node = node->next;
+        } while (node != NULL);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DE90);
+extern "C" void func_8003DE90(StructVV* self) {
+    StructUU* node = self->unk14;
+    if (node != NULL) {
+        do {
+            node->vfunc3();
+            node = node->next;
+        } while (node != NULL);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DED8);
+// vv vfunc3
+s32 StructVV::vfunc3() {
+    return this->unk10 != NULL;
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DEE4);
+extern "C" void func_8003E830(StructUU*);
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003DF70);
+// vv vfunc5
+void StructVV::vfunc5(StructUU* arg) {
+    StructUU* prev;
+    StructUU* cur;
+    if (arg != NULL) {
+        prev = NULL;
+        cur = this->unk14;
+        while (TRUE) {
+            if (cur == NULL) {
+                break;
+            }
+            if (cur == arg) {
+                if (prev == NULL) {
+                    this->unk14 = cur->next;
+                } else {
+                    prev->next = cur->next;
+                }
+                func_8003E830(cur);
+                delete cur;
+                return;
+            }
+            prev = cur;
+            cur = cur->next;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E010);
+extern "C" void func_8003E250(StructUU*, void*);
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E084);
+// vv vfunc4
+StructUU* StructVV::vfunc4(s32 arg) {
+    StructUU* node;
+    func_8004B3BC(D_80074120);
+    node = new StructUU();
+    func_8004B390();
+    if (node == NULL) {
+        func_800079A8(&D_80003EB8, 0, 0, 0);
+    }
+    node->owner = this;
+    node->next = this->unk14;
+    this->unk14 = node;
+    func_8003E250(node, (u8*)this->unk10 + arg * 8);
+    return node;
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E178);
+// vv vfunc2
+void StructVV::vfunc2() {
+    StructUU* p = this->unk14;
+    while (p != NULL) {
+        StructUU* next = p->next;
+        delete p;
+        p = next;
+    }
+    this->unk14 = NULL;
+    if (this->unk10 != NULL) {
+        func_80064340(this->unk10);
+        this->unk10 = NULL;
+    }
+    this->unk0 = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/3DE40", __8StructVV);
+// vv vfunc1
+void StructVV::vfunc1(const char* arg1) {
+    LocalIO2 sp10;
+    char sp40[0x40];
+
+    if (this->vfunc3()) {
+        this->vfunc2();
+    }
+    strcpy(sp40, arg1);
+    strcat(sp40, D_80003EB0);
+    if (func_80043340(&sp10, sp40, 0xA, 0x1000)) {
+        func_800079A8(&D_80003EB8, 0, 0, 0);
+    }
+    func_8003DCE0(this, &sp10);
+    func_8004360C(&sp10);
+}
+
+INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E178); /// vv ~dtor
+
+StructVV::StructVV() {
+    this->owner = NULL;
+    this->next = NULL;
+    this->unk10 = 0;
+    this->unk14 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/3DE40", func_8003E204);
 

@@ -36,7 +36,7 @@ INCLUDE_ASM("asm/nonmatchings/3F820", func_8003F9A0);
 
 INCLUDE_ASM("asm/nonmatchings/3F820", func_8003F9BC);
 
-INCLUDE_ASM("asm/nonmatchings/3F820", func_8003FA94);
+INCLUDE_ASM("asm/nonmatchings/3F820", __5Node2);
 
 INCLUDE_ASM("asm/nonmatchings/3F820", func_8003FB2C);
 
