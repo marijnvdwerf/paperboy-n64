@@ -156,7 +156,7 @@ segments:
       - [0xCCA0, asm]
       - [0xD260, asm]
       - [0xD2C0, cpp]
-      - [0xD730, asm]
+      - [0xD730, cpp]
       - [0xDD50, asm]
       - [0xE2C0, asm]
       - [0x109C0, c]

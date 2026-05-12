@@ -14,9 +14,9 @@ INCLUDE_ASM("asm/nonmatchings/2A500", func_80029B80);
 
 INCLUDE_ASM("asm/nonmatchings/2A500", func_80029BA4);
 
-INCLUDE_ASM("asm/nonmatchings/2A500", func_80029BF8);
+INCLUDE_ASM("asm/nonmatchings/2A500", _._13StructYYSubA8);
 
-INCLUDE_ASM("asm/nonmatchings/2A500", func_80029C58);
+INCLUDE_ASM("asm/nonmatchings/2A500", __13StructYYSubA8);
 
 INCLUDE_ASM("asm/nonmatchings/2A500", func_80029CDC);
 

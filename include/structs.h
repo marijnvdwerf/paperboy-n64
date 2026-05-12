@@ -159,9 +159,78 @@ class StructYYBase {
     virtual void vfunc14() = 0;
 };
 
+class StructYYInnerBase {
+  public:
+    /* 0x00 */ // vtable
+
+    virtual void vfunc1() = 0;
+    virtual void vfunc2();
+    virtual void vfunc3();
+    virtual void vfunc4();
+    virtual void vfunc5();
+    virtual void vfunc6();
+    virtual void vfunc7();
+    virtual void vfunc8();
+    virtual void vfunc9();
+    virtual void vfunc10();
+    virtual void vfunc11();
+    virtual void vfunc12();
+    virtual void vfunc13();
+    virtual void vfunc14();
+    virtual void vfunc15();
+    virtual void vfunc16();
+    virtual void vfunc17();
+    virtual void vfunc18();
+    virtual void vfunc19();
+    virtual void vfunc20();
+    virtual void vfunc21();
+    virtual void vfunc22();
+    virtual void vfunc23();
+    virtual void vfunc24();
+    virtual void vfunc25();
+    virtual void vfunc26();
+    virtual void vfunc27();
+    virtual void vfunc28();
+};
+
+class StructYYInner : public StructYYInnerBase {
+  public:
+    /* 0x04 */ s32 unk4;
+
+    virtual void vfunc1();
+};
+
+class StructYYSubA8 {
+  public:
+    char pad[0xD040];
+
+    StructYYSubA8();
+    ~StructYYSubA8();
+};
+
+class StructYYSubD0E8 {
+  public:
+    char pad[0x47B0];
+
+    StructYYSubD0E8();
+    ~StructYYSubD0E8();
+};
+
+class StructYYSub11898 {
+  public:
+    char pad[0x210];
+
+    StructYYSub11898();
+};
+
 class StructYY : public StructYYBase {
   public:
-    /* 0x00A0 */ char tail[0x11A10];
+    /* 0x00A0 */ StructYYInner inner;
+    /* 0x00A8 */ StructYYSubA8 subA8;
+    /* 0x0D0E8 */ StructYYSubD0E8 subD0E8;
+    /* 0x11898 */ StructYYSub11898 sub11898;
+    /* 0x11AA8 */ s32 unk11AA8;
+    /* 0x11AAC */ s32 unk11AAC;
 
     StructYY();
     virtual ~StructYY();

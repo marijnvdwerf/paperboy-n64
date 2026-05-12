@@ -54,9 +54,9 @@ INCLUDE_ASM("asm/nonmatchings/477C0", func_80047C28);
 
 INCLUDE_ASM("asm/nonmatchings/477C0", func_80047CF4);
 
-INCLUDE_ASM("asm/nonmatchings/477C0", func_80047D34);
+INCLUDE_ASM("asm/nonmatchings/477C0", _._15StructYYSubD0E8);
 
-INCLUDE_ASM("asm/nonmatchings/477C0", func_80047DC4);
+INCLUDE_ASM("asm/nonmatchings/477C0", __15StructYYSubD0E8);
 
 INCLUDE_ASM("asm/nonmatchings/477C0", func_80047E6C);
 
