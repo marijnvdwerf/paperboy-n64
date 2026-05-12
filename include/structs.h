@@ -5,6 +5,10 @@
 
 #include "common.h"
 
+extern "C" {
+#include "sched.h"
+}
+
 class LocalIOParent {
   public:
     /* 0x00 */ s32 unk0;
@@ -200,12 +204,98 @@ class StructYYInner : public StructYYInnerBase {
     virtual void vfunc1();
 };
 
-class StructYYSubA8 {
+class StructYYSubA8Inner1;
+class StructYYSubA8Inner2;
+class StructYYSubA8;
+
+class StructYYSubA8Base {
   public:
-    char pad[0xD040];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ void* unk10;
+    /* 0x14 */ // vtable
+
+    StructYYSubA8Base();
+    virtual s32 vfunc1();
+    virtual ~StructYYSubA8Base();
+    virtual void vfunc3();
+    virtual void vfunc4();
+    virtual void vfunc5();
+    virtual void vfunc6();
+    virtual void vfunc7();
+    virtual void vfunc8();
+    virtual void vfunc9();
+    virtual s32 vfunc10();
+    virtual void vfunc11();
+    virtual void vfunc12();
+    virtual void vfunc13();
+    virtual void vfunc14();
+    virtual void vfunc15();
+    virtual void vfunc16();
+    virtual void vfunc17();
+    virtual void vfunc18();
+    virtual void vfunc19();
+    virtual void vfunc20();
+    virtual void vfunc21();
+    virtual void vfunc22();
+    virtual void vfunc23();
+    virtual void vfunc24();
+    virtual void vfunc25();
+    virtual void vfunc26();
+    virtual void vfunc27();
+    virtual void vfunc28();
+    virtual void vfunc29();
+    virtual void vfunc30();
+    virtual void vfunc31();
+    virtual void vfunc32();
+    virtual void vfunc33();
+};
+
+class StructYYSubA8Inner1 {
+  public:
+    /* 0x00 */ char pad[0x40];
+
+    StructYYSubA8Inner1();
+    ~StructYYSubA8Inner1();
+};
+
+class StructYYSubA8Inner2 {
+  public:
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ char pad4[0xCD4C];
+
+    StructYYSubA8Inner2();
+    ~StructYYSubA8Inner2();
+
+    s32 func_80036A68();
+    s32 func_80031B58(StructYYSubA8*, StructYYSubA8Inner1*, s32, s32);
+};
+
+class StructYYSubA8 : public StructYYSubA8Base {
+  public:
+    /* 0x18 */ char pad18[0x4];
+    /* 0x1C */ void* unk1C;
+    /* 0x20 */ OSSched scheduler;
+    /* 0x2A8 */ StructYYSubA8Inner1 inner1;
+    /* 0x2E8 */ StructYYSubA8Inner2 inner2;
+    /* 0xD038 */ s32 unkD038;
+    /* 0xD03C */ s32 unkD03C;
 
     StructYYSubA8();
-    ~StructYYSubA8();
+    virtual s32 vfunc1();
+    virtual ~StructYYSubA8();
+    virtual void vfunc3();
+    virtual void vfunc4();
+    virtual void vfunc7();
+    virtual s32 vfunc10();
+
+    void func_80029AEC();
+    void func_80029CDC();
+    s32 func_80029CEC();
+    OSSched* func_80029D00();
+    OSMesgQueue* func_80029D08();
 };
 
 class StructYYSubD0E8 {
