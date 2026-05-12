@@ -76,7 +76,8 @@ segments:
       - [0x1D40, rodata]
       - [0x1DE0, rodata] # 16970
       - [0x1ED0, .rdata, 17440]
-      - [0x1F20, rodata]
+      - [0x1F20, .rdata, 177B0]
+      - [0x1FA0, rodata]
       - [0x1FC0, rodata]
       - [0x21D0, rodata]
       - [0x2220, rodata]
@@ -178,7 +179,7 @@ segments:
       - [0x168C0, asm]
       - [0x16970, cpp]
       - [0x17440, cpp]
-      - [0x177B0, asm]
+      - [0x177B0, cpp]
       - [0x17880, asm]
       - [0x17910, asm]
       - [0x18120, asm]
