@@ -20,13 +20,20 @@ class LocalIOParent {
     /* 0x28 */ // vtable
 
     LocalIOParent();
-    virtual s32 virt1();
-    virtual s32 virt2();
-    virtual s32 virt3(u32);
-    virtual s32 virt4(void*, s32, s32*);
-    virtual void virt5();
-    virtual void virt6();
+    virtual s32 virt1() = 0;
+    virtual s32 virt2() = 0;
+    virtual s32 virt3(u32) = 0;
+    virtual s32 virt4(void*, s32, s32*) = 0;
+    virtual s32 virt5();
+    virtual s32 virt6();
     virtual ~LocalIOParent();
+    virtual s32 virt8(const char*, s32, s32);   /// "open"
+    virtual void virt9();                       /// "close"
+    virtual s32 virt10(s32, void*, s32, void*); /// 5-arg read
+    virtual s32 virt11(void*, s32);             /// 3-arg read
+    virtual void virt12();
+    virtual void virt13();
+    virtual void virt14();
 };
 
 class LocalIOBase : public LocalIOParent {
@@ -39,16 +46,7 @@ class LocalIOBase : public LocalIOParent {
     virtual s32 virt2();
     virtual s32 virt3(u32);
     virtual s32 virt4(void*, s32, s32*);
-    virtual void virt5();
-    virtual void virt6();
     virtual ~LocalIOBase();
-    virtual s32 virt8(const char*, s32, s32);   /// "open"
-    virtual void virt9();                       /// "close"
-    virtual s32 virt10(s32, void*, s32, void*); /// 5-arg read
-    virtual s32 virt11(void*, s32);             /// 3-arg read
-    virtual void virt12();
-    virtual void virt13();
-    virtual void virt14();
     virtual s32 virt15(void*, s32, s32*);
     virtual s32 virt16();
 
