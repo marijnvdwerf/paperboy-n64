@@ -166,7 +166,6 @@ func_80029CDC__13StructYYSubA8 = 0x80029CDC; // type:func
 func_80029CEC__13StructYYSubA8 = 0x80029CEC; // type:func
 func_80029D00__13StructYYSubA8 = 0x80029D00; // type:func
 func_80029D08__13StructYYSubA8 = 0x80029D08; // type:func
-func_8002BD80__19StructYYSubA8Inner1 = 0x8002BD80; // type:func
 func_8002BDA0__19StructYYSubA8Inner1Ul = 0x8002BDA0; // type:func
 vfunc13__19StructYYSubA8Inner1Pvssl = 0x8002BE34; // type:func
 vfunc2__19StructYYSubA8Inner1PPUcPll = 0x8002BE6C; // type:func
