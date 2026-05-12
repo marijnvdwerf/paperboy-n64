@@ -23,3 +23,5 @@ AllowShortFunctionsOnASingleLine: false
 AlignEscapedNewlines: Left
 AlignTrailingComments: true
 SortIncludes: false
+
+SeparateDefinitionBlocks: Always

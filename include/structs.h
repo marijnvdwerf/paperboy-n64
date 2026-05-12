@@ -60,6 +60,7 @@ class LocalIOBase : public LocalIOParent {
 };
 
 class LocalIO : public LocalIOBase {};
+
 class LocalIO2 : public LocalIOBase {};
 
 class StructZZ {
@@ -208,7 +209,23 @@ class StructYYSubA8Inner1;
 class StructYYSubA8Inner2;
 class StructYYSubA8;
 
-class StructYYSubA8Base {
+class StructYYSubA8Node {
+  public:
+    /* 0x000 */ char pad0[0x44];
+    /* 0x044 */ StructYYSubA8Node* next;
+    /* 0x048 */ char pad48[0x12C - 0x48];
+    /* 0x12C */ // vtable
+
+    virtual void vfunc1();
+    virtual void vfunc2();
+    virtual void vfunc3();
+    virtual void vfunc4();
+    virtual void vfunc5();
+    virtual void vfunc6();
+    virtual void vfunc7();
+};
+
+class StructYYSubA8GrandBase {
   public:
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
@@ -217,9 +234,9 @@ class StructYYSubA8Base {
     /* 0x10 */ void* unk10;
     /* 0x14 */ // vtable
 
-    StructYYSubA8Base();
-    virtual s32 vfunc1();
-    virtual ~StructYYSubA8Base();
+    StructYYSubA8GrandBase();
+    virtual s32 vfunc1() = 0;
+    virtual ~StructYYSubA8GrandBase();
     virtual void vfunc3();
     virtual void vfunc4();
     virtual s32 vfunc5(s32, s32, s32, s32);
@@ -227,7 +244,19 @@ class StructYYSubA8Base {
     virtual void vfunc7();
     virtual void vfunc8();
     virtual s32 vfunc9(s32, s32, s32, s32);
-    virtual s32 vfunc10();
+};
+
+class StructYYSubA8Base : public StructYYSubA8GrandBase {
+  public:
+    /* 0x18 */ StructYYSubA8Node* unk18;
+    /* 0x1C */ void* unk1C;
+
+    StructYYSubA8Base();
+    virtual s32 vfunc5(s32, s32, s32, s32);
+    virtual void vfunc6();
+    virtual void vfunc8();
+    virtual s32 vfunc9(s32, s32, s32, s32);
+    virtual s32 vfunc10() = 0;
     virtual s32 vfunc11();
     virtual s32 vfunc12();
     virtual s32 vfunc13();
@@ -251,6 +280,9 @@ class StructYYSubA8Base {
     virtual s32 vfunc31();
     virtual s32 vfunc32();
     virtual s32 vfunc33();
+
+    void func_80010A6C(StructYYSubA8Node* node);
+    void* func_80010C50();
 };
 
 class StructYYSubA8Inner1 {
@@ -275,8 +307,6 @@ class StructYYSubA8Inner2 {
 
 class StructYYSubA8 : public StructYYSubA8Base {
   public:
-    /* 0x18 */ char pad18[0x4];
-    /* 0x1C */ void* unk1C;
     /* 0x20 */ OSSched scheduler;
     /* 0x2A8 */ StructYYSubA8Inner1 inner1;
     /* 0x2E8 */ StructYYSubA8Inner2 inner2;
@@ -288,7 +318,6 @@ class StructYYSubA8 : public StructYYSubA8Base {
     virtual ~StructYYSubA8();
     virtual void vfunc3();
     virtual void vfunc4();
-    virtual void vfunc7();    // override; impl in another TU
     virtual s32 vfunc10();
 
     void func_80029AEC();
