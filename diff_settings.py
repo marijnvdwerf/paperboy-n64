@@ -5,7 +5,13 @@ def add_custom_arguments(parser):
     parser.add_argument("--pal", action="store_true", help="Diff against the PAL build")
 
 
+_use_make = False
+
+
 def apply(config, args):
+    global _use_make
+    _use_make = args.make
+
     variant = "pal" if args.pal else "ntsc"
 
     config["baseimg"] = "baserom.z64"
@@ -29,3 +35,11 @@ def apply(config, args):
                 return patched, result[1]
         return result
     _diff.search_map_file = _patched_search
+
+
+def map_build_target(make_target):
+    if _use_make:
+        return make_target
+
+    import os
+    return os.path.abspath(make_target)
