@@ -244,6 +244,26 @@ class StructYYSubA8GrandBase {
     virtual void vfunc7();
     virtual void vfunc8();
     virtual s32 vfunc9(s32, s32, s32, s32);
+
+    s32 func_80016AB8();
+    s32 func_80016AC8();
+    s32 func_80016AD8();
+    s32 func_80016AE8();
+    s32 func_80016AF4();
+    s32 func_80016B00();
+    s32 func_80016B0C();
+    s32 func_80016B18();
+    s32 func_80016B24();
+    s32 func_80016B30();
+    s32 func_80016B3C();
+    s32 func_80016B48();
+    s32 func_80016B54();
+    s32 func_80016B60();
+    s32 func_80016B6C();
+    s32 func_80016B78();
+    s32 func_80016B84();
+    s32 func_80016B90();
+    void* func_80016B9C();
 };
 
 class StructYYSubA8Base : public StructYYSubA8GrandBase {

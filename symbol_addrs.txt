@@ -11,6 +11,7 @@ _vt.8StructVV = 0x80003EC0;
 _vt.8LocalIO2 = 0x80003F00;
 _vt.13LocalIOParent = 0x800047F8;
 _vt.11LocalIOBase = 0x80004F90;
+_vt.22StructYYSubA8GrandBase = 0x800012D0;
 qsort = 0x80005FD0; // type:func
 strtok = 0x800061C0; // type:func
 memcmp = 0x800062C4; // type:func
