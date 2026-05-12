@@ -252,7 +252,7 @@ void Surface16970::vfunc10(s32 a1, s32 a2, Surface16970* src, Rect16970* clip) {
     }
 }
 
-void Surface16970::vfunc13() {
+void Surface16970::vfunc13(void*, s16, s16, s32) {
 }
 
 void Surface16970::vfunc12() {

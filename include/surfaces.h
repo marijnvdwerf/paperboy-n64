@@ -72,8 +72,9 @@ class Surface16970 {
     virtual void vfunc11(s32 a, s32 b, s32 addr, s32 pitch, Rect16970* clip);
     // slot 12 — empty stub (func_80016458)
     virtual void vfunc12();
-    // slot 13 — empty stub (func_80016450)
-    virtual void vfunc13();
+    // slot 13 — empty stub (func_80016450); real signature is from the
+    // derived "buffer init" override which takes (ctx, w, h, bpp)
+    virtual void vfunc13(void* ctx, s16 w, s16 h, s32 bpp);
 };
 
 // Surface16970 with a 2-field tail: unk30 (some buffer/handle, perhaps an
@@ -81,17 +82,17 @@ class Surface16970 {
 // pointer + dimensions + format and vfunc15 to clear them.
 class Surface177B0 : public Surface16970 {
   public:
-    /* 0x30 */ s32 unk30;
+    /* 0x30 */ void* unk30;
     /* 0x34 */ s32 unk34;
 
     Surface177B0();
     virtual ~Surface177B0();
-    virtual void vfunc14(s32 buf, s16 w, s16 h, s32 fmt);
+    virtual void vfunc14(void* buf, u16 w, u16 h, u32 bpp);
     virtual void vfunc15();
 
     s32 func_80016C58();
     s32 func_80016C64();
-    s32 func_80016C70();
+    void* func_80016C70();
 };
 
 #endif // SURFACES_H

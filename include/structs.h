@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 
 #include "common.h"
+#include "surfaces.h"
 
 extern "C" {
 #include "sched.h"
@@ -308,12 +309,25 @@ class StructYYSubA8Base : public StructYYSubA8GrandBase {
     void* func_80010C50();
 };
 
-class StructYYSubA8Inner1 {
+// Double-buffered Surface177B0: owns a back buffer at unk38.
+// Overrides vfunc2 (lock back buf), vfunc6 (swap front/back), vfunc13
+// (memcpy front→back), vfunc14 (allocate + init dims), vfunc15 (free both).
+class StructYYSubA8Inner1 : public Surface177B0 {
   public:
-    /* 0x00 */ char pad[0x40];
+    /* 0x38 */ s32 unk38;
+    /* 0x3C */ s32 pad3C; // garbage / unused tail
 
     StructYYSubA8Inner1();
-    ~StructYYSubA8Inner1();
+    virtual ~StructYYSubA8Inner1();
+
+    virtual void vfunc2(s32* outAddr, s32* outPitch, s32 mode);
+    virtual void vfunc6();
+    virtual void vfunc13(void* ctx, s16 w, s16 h, s32 bpp);
+    virtual void vfunc14(void* buf, u16 w, u16 h, u32 bpp);
+    virtual void vfunc15();
+
+    void func_8002BD80();
+    void func_8002BDA0(u32 color);
 };
 
 class StructYYSubA8Inner2 {
