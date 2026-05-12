@@ -140,7 +140,7 @@ StructYYHandler* StructYYBase::func_8000CAC8() {
     return this->unk70;
 }
 
-s32 StructYYBase::func_8000CAD4() {
+StructYYInner* StructYYBase::func_8000CAD4() {
     return this->unk6C;
 }
 

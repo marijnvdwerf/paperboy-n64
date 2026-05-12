@@ -89,7 +89,7 @@ class StructYYHandler {
     virtual void vfunc1();
     virtual void vfunc2();
     virtual void vfunc3();
-    virtual void vfunc4();
+    virtual s32 vfunc4(s32, s32, s32, s32);
     virtual void vfunc5();
     virtual void vfunc6();
 };
@@ -101,13 +101,16 @@ class StructYYUnk88 {
     virtual void vfunc1();
 };
 
+class StructYYSubD0E8;
+class StructYYInner;
+
 class StructYYBase {
   public:
     /* 0x00 */ s32 unk0;
     /* 0x04 */ LocalIO2 io[1];
     /* 0x34 */ StructZZ zz[1];
     /* 0x68 */ s32 unk68;
-    /* 0x6C */ s32 unk6C;
+    /* 0x6C */ StructYYInner* unk6C;
     /* 0x70 */ StructYYHandler* unk70;
     /* 0x74 */ s32 unk74;
     /* 0x78 */ s32 unk78;
@@ -116,8 +119,8 @@ class StructYYBase {
     /* 0x84 */ s32 unk84;
     /* 0x88 */ StructYYUnk88* unk88;
     /* 0x8C */ s32 unk8C;
-    /* 0x90 */ s32 unk90;
-    /* 0x94 */ s32 unk94;
+    /* 0x90 */ u32 unk90;
+    /* 0x94 */ u32 unk94;
     /* 0x98 */ s32 unk98;
     /* 0x9C */ // vtable
 
@@ -142,7 +145,7 @@ class StructYYBase {
     s32 func_8000CAB0();
     s32 func_8000CABC();
     StructYYHandler* func_8000CAC8();
-    s32 func_8000CAD4();
+    StructYYInner* func_8000CAD4();
     s32 func_8000CAE0();
     s32 func_8000CAF0();
     s32 func_8000CAFC();
@@ -156,12 +159,12 @@ class StructYYBase {
     virtual void vfunc6() = 0;
     virtual void vfunc7() = 0;
     virtual void vfunc8(s32, s32, s32, s32);
-    virtual void vfunc9(s32, s32, s32, s32) = 0;
+    virtual s32 vfunc9(s32, s32, s32, s32) = 0;
     virtual void vfunc10() = 0;
     virtual void vfunc11() = 0;
-    virtual void vfunc12() = 0;
-    virtual void vfunc13() = 0;
-    virtual void vfunc14() = 0;
+    virtual s32 vfunc12() = 0;
+    virtual StructYYSubD0E8* vfunc13() = 0;
+    virtual s32 vfunc14(s32) = 0;
 };
 
 class StructYYInnerBase {
@@ -349,7 +352,8 @@ class StructYYSubA8 : public StructYYSubA8Base {
 
 class StructYYSubD0E8 {
   public:
-    char pad[0x47B0];
+    /* 0x0000 */ char pad0[0x47AC];
+    /* 0x47AC */ u8* unk47AC;
 
     StructYYSubD0E8();
     ~StructYYSubD0E8();
@@ -379,12 +383,14 @@ class StructYY : public StructYYBase {
     virtual void vfunc5();
     virtual void vfunc6();
     virtual void vfunc7();
-    virtual void vfunc9(s32, s32, s32, s32);
+    virtual s32 vfunc9(s32, s32, s32, s32);
     virtual void vfunc10();
     virtual void vfunc11();
-    virtual void vfunc12();
-    virtual void vfunc13();
-    virtual void vfunc14();
+    virtual s32 vfunc12();
+    virtual StructYYSubD0E8* vfunc13();
+    virtual s32 vfunc14(s32);
+
+    void func_8000CDD8();
 };
 
 class StructUUBase {

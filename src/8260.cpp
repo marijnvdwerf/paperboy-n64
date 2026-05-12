@@ -71,7 +71,7 @@ struct GameContext : GameContextBase {
     void func_80008100();
     StructYY* func_8000812C();
     s32 func_80008138();
-    s32 func_80008148();
+    StructYYInner* func_80008148();
     StructYY* func_80008158();
     s32 func_80008164();
     static s32 func_80008174();
@@ -449,7 +449,7 @@ StructYY* GameContext::func_8000812C() {
 s32 GameContext::func_80008138() {
     return this->unk48->unk78;
 }
-s32 GameContext::func_80008148() {
+StructYYInner* GameContext::func_80008148() {
     return this->unk48->unk6C;
 }
 StructYY* GameContext::func_80008158() {
