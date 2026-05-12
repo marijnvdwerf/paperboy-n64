@@ -92,18 +92,19 @@ class StructYYBase {
 
     virtual ~StructYYBase();
     virtual void vfunc1();
-    virtual void vfunc2(const char*, s32);
-    virtual void vfunc3();
-    virtual void vfunc4();
-    virtual void vfunc5();
-    virtual void vfunc6();
-    virtual void vfunc7();
+    virtual void vfunc2(const char*, s32) = 0;
+    virtual void vfunc3() = 0;
+    virtual void vfunc4() = 0;
+    virtual void vfunc5() = 0;
+    virtual void vfunc6() = 0;
+    virtual void vfunc7() = 0;
     virtual void vfunc8();
-    virtual void vfunc9(s32, s32, s32, s32);
-    virtual void vfunc10();
-    virtual void vfunc11();
-    virtual void vfunc12();
-    virtual void vfunc13();
+    virtual void vfunc9(s32, s32, s32, s32) = 0;
+    virtual void vfunc10() = 0;
+    virtual void vfunc11() = 0;
+    virtual void vfunc12() = 0;
+    virtual void vfunc13() = 0;
+    virtual void vfunc14() = 0;
 };
 
 class StructYY : public StructYYBase {
@@ -111,6 +112,19 @@ class StructYY : public StructYYBase {
     /* 0x00A0 */ char tail[0x11A10];
 
     StructYY();
+    virtual ~StructYY();
+    virtual void vfunc2(const char*, s32);
+    virtual void vfunc3();
+    virtual void vfunc4();
+    virtual void vfunc5();
+    virtual void vfunc6();
+    virtual void vfunc7();
+    virtual void vfunc9(s32, s32, s32, s32);
+    virtual void vfunc10();
+    virtual void vfunc11();
+    virtual void vfunc12();
+    virtual void vfunc13();
+    virtual void vfunc14();
 };
 
 extern "C" {
