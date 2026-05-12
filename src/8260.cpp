@@ -79,54 +79,6 @@ struct GameContext : GameContextBase {
     s32 func_80008194();
 };
 
-class StructYYBase {
-  public:
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ char pad4[0x68];
-    /* 0x6C */ s32 unk6C;
-    /* 0x70 */ s32 unk70;
-    /* 0x74 */ char pad74[0x4];
-    /* 0x78 */ s32 unk78;
-    /* 0x7C */ char pad7C[0x20];
-    /* 0x9C */ // vtable
-
-    virtual ~StructYYBase();
-    virtual void vfunc1();
-    virtual void vfunc2(const char*, s32) = 0;
-    virtual void vfunc3() = 0;
-    virtual void vfunc4() = 0;
-    virtual void vfunc5() = 0;
-    virtual void vfunc6() = 0;
-    virtual void vfunc7() = 0;
-    virtual void vfunc8();
-    virtual void vfunc9(s32, s32, s32, s32) = 0;
-    virtual void vfunc10() = 0;
-    virtual void vfunc11() = 0;
-    virtual void vfunc12() = 0;
-    virtual void vfunc13() = 0;
-    virtual void vfunc14() = 0;
-};
-
-class StructYY : public StructYYBase {
-  public:
-    /* 0x00A0 */ char tail[0x11A10];
-
-    StructYY();
-    virtual ~StructYY();
-    virtual void vfunc2(const char*, s32);
-    virtual void vfunc3();
-    virtual void vfunc4();
-    virtual void vfunc5();
-    virtual void vfunc6();
-    virtual void vfunc7();
-    virtual void vfunc9(s32, s32, s32, s32);
-    virtual void vfunc10();
-    virtual void vfunc11();
-    virtual void vfunc12();
-    virtual void vfunc13();
-    virtual void vfunc14();
-};
-
 extern "C" {
 // Functions
 void* memset(void*, s32, u32);
@@ -419,7 +371,9 @@ void GameContext::func_80007DE0() {
         D_80076404[0] = 0;
     }
     this->unk4C = new StructWW();
-    this->unk4C->sched = (void*)(this->unk48->unk70 + 0x20);
+    // TODO: StructYYHandler has fields past its vtable @ 0x14 that we haven't modeled;
+    //       cast through u8* so the +0x20 stays byte-sized instead of scaling by sizeof.
+    this->unk4C->sched = (void*)((u8*)this->unk48->unk70 + 0x20);
     this->unk4C->func_80009350(0x14);
     if (&D_800005E8 != NULL) {
         strncpy(D_80076404, D_800005E8, 0x100);

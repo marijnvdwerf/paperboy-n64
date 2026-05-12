@@ -58,6 +58,127 @@ class LocalIOBase : public LocalIOParent {
 class LocalIO : public LocalIOBase {};
 class LocalIO2 : public LocalIOBase {};
 
+class StructZZ {
+  public:
+    /* 0x00 */ u8 pad0[0x30];
+    /* 0x30 */ // vtable
+
+    StructZZ();
+    virtual void vfunc1();
+    virtual void vfunc2();
+    virtual void vfunc3();
+    virtual void vfunc4();
+    virtual ~StructZZ();
+    virtual void vfunc5();
+    void func_80045288();
+};
+
+class StructYYHandler {
+  public:
+    /* 0x00 */ char pad0[0xC];
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ char pad10[0x4];
+    /* 0x14 */ // vtable
+
+    virtual ~StructYYHandler();
+    virtual void vfunc1();
+    virtual void vfunc2();
+    virtual void vfunc3();
+    virtual void vfunc4();
+    virtual void vfunc5();
+    virtual void vfunc6();
+};
+
+class StructYYUnk88 {
+  public:
+    /* 0x00 */ // vtable
+
+    virtual void vfunc1();
+};
+
+class StructYYBase {
+  public:
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ LocalIO2 io[1];
+    /* 0x34 */ StructZZ zz[1];
+    /* 0x68 */ s32 unk68;
+    /* 0x6C */ s32 unk6C;
+    /* 0x70 */ StructYYHandler* unk70;
+    /* 0x74 */ s32 unk74;
+    /* 0x78 */ s32 unk78;
+    /* 0x7C */ s32 unk7C;
+    /* 0x80 */ s32 unk80;
+    /* 0x84 */ s32 unk84;
+    /* 0x88 */ StructYYUnk88* unk88;
+    /* 0x8C */ s32 unk8C;
+    /* 0x90 */ s32 unk90;
+    /* 0x94 */ s32 unk94;
+    /* 0x98 */ s32 unk98;
+    /* 0x9C */ // vtable
+
+    StructYYBase();
+    void func_8000C6C0();
+    void func_8000C74C();
+    void func_8000C7AC();
+    void func_8000C9B8();
+    s32 func_8000C9F8();
+    StructZZ* func_8000CA04(s32 idx);
+    void func_8000CA24();
+    void func_8000CA38();
+    s32 func_8000CA48();
+    s32 func_8000CA54();
+    s32 func_8000CA60();
+    s32 func_8000CA6C();
+    s32 func_8000CA78();
+    void func_8000CA84(s32 v);
+    s32 func_8000CA8C();
+    s32 func_8000CA98();
+    s32 func_8000CAA4();
+    s32 func_8000CAB0();
+    s32 func_8000CABC();
+    StructYYHandler* func_8000CAC8();
+    s32 func_8000CAD4();
+    s32 func_8000CAE0();
+    s32 func_8000CAF0();
+    s32 func_8000CAFC();
+    s32 func_8000CB08();
+    virtual ~StructYYBase();
+    virtual void vfunc1();
+    virtual void vfunc2(const char*, s32) = 0;
+    virtual void vfunc3() = 0;
+    virtual void vfunc4() = 0;
+    virtual void vfunc5() = 0;
+    virtual void vfunc6() = 0;
+    virtual void vfunc7() = 0;
+    virtual void vfunc8(s32, s32, s32, s32);
+    virtual void vfunc9(s32, s32, s32, s32) = 0;
+    virtual void vfunc10() = 0;
+    virtual void vfunc11() = 0;
+    virtual void vfunc12() = 0;
+    virtual void vfunc13() = 0;
+    virtual void vfunc14() = 0;
+};
+
+class StructYY : public StructYYBase {
+  public:
+    /* 0x00A0 */ char tail[0x11A10];
+
+    StructYY();
+    virtual ~StructYY();
+    virtual void vfunc2(const char*, s32);
+    virtual void vfunc3();
+    virtual void vfunc4();
+    virtual void vfunc5();
+    virtual void vfunc6();
+    virtual void vfunc7();
+    virtual void vfunc9(s32, s32, s32, s32);
+    virtual void vfunc10();
+    virtual void vfunc11();
+    virtual void vfunc12();
+    virtual void vfunc13();
+    virtual void vfunc14();
+};
+
 class StructUUBase {
   public:
     /* 0x00 */ // vtable

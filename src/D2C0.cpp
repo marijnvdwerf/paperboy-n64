@@ -1,61 +1,164 @@
 #include "common.h"
+#include "structs.h"
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000C6C0);
+void StructYYBase::func_8000C6C0() {
+    for (u32 i = 0; i < this->unk68; i++) {
+        this->zz[i].func_80045288();
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", vfunc8__12StructYYBase);
+void StructYYBase::vfunc8(s32 a, s32 b, s32 c, s32 d) {
+    this->vfunc9(a, b, c, d);
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000C74C);
+void StructYYBase::func_8000C74C() {
+    if (this->unk88 != NULL) {
+        this->unk88->vfunc1();
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", vfunc1__12StructYYBase);
+void StructYYBase::vfunc1() {
+    this->unk70->vfunc6();
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000C7AC);
+void StructYYBase::func_8000C7AC() {
+    this->vfunc10();
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", _._12StructYYBase);
+StructYYBase::~StructYYBase() {
+    this->unk6C = 0;
+    this->unk70 = NULL;
+    this->unk74 = 0;
+    this->unk78 = 0;
+    this->unk0 = 0;
+    this->unk7C = 0;
+    this->unk80 = 0;
+    this->unk84 = 0;
+    this->unk8C = 0;
+    this->unk90 = 0;
+    this->unk94 = 0x64;
+    this->unk68 = 0;
+    this->unk98 = 0;
+    this->unk88 = NULL;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", __12StructYYBase);
+StructYYBase::StructYYBase() {
+    this->unk6C = 0;
+    this->unk70 = 0;
+    this->unk74 = 0;
+    this->unk78 = 0;
+    this->unk0 = 0;
+    this->unk7C = 0;
+    this->unk80 = 0;
+    this->unk84 = 0;
+    this->unk8C = 0;
+    this->unk90 = 0;
+    this->unk94 = 0x64;
+    this->unk68 = 0;
+    this->unk98 = 0;
+    this->unk88 = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000C9B8);
+void StructYYBase::func_8000C9B8() {
+    this->unk6C = 0;
+    this->unk70 = NULL;
+    this->unk74 = 0;
+    this->unk78 = 0;
+    this->unk0 = 0;
+    this->unk7C = 0;
+    this->unk80 = 0;
+    this->unk84 = 0;
+    this->unk8C = 0;
+    this->unk90 = 0;
+    this->unk94 = 0x64;
+    this->unk68 = 0;
+    this->unk98 = 0;
+    this->unk88 = NULL;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000C9F8);
+s32 StructYYBase::func_8000C9F8() {
+    return this->unk0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA04);
+StructZZ* StructYYBase::func_8000CA04(s32 idx) {
+    return &this->zz[idx];
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA24);
+void StructYYBase::func_8000CA24() {
+    this->unk0 &= ~0x4000;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA38);
+void StructYYBase::func_8000CA38() {
+    this->unk0 |= 0x4000;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA48);
+s32 StructYYBase::func_8000CA48() {
+    return this->unk0 & 0x4000;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA54);
+s32 StructYYBase::func_8000CA54() {
+    return this->unk68;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA60);
+s32 StructYYBase::func_8000CA60() {
+    return this->unk98;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA6C);
+s32 StructYYBase::func_8000CA6C() {
+    return this->unk0 & 0x10;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA78);
+s32 StructYYBase::func_8000CA78() {
+    return this->unk0 & 0x100;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA84);
+void StructYYBase::func_8000CA84(s32 v) {
+    this->unk94 = v;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA8C);
+s32 StructYYBase::func_8000CA8C() {
+    return this->unk94;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CA98);
+s32 StructYYBase::func_8000CA98() {
+    return this->unk90;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CAA4);
+s32 StructYYBase::func_8000CAA4() {
+    return this->unk8C;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CAB0);
+s32 StructYYBase::func_8000CAB0() {
+    return this->unk78;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CABC);
+s32 StructYYBase::func_8000CABC() {
+    return this->unk74;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CAC8);
+StructYYHandler* StructYYBase::func_8000CAC8() {
+    return this->unk70;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CAD4);
+s32 StructYYBase::func_8000CAD4() {
+    return this->unk6C;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CAE0);
+s32 StructYYBase::func_8000CAE0() {
+    return this->unk70->unkC & 0x2000;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CAF0);
+s32 StructYYBase::func_8000CAF0() {
+    return this->unk0 & 8;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CAFC);
+s32 StructYYBase::func_8000CAFC() {
+    return this->unk0 & 2;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CB08);
+s32 StructYYBase::func_8000CB08() {
+    return this->unk0 & 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CB14);
+// automatic LocalIO2 destructor
+// INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CB14);
