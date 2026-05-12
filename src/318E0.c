@@ -10,7 +10,7 @@ INCLUDE_ASM("asm/nonmatchings/318E0", func_800316E4);
 
 INCLUDE_ASM("asm/nonmatchings/318E0", func_80031A0C);
 
-INCLUDE_ASM("asm/nonmatchings/318E0", func_80031B58);
+INCLUDE_ASM("asm/nonmatchings/318E0", func_80031B58__19StructYYSubA8Inner2P13StructYYSubA8P19StructYYSubA8Inner1ll);
 
 INCLUDE_ASM("asm/nonmatchings/318E0", func_80031D18);
 
@@ -102,7 +102,7 @@ INCLUDE_ASM("asm/nonmatchings/318E0", func_80036A54);
 void func_80036A60(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/318E0", func_80036A68);
+INCLUDE_ASM("asm/nonmatchings/318E0", func_80036A68__19StructYYSubA8Inner2);
 
 INCLUDE_ASM("asm/nonmatchings/318E0", func_80036AA0);
 
@@ -150,9 +150,9 @@ INCLUDE_ASM("asm/nonmatchings/318E0", func_8003758C);
 
 INCLUDE_ASM("asm/nonmatchings/318E0", func_80037598);
 
-INCLUDE_ASM("asm/nonmatchings/318E0", func_800375A4);
+INCLUDE_ASM("asm/nonmatchings/318E0", _._19StructYYSubA8Inner2);
 
-INCLUDE_ASM("asm/nonmatchings/318E0", func_80037640);
+INCLUDE_ASM("asm/nonmatchings/318E0", __19StructYYSubA8Inner2);
 
 INCLUDE_ASM("asm/nonmatchings/318E0", func_800376D4);
 
