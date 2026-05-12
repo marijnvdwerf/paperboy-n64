@@ -2,7 +2,7 @@
 
 #ifdef NON_MATCHING
 void Surface16970::vfunc9(u32 fill) {
-    s32 addr;
+    u8* addr;
     s32 pitch;
     s32 didLock;
     if (this->unk22 & 2) {
@@ -26,7 +26,7 @@ void Surface16970::vfunc9(u32 fill) {
             if (height != 0) {
                 u32 v = fill;
                 do {
-                    u8* p = (u8*)addr;
+                    u8* p = addr;
                     u8* end = p + width;
                     if (p < end) {
                         do {
@@ -45,7 +45,7 @@ void Surface16970::vfunc9(u32 fill) {
             if (height != 0) {
                 width *= 2;
                 do {
-                    u8* p = (u8*)addr;
+                    u8* p = addr;
                     u8* end = p + width;
                     if (p < end) {
                         do {
@@ -66,7 +66,7 @@ void Surface16970::vfunc9(u32 fill) {
             if (height != 0) {
                 width = width * 2 + width;
                 do {
-                    u8* p = (u8*)addr;
+                    u8* p = addr;
                     u8* end = p + width;
                     if (p < end) {
                         do {
@@ -86,7 +86,7 @@ void Surface16970::vfunc9(u32 fill) {
             if (height != 0) {
                 width *= 4;
                 do {
-                    u8* p = (u8*)addr;
+                    u8* p = addr;
                     u8* end = p + width;
                     if (p < end) {
                         do {
@@ -110,7 +110,7 @@ INCLUDE_ASM("asm/nonmatchings/16970", vfunc9__12Surface16970Ul);
 #endif
 
 #ifdef NON_MATCHING
-void Surface16970::vfunc11(s32 dstX, s32 dstY, s32 srcAddr, s32 srcPitch, Rect16970* clip) {
+void Surface16970::vfunc11(s32 dstX, s32 dstY, u8* srcAddr, s32 srcPitch, Rect16970* clip) {
     if (clip->unk0 >= clip->unk8) {
         return;
     }
@@ -131,7 +131,7 @@ void Surface16970::vfunc11(s32 dstX, s32 dstY, s32 srcAddr, s32 srcPitch, Rect16
     if (dstY + srcH > this->unk28) {
         srcH = this->unk28 - dstY;
     }
-    s32 dstAddr;
+    u8* dstAddr;
     s32 dstPitch;
     s32 didLock;
     if (this->unk22 & 2) {
@@ -173,8 +173,8 @@ void Surface16970::vfunc11(s32 dstX, s32 dstY, s32 srcAddr, s32 srcPitch, Rect16
                 u32 x = 0;
                 if (srcW != 0) {
                     do {
-                        u8* dByte = (u8*)dstAddr + ((dstX + x) >> 1);
-                        u8* sByte = (u8*)srcAddr + ((clip->unk0 + x) >> 1);
+                        u8* dByte = dstAddr + ((dstX + x) >> 1);
+                        u8* sByte = srcAddr + ((clip->unk0 + x) >> 1);
                         x++;
                         u32 dVal = *dByte & dstMask;
                         dstMask = ~dstMask;
@@ -201,10 +201,10 @@ void Surface16970::vfunc11(s32 dstX, s32 dstY, s32 srcAddr, s32 srcPitch, Rect16
         u32 y = 0;
         if (srcH != 0) {
             do {
-                u8* d = (u8*)dstAddr;
+                u8* d = dstAddr;
                 u8* dEnd = d + rowBytes;
                 if (d < dEnd) {
-                    u8* s = (u8*)srcAddr;
+                    u8* s = srcAddr;
                     do {
                         *d++ = *s++;
                     } while (d < dEnd);
@@ -220,7 +220,7 @@ void Surface16970::vfunc11(s32 dstX, s32 dstY, s32 srcAddr, s32 srcPitch, Rect16
     }
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/16970", vfunc11__12Surface16970llllP9Rect16970);
+INCLUDE_ASM("asm/nonmatchings/16970", vfunc11__12Surface16970llPUclP9Rect16970);
 #endif
 
 void Surface16970::vfunc10(s32 a1, s32 a2, Surface16970* src, Rect16970* clip) {
@@ -236,7 +236,7 @@ void Surface16970::vfunc10(s32 a1, s32 a2, Surface16970* src, Rect16970* clip) {
     if (this->hdr.unk14) {
         this->vfunc8()->vfunc4(src->vfunc8());
     }
-    s32 addr;
+    u8* addr;
     s32 pitch;
     s32 didLock = 0;
     if (src->unk22 & 2) {
@@ -275,9 +275,9 @@ void Surface16970::vfunc5() {
     }
 }
 
-void Surface16970::vfunc4(s32* outAddr, s32* outPitch, s32 mode) {
+void Surface16970::vfunc4(u8** outAddr, s32* outPitch, s32 mode) {
     *outPitch = this->unk20;
-    *outAddr = this->unk1C;
+    *outAddr = (u8*)this->unk1C;
     u16 v = this->unk24;
     this->unk24 = v | 2;
     if (mode & 1) {
@@ -295,7 +295,7 @@ void Surface16970::vfunc3() {
     }
 }
 
-void Surface16970::vfunc2(s32* outAddr, s32* outPitch, s32 mode) {
+void Surface16970::vfunc2(u8** outAddr, s32* outPitch, s32 mode) {
     *outPitch = this->unk20;
     *outAddr = this->unk18;
     u16 v = this->unk22;
@@ -323,7 +323,7 @@ Surface16970::Surface16970() {
     this->hdr.unk10 = 0;
     this->hdr.unk14 = 0;
     this->hdr.unk16 = 0;
-    this->unk18 = 0;
+    this->unk18 = NULL;
     this->unk1C = 0;
     this->unk20 = 0;
     this->unk22 = 0;

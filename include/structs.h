@@ -314,13 +314,13 @@ class StructYYSubA8Base : public StructYYSubA8GrandBase {
 // (memcpy front→back), vfunc14 (allocate + init dims), vfunc15 (free both).
 class StructYYSubA8Inner1 : public Surface177B0 {
   public:
-    /* 0x38 */ s32 unk38;
+    /* 0x38 */ u8* unk38;
     /* 0x3C */ s32 pad3C; // garbage / unused tail
 
     StructYYSubA8Inner1();
     virtual ~StructYYSubA8Inner1();
 
-    virtual void vfunc2(s32* outAddr, s32* outPitch, s32 mode);
+    virtual void vfunc2(u8** outAddr, s32* outPitch, s32 mode);
     virtual void vfunc6();
     virtual void vfunc13(void* ctx, s16 w, s16 h, s32 bpp);
     virtual void vfunc14(void* buf, u16 w, u16 h, u32 bpp);

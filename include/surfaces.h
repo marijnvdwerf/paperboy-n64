@@ -36,7 +36,7 @@ struct Surface16970Header {
 class Surface16970 {
   public:
     /* 0x00 */ Surface16970Header hdr;
-    /* 0x18 */ u32 unk18;
+    /* 0x18 */ u8* unk18;
     /* 0x1C */ u32 unk1C;
     /* 0x20 */ u16 unk20;
     /* 0x22 */ u16 unk22;
@@ -51,11 +51,11 @@ class Surface16970 {
     // slot 1 = dtor (func_80016548)
     virtual ~Surface16970();
     // slot 2 — lock unk18 (func_800164FC)
-    virtual void vfunc2(s32* outAddr, s32* outPitch, s32 mode);
+    virtual void vfunc2(u8** outAddr, s32* outPitch, s32 mode);
     // slot 3 — unlock unk22 (func_800164E0)
     virtual void vfunc3();
     // slot 4 — lock unk1C (func_80016494)
-    virtual void vfunc4(s32* outAddr, s32* outPitch, s32 mode);
+    virtual void vfunc4(u8** outAddr, s32* outPitch, s32 mode);
     // slot 5 — unlock unk24 (func_80016478)
     virtual void vfunc5();
     // slot 6 — empty stub (func_80016470)
@@ -69,7 +69,7 @@ class Surface16970 {
     // slot 10 — blit-with-rect (func_800162D4)
     virtual void vfunc10(s32 a, s32 b, Surface16970* src, Rect16970* clip);
     // slot 11 — raw blit with addr/pitch (func_80015FD4)
-    virtual void vfunc11(s32 a, s32 b, s32 addr, s32 pitch, Rect16970* clip);
+    virtual void vfunc11(s32 a, s32 b, u8* addr, s32 pitch, Rect16970* clip);
     // slot 12 — empty stub (func_80016458)
     virtual void vfunc12();
     // slot 13 — empty stub (func_80016450); real signature is from the

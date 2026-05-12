@@ -32,10 +32,10 @@ void StructYYSubA8Inner1::func_8002BDA0(u32 color) {
 }
 
 void StructYYSubA8Inner1::vfunc13(void*, s16, s16, s32) {
-    memcpy((void*)this->unk38, (void*)this->unk18, this->unk20 * this->unk28);
+    memcpy(this->unk38, this->unk18, this->unk20 * this->unk28);
 }
 
-void StructYYSubA8Inner1::vfunc2(s32* outAddr, s32* outPitch, s32 mode) {
+void StructYYSubA8Inner1::vfunc2(u8** outAddr, s32* outPitch, s32 mode) {
     *outPitch = this->unk20;
     *outAddr = this->unk38;
     u16 v = this->unk22;
@@ -49,7 +49,7 @@ void StructYYSubA8Inner1::vfunc2(s32* outAddr, s32* outPitch, s32 mode) {
 }
 
 void StructYYSubA8Inner1::vfunc6() {
-    s32 t = this->unk18;
+    u8* t = this->unk18;
     this->unk18 = this->unk38;
     this->unk38 = t;
 }
@@ -60,12 +60,12 @@ extern "C" void func_8002BECC(s32 v) {
 
 void StructYYSubA8Inner1::vfunc15() {
     if (this->unk38) {
-        delete[] (u8*)this->unk38;
-        this->unk38 = 0;
+        delete[] this->unk38;
+        this->unk38 = NULL;
     }
     if (this->unk18) {
-        delete[] (u8*)this->unk18;
-        this->unk18 = 0;
+        delete[] this->unk18;
+        this->unk18 = NULL;
     }
     this->unk26 = 0;
     this->unk28 = 0;
@@ -82,7 +82,7 @@ void StructYYSubA8Inner1::vfunc14(void* buf, u16 w, u16 h, u32 bpp) {
     this->unk22 = 1;
     this->unk30 = buf;
     this->unk28 = h;
-    this->unk38 = 0;
+    this->unk38 = NULL;
     this->hdr.unk0 = 0xF800;
     this->hdr.unk4 = 0x7C0;
     this->hdr.unk8 = 0x3E;
@@ -91,19 +91,19 @@ void StructYYSubA8Inner1::vfunc14(void* buf, u16 w, u16 h, u32 bpp) {
     this->hdr.unk16 = 0x10;
     u32 size = this->unk20 * this->unk28;
     func_8004B3BC(D_80072BC0);
-    this->unk18 = (u32) new u8[size];
+    this->unk18 = new u8[size];
     func_8004B390();
     if (!this->unk18) {
         func_800079A8("", 0, 0, 0);
     }
-    memset((void*)this->unk18, 0, size);
+    memset(this->unk18, 0, size);
     if (ctx->unkD03C != 0) {
         osViBlack(0);
         ctx->unkD03C = 0;
     }
-    osViSwapBuffer((void*)this->unk18);
+    osViSwapBuffer(this->unk18);
     func_8004B3BC(D_80072BC0);
-    this->unk38 = (s32) new u8[size];
+    this->unk38 = new u8[size];
     func_8004B390();
     if (!this->unk38) {
         func_800079A8("", 0, 0, 0);
@@ -115,5 +115,5 @@ StructYYSubA8Inner1::~StructYYSubA8Inner1() {
 }
 
 StructYYSubA8Inner1::StructYYSubA8Inner1() {
-    this->unk38 = 0;
+    this->unk38 = NULL;
 }
