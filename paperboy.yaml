@@ -148,12 +148,14 @@ segments:
       - [0x8DA0, asm]
       - [0x8EB0, asm]
       - [0x9E10, cpp]
+
+      # libnaudio
       - [0xA0B0, asm]
       - [0xA670, asm]
       - [0xB010, asm]
       - [0xB720, asm]
       - [0xB7A0, asm]
-      - [0xC380, c]
+      - [0xC380, asm]
       - [0xC400, asm]
       - [0xC450, asm]
       - [0xC4B0, asm]
@@ -167,6 +169,7 @@ segments:
       - [0xCBA0, asm]
       - [0xCCA0, asm]
       - [0xD260, asm]
+
       - [0xD2C0, cpp]
       - [0xD730, cpp]
       - [0xDD50, asm]
@@ -260,13 +263,19 @@ segments:
       - [0x55220, c]
       - [0x553E0, asm]
       - [0x55680, asm]
+
+      # libultra
       - [0x557A0, asm]
       - [0x60270, c, pal_pad60270]
       - [0x60270, asm]
       - [0x63A60, c, pal_pad63A60]
       - [0x63A60, asm]
+
+      # cpp runtime
       - [0x64F20, asm]
       - [0x64F40, asm]
+
+
       - [0x64F60, data]
       - [0x65070, data]
       - [0x79AE0, bss]
