@@ -170,8 +170,8 @@ segments:
       - [0xCB10, asm]
       - [0xCBA0, asm]
       - [0xCCA0, asm]
-      - [0xD260, asm]
 
+      - [0xD260, cpp]
       - [0xD2C0, cpp]
       - [0xD730, cpp]
       - [0xDD50, asm]
