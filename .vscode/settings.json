@@ -2,7 +2,17 @@
     "explorer.excludeGitIgnore": false,
     "search.useIgnoreFiles": false,
     "search.exclude": {
-        "build/": true,
+        "build/**/*.{o,d,s,bin,z64,elf,ld,bc}": true,
+        "build/**/asm/**": true,
+        "build/**/assets/**": true,
+        "build/**/src/**": true,
         "expected/": true
-    }
+    },
+    "files.watcherExclude": {
+        "build/**": true
+    },
+    "files.readonlyInclude": {
+        "build/**/*.map": true
+    },
+    "files.trimTrailingWhitespace": true
 }
