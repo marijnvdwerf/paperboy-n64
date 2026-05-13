@@ -6,16 +6,15 @@ INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041270);
 
 INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041478);
 
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_800414A0);
+INCLUDE_ASM("asm/nonmatchings/41CE0", vfunc34__15InputDeviceBase);
 
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_800414AC);
+INCLUDE_ASM("asm/nonmatchings/41CE0", vfunc33__15InputDeviceBase);
 
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_800414B8);
+INCLUDE_ASM("asm/nonmatchings/41CE0", vfunc7__15InputDeviceBase);
 
-void func_800414C4(void) {
-}
+INCLUDE_ASM("asm/nonmatchings/41CE0", vfunc20__15InputDeviceBase);
 
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_800414CC);
+INCLUDE_ASM("asm/nonmatchings/41CE0", vfunc18__15InputDeviceBase);
 
 INCLUDE_ASM("asm/nonmatchings/41CE0", func_800414D4);
 
@@ -31,7 +30,7 @@ INCLUDE_ASM("asm/nonmatchings/41CE0", func_800416DC);
 
 INCLUDE_ASM("asm/nonmatchings/41CE0", func_800416F8);
 
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041770);
+INCLUDE_ASM("asm/nonmatchings/41CE0", vfunc10__15InputDeviceBase);
 
 INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041814);
 
@@ -53,9 +52,9 @@ INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041A74);
 
 INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041ABC);
 
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041B48);
+INCLUDE_ASM("asm/nonmatchings/41CE0", _._15InputDeviceBase);
 
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041B98);
+INCLUDE_ASM("asm/nonmatchings/41CE0", __15InputDeviceBase);
 
 INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041C00);
 
