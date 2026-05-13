@@ -5,21 +5,6 @@
 
 class Actor;
 
-struct GameContextBase {
-    virtual void func1();
-    virtual void func2();
-    virtual void func3();
-    virtual void func4();
-    virtual void func5();
-    virtual void func6();
-    virtual void func7();
-    virtual void func8();
-    virtual void func9();
-    virtual void func10();
-    virtual void func11();
-    virtual void func12();
-};
-
 struct GameSubContext {
     /* 0x000 */ char pad0[0xB0];
     /* 0x0B0 */ s32 unk0B0; // = 1
@@ -42,7 +27,7 @@ struct GameSubContext {
 class StructYY;
 class StructWW;
 
-struct GameContext : GameContextBase {
+struct GameContext : StructTTBase {
     /* 0x004 */ s32 unk4;
     /* 0x008 */ s32 unk8;
     /* 0x00C */ s32 unkC;

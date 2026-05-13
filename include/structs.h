@@ -24,13 +24,13 @@ class StructTTBase {
     virtual void vfunc10();
     virtual void vfunc11();
     virtual void vfunc12();
-    virtual void vfunc13() = 0;
-    virtual void vfunc14() = 0;
 };
 
 class StructTT : public StructTTBase {
   public:
     StructTT();
+    virtual void vfunc13() = 0;
+    virtual void vfunc14() = 0;
     virtual ~StructTT();
     virtual void vfunc16() = 0;
     virtual void vfunc17() = 0;
