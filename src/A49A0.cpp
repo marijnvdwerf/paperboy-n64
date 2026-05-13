@@ -1034,10 +1034,10 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3E6C);
 // ============================================================================
 
 // Init D_801282B0 game mode state
-INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3F14);
+INCLUDE_ASM("asm/nonmatchings/A49A0", _._4ObjE);
 
 // Configure D_801282B0 with initial field values
-INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3F40);
+INCLUDE_ASM("asm/nonmatchings/A49A0", __4ObjE);
 
 // Empty stub
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E3F8C);
@@ -1156,10 +1156,10 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E68C4);
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E6964);
 
 // Init D_80127954 pak state
-INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E6980);
+INCLUDE_ASM("asm/nonmatchings/A49A0", _._4ObjB);
 
 // Set D_80127954
-INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E69AC);
+INCLUDE_ASM("asm/nonmatchings/A49A0", __4ObjB);
 
 // Cleanup wrapper
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E69BC);

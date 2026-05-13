@@ -49,6 +49,23 @@ __builtin_vec_delete = 0x80064340   // operator delete[]
 ```
 Use `new u8[N]` / `delete[] ptr` for the `vec` variants.
 
+**`delete[]` collapses a manual reverse-dtor loop.** When you see this asm pattern:
+```
+lw count, -8(arr)                  ; load element count from array header
+end = arr + count * sizeof(Elem)
+if (arr == end) goto skip
+end -= sizeof(Elem)
+loop:
+  jal _._<Elem>(end, 2)            ; dtor, mode 2 (don't free)
+  if (arr == end) break
+  end -= sizeof(Elem)
+skip:
+jal __builtin_vec_delete(arr - 8)  ; free the array
+```
+…wrapped in an `if (arr != NULL)` guard, that's just `delete[] arr` in source — cfront emits the reverse-iteration, header read, and null-check automatically. Requires the element class to have a non-trivial dtor declared (`_._<N><Elem>`).
+
+Similarly, `delete obj` for a pointer to a class with a dtor emits `if (obj != NULL) { jal _._<Class>(obj, 3); }` — the null check is implicit.
+
 **Vtable entry layout:** 8 bytes each = `{s16 this_offset, s16 pad, void* fn}`. With 1-indexed `vfuncNN`, slot K is at byte offset `K*8`.
 
 ## Name mangling (SN cfront-style)
@@ -104,6 +121,7 @@ A single asm range can be two TUs glued by the linker. Symptom: a literal (e.g. 
 - **Float arrays**: assign literals in sequential index order (0,1,2,...) — rodata is emitted in source order.
 - **Rodata migration**: when decomping a function with a jump table or inline float consts, extend the `.rdata` subsegment in the yaml to cover them and adjust the next rodata start.
 - **Branch-likely (`beqzl`/`bnel`)**: induced by where vars are initialized relative to the `if`/loop. Try moving init lines.
+- **Loop shape (`bnez` back vs `j` back + delay-slot store)**: `for (i = 0; i < N; i++)` and `while (i < N) { ...; i++; }` both compile to a check-at-bottom `bnez`-back loop. If the target instead has the check at the top with `j` back and the body's last store in the `j` delay slot, switch to `while (1) { if (i >= N) break; ...; i++; }` — that's the form cfront maps to that shape.
 - **Virtual with mixed arg types across call sites**: declare param as `void*`.
 - **`u32` for count/capacity fields**: avoids spurious `(u32)` casts in compares.
 
