@@ -3,13 +3,13 @@
 
 INCLUDE_ASM("asm/nonmatchings/43DD0", func_800431D0);
 
-INCLUDE_ASM("asm/nonmatchings/43DD0", virt8__13LocalIOParentPCcll);
+INCLUDE_ASM("asm/nonmatchings/43DD0", open__13LocalIOParentPCcll);
 
-INCLUDE_ASM("asm/nonmatchings/43DD0", virt9__13LocalIOParent);
+INCLUDE_ASM("asm/nonmatchings/43DD0", close__13LocalIOParent);
 
-INCLUDE_ASM("asm/nonmatchings/43DD0", virt10__13LocalIOParentlPvlT2);
+INCLUDE_ASM("asm/nonmatchings/43DD0", readAt__13LocalIOParentlPvlT2);
 
-INCLUDE_ASM("asm/nonmatchings/43DD0", virt11__13LocalIOParentPvl);
+INCLUDE_ASM("asm/nonmatchings/43DD0", read__13LocalIOParentPvl);
 
 INCLUDE_ASM("asm/nonmatchings/43DD0", func_80043CC0);
 

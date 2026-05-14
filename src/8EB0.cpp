@@ -316,9 +316,9 @@ void GameSubContext::func_800085B8() {
     char* filename = D_80000738;
     LocalIO2 sp10;
     if (func_800431D0(filename) != 8) {
-        sp10.virt8(filename, 0x8A, 0x20);
-        sp10.virt11(unk140, 0xC);
-        sp10.virt9();
+        sp10.open(filename, 0x8A, 0x20);
+        sp10.read(unk140, 0xC);
+        sp10.close();
         for (s32 i = 0; i < 0xC; i++) {
             if (unk140[i] == 0)
                 break;

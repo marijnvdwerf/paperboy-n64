@@ -22,7 +22,7 @@ s32 LocalIOBase::func_80048A30() {
 
 s32 LocalIOBase::func_80048A40(s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     if (this->unk4 & 1) {
-        this->virt9();
+        this->close();
     }
     if (arg4 == 0) {
         return 3;
@@ -141,7 +141,7 @@ extern "C" void func_80048DD4() {
 }
 
 LocalIOBase::~LocalIOBase() {
-    this->virt9();
+    this->close();
 }
 
 LocalIOBase::LocalIOBase() {

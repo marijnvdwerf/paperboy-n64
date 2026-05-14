@@ -3,7 +3,7 @@
 
 void StructYYBase::func_8000C6C0() {
     for (u32 i = 0; i < this->unk68; i++) {
-        this->zz[i].func_80045288();
+        this->archives[i].func_80045288();
     }
 }
 
@@ -80,8 +80,8 @@ s32 StructYYBase::func_8000C9F8() {
     return this->unk0;
 }
 
-StructZZ* StructYYBase::func_8000CA04(s32 idx) {
-    return &this->zz[idx];
+JamArchive* StructYYBase::func_8000CA04(s32 idx) {
+    return &this->archives[idx];
 }
 
 void StructYYBase::func_8000CA24() {

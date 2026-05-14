@@ -23,11 +23,10 @@ void func_80047B94(StructYYSubD0E8*);
 void func_80046BC0(StructYYSubD0E8*);
 void func_80047A84(StructYYSubD0E8*, u32);
 void func_800079A8(void*, s32, s32, s32);
-void func_8004556C(StructZZ*, LocalIO2*);
 extern u8 D_1106A0[];
 extern u8 D_BDE740[];
 extern s32 D_80000B70;
-extern StructZZ* D_800763F8;
+extern JamArchive* D_800763F8;
 extern s32 D_800763FC;
 }
 
@@ -96,10 +95,10 @@ void StructYY::func_8000CDD8() {
     if (io->func_80048A40((s32)D_1106A0, D_BDE740 - D_1106A0, 0x82, 0x8000)) {
         func_800079A8(&D_80000B70, 0, 0, 0);
     }
-    StructZZ* zz = &this->zz[0];
+    JamArchive* archive = &this->archives[0];
     this->unk68 = 1;
-    func_8004556C(zz, io);
-    D_800763F8 = zz;
+    archive->open(io);
+    D_800763F8 = archive;
     D_800763FC = 1;
 }
 

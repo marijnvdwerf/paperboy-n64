@@ -68,10 +68,10 @@ class LocalIOParent {
     virtual s32 virt5();
     virtual s32 virt6();
     virtual ~LocalIOParent();
-    virtual s32 virt8(const char*, s32, s32);   /// "open"
-    virtual void virt9();                       /// "close"
-    virtual s32 virt10(s32, void*, s32, void*); /// 5-arg read
-    virtual s32 virt11(void*, s32);             /// 3-arg read
+    virtual s32 open(const char*, s32, s32);
+    virtual void close();
+    virtual s32 readAt(s32, void*, s32, void*);
+    virtual s32 read(void*, s32);
     virtual void virt12();
     virtual void virt13();
     virtual void virt14();
@@ -100,19 +100,50 @@ class LocalIO : public LocalIOBase {};
 
 class LocalIO2 : public LocalIOBase {};
 
-class StructZZ {
+struct FileNode {
+    /* 0x00 */ char name[12];
+    /* 0x0C */ s32 offset;
+    /* 0x10 */ s32 size;
+};
+
+struct FolderNode {
+    /* 0x00 */ char name[12];
+    /* 0x0C */ u8 initialized;
+    /* 0x10 */ s32 offset;
+    /* 0x14 */ u32 fileCount;
+    /* 0x18 */ FileNode* files;
+    /* 0x1C */ u32 folderCount;
+    /* 0x20 */ FolderNode* folders;
+
+    FolderNode* init();
+    void reset();
+    void load(LocalIOParent* io);
+    FileNode* findFile(const char* name, LocalIOParent* io);
+    FolderNode* findFolder(const char* name, LocalIOParent* io);
+};
+
+class JamArchive {
   public:
-    /* 0x00 */ u8 pad0[0x30];
+    /* 0x00 */ LocalIOParent* io;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ FolderNode root;
+    /* 0x2C */ FileNode* curFile;
     /* 0x30 */ // vtable
 
-    StructZZ();
-    virtual void vfunc1();
-    virtual void vfunc2();
-    virtual void vfunc3();
-    virtual void vfunc4();
-    virtual ~StructZZ();
-    virtual void vfunc5();
+    JamArchive();
+    virtual s32 locate(const char* path, s32* outOffset, s32* outSize);
+    virtual s32 close();
+    virtual s32 readLine(s32 offset, u8* buffer, u32 bufferSize, u32 maxLength, u32* processedLength);
+    virtual s32 read(s32 offset, void* buf, s32 size, s32* outRead);
+    virtual ~JamArchive();
+    virtual s32 findFile(const char* path);
+
     void func_80045288();
+    void reset();
+    void open(LocalIOParent* io);
+    FileNode* getCurFile();
+    LocalIOParent* getIO();
+    bool hasIO();
 };
 
 class StructYYHandler {
@@ -145,7 +176,7 @@ class StructYYBase {
   public:
     /* 0x00 */ s32 unk0;
     /* 0x04 */ LocalIO2 io[1];
-    /* 0x34 */ StructZZ zz[1];
+    /* 0x34 */ JamArchive archives[1];
     /* 0x68 */ s32 unk68;
     /* 0x6C */ StructYYInner* unk6C;
     /* 0x70 */ StructYYHandler* unk70;
@@ -167,7 +198,7 @@ class StructYYBase {
     void func_8000C7AC();
     void func_8000C9B8();
     s32 func_8000C9F8();
-    StructZZ* func_8000CA04(s32 idx);
+    JamArchive* func_8000CA04(s32 idx);
     void func_8000CA24();
     void func_8000CA38();
     s32 func_8000CA48();

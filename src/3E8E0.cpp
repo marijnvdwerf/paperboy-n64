@@ -25,7 +25,7 @@ void StructVV::func_8003DCE0(LocalIOBase* arg1) {
     u8 sp10[0x10];
     u32 i;
 
-    if (arg1->virt11(sp10, 0x10) != 0) {
+    if (arg1->read(sp10, 0x10) != 0) {
         func_800079A8(D_80003EB8, 0, 0, 0);
     }
     this->unk0 = atoi(sp10);
@@ -41,7 +41,7 @@ void StructVV::func_8003DCE0(LocalIOBase* arg1) {
     }
     i = 0;
     while (i < this->unk0) {
-        if (arg1->virt11(sp10, 0x10) != 0) {
+        if (arg1->read(sp10, 0x10) != 0) {
             func_800079A8(D_80003EB8, 0, 0, 0);
         }
         strncpy(this->unk10 + i * 8, sp10, 8);
@@ -152,11 +152,11 @@ void StructVV::vfunc1(const char* arg1) {
     }
     strcpy(sp40, arg1);
     strcat(sp40, D_80003EB0);
-    if (sp10.virt8(sp40, 0xA, 0x1000)) {
+    if (sp10.open(sp40, 0xA, 0x1000)) {
         func_800079A8(D_80003EB8, 0, 0, 0);
     }
     this->func_8003DCE0(&sp10);
-    sp10.virt9();
+    sp10.close();
 }
 
 StructVV::~StructVV() {
