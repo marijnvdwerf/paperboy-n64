@@ -1,12 +1,14 @@
 #include "common.h"
 
 extern "C" {
+typedef unsigned int size_t;
 void* memset(void*, s32, unsigned);
 void* memcpy(void*, const void*, unsigned);
+size_t wcslen(const unsigned short* wcs);
 }
 
 class WString {
-public:
+  public:
     /* 0x0 */ u16* data;
     /* 0x4 */ u16 capacity;
     /* 0x6 */ u16 unk6;
@@ -30,6 +32,10 @@ public:
     u16* func_8001075C(s32 index);
     ~WString();
     WString();
+
+    u16 size(void) {
+        return length - unk6;
+    }
 };
 
 // reg-alloc: target picks a1/a3 for i/lines, ours picks a2/a1; all instructions match
@@ -51,27 +57,27 @@ s32 WString::func_800100C0() {
 INCLUDE_ASM("asm/nonmatchings/10CC0", func_800100C0__7WString);
 #endif
 
-// reg-alloc: target uses s2 for `this`, s1 for dst; ours swaps them
-#ifdef NON_MATCHING
 void WString::func_80010118(u8* dst) {
-    s32 n = (u16)(this->length - this->unk6);
+    s32 strlen;
+    u8* s = dst;
+
+    strlen = size();
     memset(dst, 0, 8);
-    if (n < 0 || n >= 9) {
-        n = 8;
+
+    if ((strlen < 0) || (strlen >= 9)) {
+        strlen = 8;
     }
-    for (n--; n >= 0; n--) {
-        dst[n] = ((u8*)this->data)[n * 2 + 1];
+
+    for (strlen--; strlen >= 0; strlen--) {
+        s[strlen] = this->data[strlen];
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/10CC0", func_80010118__7WStringPUc);
-#endif
 
 void WString::func_800101A4(u8* dst) {
-    s32 n = (u16)(this->length - this->unk6);
+    s32 n = size();
     dst[n] = 0;
     for (n--; n >= 0; n--) {
-        dst[n] = ((u8*)this->data)[n * 2 + 1];
+        dst[n] = this->data[n];
     }
 }
 
@@ -114,11 +120,11 @@ s32 WString::func_80010280(WString* src) {
     return 1;
 }
 
-// inlines wcslen; same reg-alloc shape as func_80010374
+// wcslen call doesn't inline (jal emitted); target inlines it
 #ifdef NON_MATCHING
 s32 WString::func_800102FC(u16* src) {
-    s32 i = (u16)(this->length - this->unk6);
-    if (i != func_80010944(src)) {
+    s32 i = size();
+    if (i != (s32)wcslen(src)) {
         return 0;
     }
     for (i--; i >= 0; i--) {
@@ -132,11 +138,11 @@ s32 WString::func_800102FC(u16* src) {
 INCLUDE_ASM("asm/nonmatchings/10CC0", func_800102FC__7WStringPUs);
 #endif
 
-// reg-alloc: target moves both a0→t0 and a1→a3; loop body laid out top-tested via j-to-test
+// reg-alloc: target moves both a0→t0 and a1→a3
 #ifdef NON_MATCHING
 s32 WString::func_80010374(WString* src) {
-    s32 i = (u16)(this->length - this->unk6);
-    if (i != (u16)(src->length - src->unk6)) {
+    s32 i = size();
+    if (i != src->size()) {
         return 0;
     }
     for (i--; i >= 0; i--) {
@@ -150,14 +156,14 @@ s32 WString::func_80010374(WString* src) {
 INCLUDE_ASM("asm/nonmatchings/10CC0", func_80010374__7WStringP7WString);
 #endif
 
-// inlines wcslen twice; same reg-alloc shape as func_800104B8
+// wcslen call doesn't inline; target inlines it twice + reg-alloc differs
 #ifdef NON_MATCHING
 s32 WString::func_800103F0(u16* src) {
-    s32 newSize = (u16)(this->length - this->unk6) + func_80010944(src);
+    s32 newSize = size() + wcslen(src);
     if (newSize >= this->capacity) {
         return 0;
     }
-    memcpy(&this->data[this->length], src, func_80010944(src) * 2);
+    memcpy(&this->data[this->length], src, wcslen(src) * 2);
     this->length = newSize;
     this->data[this->length] = 0;
     return 1;
@@ -166,14 +172,14 @@ s32 WString::func_800103F0(u16* src) {
 INCLUDE_ASM("asm/nonmatchings/10CC0", func_800103F0__7WStringPUs);
 #endif
 
-// reg-alloc: target promotes src param a1→a3; can't reproduce
+// reg-alloc: target promotes src param a1→a3
 #ifdef NON_MATCHING
 s32 WString::func_800104B8(WString* src) {
-    s32 newSize = (u16)(this->length - this->unk6) + (u16)(src->length - src->unk6);
+    s32 newSize = size() + src->size();
     if (newSize >= this->capacity) {
         return 0;
     }
-    memcpy(&this->data[this->length], &src->data[src->unk6], (src->length - src->unk6) * 2);
+    memcpy(&this->data[this->length], &src->data[src->unk6], src->size() * 2);
     this->length = newSize;
     this->data[this->length] = 0;
     return 1;
@@ -220,7 +226,7 @@ s32 WString::func_80010680(WString* src) {
     return 1;
 }
 
-// compiler emits `move v0,s1` extra; target uses bnezl (branch-likely) we can't reliably coax
+// target uses bnezl (branch-likely) for the small `capacity = cap` assignment we can't coax
 #ifdef NON_MATCHING
 s32 WString::func_800106BC(u16* d, u16 cap) {
     this->data = NULL;
@@ -230,7 +236,7 @@ s32 WString::func_800106BC(u16* d, u16 cap) {
     this->data = d;
     this->func_80010640();
     if (cap != 0) {
-        if ((u16)(this->length - this->unk6) < cap) {
+        if (size() < cap) {
             this->capacity = cap;
             return 1;
         }
@@ -240,7 +246,7 @@ s32 WString::func_800106BC(u16* d, u16 cap) {
         this->capacity = 0;
         return 0;
     }
-    this->capacity = (u16)(this->length - this->unk6) + 1;
+    this->capacity = size() + 1;
     return 1;
 }
 #else
@@ -314,8 +320,9 @@ INCLUDE_ASM("asm/nonmatchings/10CC0", func_8001091C);
 #endif
 
 extern "C" s32 func_80010944(u16* s) {
-    s32 n;
-    for (n = 0; *s++ != 0; n++) {
+    s32 n = 0;
+    while (*s++) {
+        n++;
     }
     return n;
 }

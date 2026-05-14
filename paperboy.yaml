@@ -264,13 +264,17 @@ segments:
       - [0x4E9C0, asm]
       - [0x4ECE0, asm]
       - [0x4F0A0, asm]
-      - [0x545A0, asm]
-      - [0x55220, c]
-      - [0x553E0, asm]
-      - [0x55680, asm]
+
+      # libmus
+      - [0x51160, asm, libmus/player]
+      - [0x545A0, asm, libmus/player_fx]
+      - [0x54DC0, asm, libmus/aud_dma]
+      - [0x55220, c, libmus/aud_sched]
+      - [0x553E0, asm, libmus/aud_thread]
+      - [0x55680, asm, libmus/lib_memory]
 
       # libultra
-      - [0x557A0, asm]
+      - [0x558D0, asm]
       - [0x60270, c, pal_pad60270]
       - [0x60270, asm]
       - [0x63A60, c, pal_pad63A60]
