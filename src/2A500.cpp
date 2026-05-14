@@ -78,6 +78,7 @@ s32 StructYYSubA8::vfunc1() {
     this->func_80029AEC();
     return 0;
 }
+
 // #else
 // TEXT_PAD(0x1DC);
 // #endif

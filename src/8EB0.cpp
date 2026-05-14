@@ -17,7 +17,6 @@ struct UnkD8620 {
     u32 unk240;
 };
 
-
 class ObjA8 { // 0xC0
   public:
     ObjA8();
@@ -152,14 +151,16 @@ struct Pkt12 {
     ObjDB8* a;
     ObjDB8* b;
     s32 c;
-    Pkt12(ObjDB8* aa, ObjDB8* bb, s32 cc) : a(aa), b(bb), c(cc) {}
+
+    Pkt12(ObjDB8* aa, ObjDB8* bb, s32 cc) : a(aa), b(bb), c(cc) {
+    }
 };
 
-extern char D_80000730[];        // "PLAYER"
-extern char D_80000738[];        // "\\GameData\\nothing.txt"
-extern char D_80000750[];        // "GAMEDATA"
-extern char D_8000075C[];        // "IHLT"
-extern char D_80000764[];        // "GAMEEND"
+extern char D_80000730[]; // "PLAYER"
+extern char D_80000738[]; // "\\GameData\\nothing.txt"
+extern char D_80000750[]; // "GAMEDATA"
+extern char D_8000075C[]; // "IHLT"
+extern char D_80000764[]; // "GAMEEND"
 extern s32 D_80076D20;
 extern ObjF* D_801274A0;
 extern s32 D_801274D0;
@@ -288,7 +289,8 @@ void GameSubContext::func_8000843C() {
     // TODO: research to make this loop more natural
     u8 j = 0;
     while (1) {
-        if (j >= 0x1C) break;
+        if (j >= 0x1C)
+            break;
         unkA8->unk20[j] = 0;
         j++;
     }
@@ -318,7 +320,8 @@ void GameSubContext::func_800085B8() {
         sp10.virt11(unk140, 0xC);
         sp10.virt9();
         for (s32 i = 0; i < 0xC; i++) {
-            if (unk140[i] == 0) break;
+            if (unk140[i] == 0)
+                break;
             if (unk140[i] == '/') {
                 unk140[i] = '-';
             }
@@ -337,13 +340,15 @@ u32 GameSubContext::func_8000872C(s32 arg1) {
     u32 acc = 0;
     u32 i = 0;
     while (1) {
-        if (i >= 0x1C) break;
+        if (i >= 0x1C)
+            break;
         UnkEntry* entry = tbl->unk4C[i];
         s32 a = func_800CAF14(&unk98[i]);
         if (a == 0 && unk24[(u8)i] != 0) {
             a = entry->unk20;
         }
-        if (i == 0) a = 0;
+        if (i == 0)
+            a = 0;
         acc += a;
         s32 vv = unk98[i].unk140;
         if (vv != 1) {
@@ -397,73 +402,76 @@ void GameSubContext::func_80008938() {
     unk94 = 0;
     u8 i = 0;
     while (1) {
-        if (i >= 0x1C) break;
+        if (i >= 0x1C)
+            break;
         UnkEntry* entry = tbl->unk4C[i];
         s32 count = 0;
         s32 newState = 1;
         switch (entry->unk24) {
-        default:
-        {
-            s32 vv = unk98[i].unk140;
-            if (vv != 1) {
-                if (vv >= 2) {
-                    if (vv != 2) {
-                        if (vv == 3) {
-                            goto set_count_3;
+            default: {
+                s32 vv = unk98[i].unk140;
+                if (vv != 1) {
+                    if (vv >= 2) {
+                        if (vv != 2) {
+                            if (vv == 3) {
+                                goto set_count_3;
+                            }
+                        } else {
+                            count = 2;
+                            goto count_matched;
                         }
-                    } else {
-                        count = 2;
-                        goto count_matched;
                     }
+                } else {
+                    count = 1;
+                    goto count_matched;
                 }
-            } else {
-                count = 1;
-                goto count_matched;
-            }
-            goto count_unmatched;
-        set_count_3:
-            count = 3;
-        count_matched:
-        count_unmatched:
-            if (i == 0) {
-                newState = 1;
-            } else {
-                u8 prev = i - 1;
-                u8 bits = unk98[prev].unk13C;
-                s32 pop = 0;
-                s32 k = 0;
-                do {
-                    if ((bits >> k) & 1) pop++;
-                    k++;
-                } while ((u8)k < 8);
-                if ((pop << 24) > 0x02000000) {
+                goto count_unmatched;
+            set_count_3:
+                count = 3;
+            count_matched:
+            count_unmatched:
+                if (i == 0) {
                     newState = 1;
                 } else {
-                    newState = 0;
+                    u8 prev = i - 1;
+                    u8 bits = unk98[prev].unk13C;
+                    s32 pop = 0;
+                    s32 k = 0;
+                    do {
+                        if ((bits >> k) & 1)
+                            pop++;
+                        k++;
+                    } while ((u8)k < 8);
+                    if ((pop << 24) > 0x02000000) {
+                        newState = 1;
+                    } else {
+                        newState = 0;
+                    }
                 }
+                break;
             }
-            break;
-        }
-        case 0:
-        case 7:
-            if (i == 1 && func_800CAF14(&unk98[1]) == 0) {
-                count = entry->unk20;
-            } else if (i == 3 && func_800CAF14(&unk98[3]) == 0) {
-                count = entry->unk20;
-            } else {
-                count = func_800CAEE0(&unk98[i]);
-            }
-            if (count == 0) {
-                if (!(unk94 < func_800CDE24(entry) && !s5)) {
+            case 0:
+            case 7:
+                if (i == 1 && func_800CAF14(&unk98[1]) == 0) {
+                    count = entry->unk20;
+                } else if (i == 3 && func_800CAF14(&unk98[3]) == 0) {
                     count = entry->unk20;
                 } else {
-                    newState = 0;
+                    count = func_800CAEE0(&unk98[i]);
                 }
-            }
-            break;
+                if (count == 0) {
+                    if (!(unk94 < func_800CDE24(entry) && !s5)) {
+                        count = entry->unk20;
+                    } else {
+                        newState = 0;
+                    }
+                }
+                break;
         }
-        if (unk24[i] != 0) newState = 1;
-        if (s5 != 0) newState = 1;
+        if (unk24[i] != 0)
+            newState = 1;
+        if (s5 != 0)
+            newState = 1;
         unk24[i] = newState;
         unk94 += count;
         i++;

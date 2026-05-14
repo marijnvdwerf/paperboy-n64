@@ -144,6 +144,7 @@ s32 toupper(s32 c) {
     }
     return c;
 }
+
 void swap(void* a, void* b, s32 width);
 
 void shortsort(void* lo, void* hi, s32 width, s32 (*comp)(void*, void*)) {

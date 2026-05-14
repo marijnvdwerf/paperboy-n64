@@ -402,30 +402,39 @@ INCLUDE_ASM("asm/nonmatchings/8260", __11GameContext); // ctor
 GameSubContext* GameContext::func_800080F8() {
     return &this->unk54;
 }
+
 void GameContext::func_80008100() {
     this->unk48->vfunc13();
 }
+
 StructYY* GameContext::func_8000812C() {
     return this->unk48;
 }
+
 s32 GameContext::func_80008138() {
     return this->unk48->unk78;
 }
+
 StructYYInner* GameContext::func_80008148() {
     return this->unk48->unk6C;
 }
+
 StructYY* GameContext::func_80008158() {
     return this->unk48;
 }
+
 s32 GameContext::func_80008164() {
     return this->unk48->unk0 & 1;
 }
+
 s32 GameContext::func_80008174() {
     return D_8006AB04 != 0;
 }
+
 void* GameContext::func_80008184() {
     return D_8006AB04;
 }
+
 s32 GameContext::func_80008194() {
     return this->unk10;
 }
