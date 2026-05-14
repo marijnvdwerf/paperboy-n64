@@ -332,7 +332,40 @@ void GameSubContext::func_800085B8() {
     unk24[3] = 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/8EB0", func_8000872C__14GameSubContextl);
+u32 GameSubContext::func_8000872C(s32 arg1) {
+    Unk330* tbl = D_80127330;
+    u32 acc = 0;
+    u32 i = 0;
+    while (1) {
+        if (i >= 0x1C) break;
+        UnkEntry* entry = tbl->unk4C[i];
+        s32 a = func_800CAF14(&unk98[i]);
+        if (a == 0 && unk24[(u8)i] != 0) {
+            a = entry->unk20;
+        }
+        if (i == 0) a = 0;
+        acc += a;
+        s32 vv = unk98[i].unk140;
+        if (vv != 1) {
+            if (vv >= 2) {
+                if (vv != 2) {
+                    if (vv == 3) {
+                        acc += 3;
+                        goto count_done;
+                    }
+                } else {
+                    acc += 2;
+                    goto count_done;
+                }
+            }
+        } else {
+            acc += 1;
+        count_done:;
+        }
+        i++;
+    }
+    return acc;
+}
 
 void GameSubContext::func_8000884C(s32 arg1) {
     s32 skip = 0;
