@@ -18,7 +18,7 @@ extern "C" void* memcpy(void*, const void*, u32);
 
 extern "C" f32 D_8006C5F0[0x400];
 
-extern "C" void func_8000D6C0(f32 (*a)[4], f32 (*b)[4], f32 (*out)[4]) {
+extern "C" void mat4_mul(f32 (*a)[4], f32 (*b)[4], f32 (*out)[4]) {
     out[0][0] = (a[0][0] * b[0][0]) + (a[0][1] * b[1][0]) + (a[0][2] * b[2][0]) + (a[0][3] * b[3][0]);
     out[0][1] = (a[0][0] * b[0][1]) + (a[0][1] * b[1][1]) + (a[0][2] * b[2][1]) + (a[0][3] * b[3][1]);
     out[0][2] = (a[0][0] * b[0][2]) + (a[0][1] * b[1][2]) + (a[0][2] * b[2][2]) + (a[0][3] * b[3][2]);
@@ -37,7 +37,7 @@ extern "C" void func_8000D6C0(f32 (*a)[4], f32 (*b)[4], f32 (*out)[4]) {
     out[3][3] = (a[3][0] * b[0][3]) + (a[3][1] * b[1][3]) + (a[3][2] * b[2][3]) + (a[3][3] * b[3][3]);
 }
 
-extern "C" void func_8000DAC4(f32 (*a)[4], f32 (*b)[4], f32 (*out)[4]) {
+extern "C" void mat4_mul_affine(f32 (*a)[4], f32 (*b)[4], f32 (*out)[4]) {
     out[0][0] = (a[0][0] * b[0][0]) + (a[0][1] * b[1][0]) + (a[0][2] * b[2][0]);
     out[0][1] = (a[0][0] * b[0][1]) + (a[0][1] * b[1][1]) + (a[0][2] * b[2][1]);
     out[0][2] = (a[0][0] * b[0][2]) + (a[0][1] * b[1][2]) + (a[0][2] * b[2][2]);
@@ -55,7 +55,7 @@ extern "C" void func_8000DAC4(f32 (*a)[4], f32 (*b)[4], f32 (*out)[4]) {
     out[3][2] = (a[3][0] * b[0][2]) + (a[3][1] * b[1][2]) + (a[3][2] * b[2][2]) + b[3][2];
 }
 
-extern "C" void func_8000DD20(f32 (*a)[3], f32 (*b)[3], f32 (*out)[3]) {
+extern "C" void mat4x3_mul_affine(f32 (*a)[3], f32 (*b)[3], f32 (*out)[3]) {
     out[0][0] = (a[0][0] * b[0][0]) + (a[0][1] * b[1][0]) + (a[0][2] * b[2][0]);
     out[0][1] = (a[0][0] * b[0][1]) + (a[0][1] * b[1][1]) + (a[0][2] * b[2][1]);
     out[0][2] = (a[0][0] * b[0][2]) + (a[0][1] * b[1][2]) + (a[0][2] * b[2][2]);
@@ -73,7 +73,7 @@ extern "C" void func_8000DD20(f32 (*a)[3], f32 (*b)[3], f32 (*out)[3]) {
     out[3][2] = (a[3][0] * b[0][2]) + (a[3][1] * b[1][2]) + (a[3][2] * b[2][2]) + b[3][2];
 }
 
-extern "C" void func_8000DF7C(f32 (*a)[3], f32 (*b)[3], f32 (*out)[3]) {
+extern "C" void mat3_mul(f32 (*a)[3], f32 (*b)[3], f32 (*out)[3]) {
     out[0][0] = (a[0][0] * b[0][0]) + (a[0][1] * b[1][0]) + (a[0][2] * b[2][0]);
     out[0][1] = (a[0][0] * b[0][1]) + (a[0][1] * b[1][1]) + (a[0][2] * b[2][1]);
     out[0][2] = (a[0][0] * b[0][2]) + (a[0][1] * b[1][2]) + (a[0][2] * b[2][2]);
@@ -87,7 +87,7 @@ extern "C" void func_8000DF7C(f32 (*a)[3], f32 (*b)[3], f32 (*out)[3]) {
     out[2][2] = (a[2][0] * b[0][2]) + (a[2][1] * b[1][2]) + (a[2][2] * b[2][2]);
 }
 
-extern "C" void func_8000E130(f32 (*matrix)[3], f32* quaternion) {
+extern "C" void mat3_to_quat(f32 (*matrix)[3], f32* quaternion) {
     f32 root;
     f32 trace;
     f32 m22;
@@ -146,7 +146,7 @@ extern "C" void func_8000E130(f32 (*matrix)[3], f32* quaternion) {
     }
 }
 
-extern "C" void func_8000E3E4(f32 (*matrix)[4], f32* quaternion) {
+extern "C" void mat4_to_quat(f32 (*matrix)[4], f32* quaternion) {
     f32 root;
     f32 trace;
     f32 m22;
@@ -205,7 +205,7 @@ extern "C" void func_8000E3E4(f32 (*matrix)[4], f32* quaternion) {
     }
 }
 
-extern "C" void func_8000E6A0(f32* arg0, f32* arg1, f32 arg2, f32* arg3) {
+extern "C" void quat_slerp(f32* arg0, f32* arg1, f32 arg2, f32* arg3) {
     f32 temp_f20;
     f32 temp_f22;
     f32 var_f12;
@@ -241,15 +241,15 @@ extern "C" void func_8000E6A0(f32* arg0, f32* arg1, f32 arg2, f32* arg3) {
 }
 
 // TODO: implement
-INCLUDE_ASM("asm/nonmatchings/E2C0", func_8000E884);
+INCLUDE_ASM("asm/nonmatchings/E2C0", vec3_rotate_axis_angle);
 
 // TODO: implement
-INCLUDE_ASM("asm/nonmatchings/E2C0", func_8000EA58);
+INCLUDE_ASM("asm/nonmatchings/E2C0", tri_contains_point);
 
 // TODO: implement
-INCLUDE_ASM("asm/nonmatchings/E2C0", func_8000ED38);
+INCLUDE_ASM("asm/nonmatchings/E2C0", vec3_move_toward);
 
-extern "C" void func_8000EF44(f32* arg0, f32* arg1, f32* arg2) {
+extern "C" void mat3_mul_flat(f32* arg0, f32* arg1, f32* arg2) {
     arg2[0] = (arg0[0] * arg1[0]) + (arg0[1] * arg1[1]) + (arg0[2] * arg1[2]);
     arg2[1] = (arg0[0] * arg1[3]) + (arg0[1] * arg1[4]) + (arg0[2] * arg1[5]);
     arg2[2] = (arg0[0] * arg1[6]) + (arg0[1] * arg1[7]) + (arg0[2] * arg1[8]);
@@ -261,7 +261,7 @@ extern "C" void func_8000EF44(f32* arg0, f32* arg1, f32* arg2) {
     arg2[8] = (arg0[6] * arg1[6]) + (arg0[7] * arg1[7]) + (arg0[8] * arg1[8]);
 }
 
-extern "C" void func_8000F0F8(f32* arg0, f32* arg1, f32* arg2) {
+extern "C" void vec3_reflect_neg_w(f32* arg0, f32* arg1, f32* arg2) {
     f32 sp[3];
     f32 temp_fv1 = 2.0f * ((arg0[0] * arg1[0]) + (arg0[1] * arg1[1]) + (arg0[2] * arg1[2]));
     sp[0] = arg0[0] * temp_fv1;
@@ -273,7 +273,7 @@ extern "C" void func_8000F0F8(f32* arg0, f32* arg1, f32* arg2) {
     arg2[3] = -arg1[3];
 }
 
-extern "C" void func_8000F18C(f32* arg0, f32* arg1, f32* arg2) {
+extern "C" void vec3_reflect(f32* arg0, f32* arg1, f32* arg2) {
     f32 sp[3];
     f32 temp_fv1 = 2.0f * ((arg0[0] * arg1[0]) + (arg0[1] * arg1[1]) + (arg0[2] * arg1[2]));
     sp[0] = arg0[0] * temp_fv1;
@@ -284,7 +284,7 @@ extern "C" void func_8000F18C(f32* arg0, f32* arg1, f32* arg2) {
     arg2[2] = arg1[2] - sp[2];
 }
 
-extern "C" void func_8000F214(Vector3* arg0, Vector3* arg1, Vector3* arg2) {
+extern "C" void vec3_reflect_yzswap_neg_w(Vector3* arg0, Vector3* arg1, Vector3* arg2) {
     f32 temp_f2 = 2.0f * ((arg1->x * arg0->x) + (arg1->y * arg0->z) + (arg1->z * arg0->y));
     arg2->x = arg1->x - (arg0->x * temp_f2);
     arg2->y = arg1->y - (arg0->z * temp_f2);
@@ -292,14 +292,14 @@ extern "C" void func_8000F214(Vector3* arg0, Vector3* arg1, Vector3* arg2) {
     ((f32*)arg2)[3] = -((f32*)arg1)[3];
 }
 
-extern "C" void func_8000F288(Vector3* arg0, Vector3* arg1, Vector3* arg2) {
+extern "C" void vec3_reflect_yzswap(Vector3* arg0, Vector3* arg1, Vector3* arg2) {
     f32 temp_f2 = 2.0f * ((arg1->x * arg0->x) + (arg1->y * arg0->z) + (arg1->z * arg0->y));
     arg2->x = arg1->x - (arg0->x * temp_f2);
     arg2->y = arg1->y - (arg0->z * temp_f2);
     arg2->z = arg1->z - (arg0->y * temp_f2);
 }
 
-extern "C" void func_8000F2F0(f32* arg0, f32* arg1, f32* arg2) {
+extern "C" void plane_reflect_point(f32* arg0, f32* arg1, f32* arg2) {
     f32 sp[3];
     f32 temp_fv1 = 2.0f * ((arg0[0] * arg1[0]) + (arg0[1] * arg1[1]) + (arg0[2] * arg1[2]) + arg0[3]);
     sp[0] = arg0[0] * temp_fv1;
@@ -310,16 +310,16 @@ extern "C" void func_8000F2F0(f32* arg0, f32* arg1, f32* arg2) {
     arg2[2] = arg1[2] - sp[2];
 }
 
-extern "C" void func_8000F380(Vector3 v, f32* m, f32* out) {
+extern "C" void vec3_mul_mat3(Vector3 v, f32* m, f32* out) {
     out[0] = (v.x * m[0]) + (v.y * m[1]) + (v.z * m[2]);
     out[1] = (v.x * m[3]) + (v.y * m[4]) + (v.z * m[5]);
     out[2] = (v.x * m[6]) + (v.y * m[7]) + (v.z * m[8]);
 }
 
 // TODO: implement
-INCLUDE_ASM("asm/nonmatchings/E2C0", func_8000F424);
+INCLUDE_ASM("asm/nonmatchings/E2C0", atanf);
 
-extern "C" void func_8000F518(f32* arg0, f32* arg1, f32 arg2, f32* arg3) {
+extern "C" void quat_nlerp(f32* arg0, f32* arg1, f32 arg2, f32* arg3) {
     f32 dotProduct = (arg0[0] * arg1[0]) + (arg0[1] * arg1[1]) + (arg0[2] * arg1[2]) + (arg0[3] * arg1[3]);
 
     if (dotProduct > 0.0f) {
@@ -335,7 +335,7 @@ extern "C" void func_8000F518(f32* arg0, f32* arg1, f32 arg2, f32* arg3) {
     }
 }
 
-extern "C" void func_8000F620(f32* quaternion, f32* matrix) {
+extern "C" void quat_to_mat4(f32* quaternion, f32* matrix) {
     f32 q1 = quaternion[0];
     f32 q2 = quaternion[1];
     f32 q3 = quaternion[2];
@@ -372,7 +372,7 @@ extern "C" void func_8000F620(f32* quaternion, f32* matrix) {
     matrix[15] = 1.0f;
 }
 
-extern "C" void func_8000F744(f32* arg0, f32* arg1) {
+extern "C" void quat_to_mat3(f32* arg0, f32* arg1) {
     f32 temp_f6 = arg0[0];
     f32 temp_f10 = arg0[1];
     f32 temp_f8 = arg0[2];
@@ -402,7 +402,7 @@ extern "C" void func_8000F744(f32* arg0, f32* arg1) {
     arg1[8] = 1.0f - (temp_f2_2 + temp_f14_2);
 }
 
-extern "C" void func_8000F858(f32* arg0, f32* arg1, f32* arg2) {
+extern "C" void quat_to_axis_angle(f32* arg0, f32* arg1, f32* arg2) {
     f32 temp_f20;
     f32 temp_f22_2;
     f32 temp_f2 = arg0[3];
@@ -426,7 +426,7 @@ extern "C" void func_8000F858(f32* arg0, f32* arg1, f32* arg2) {
     arg1[2] = 0.0f;
 }
 
-extern "C" void func_8000F95C(f32* arg0, f32 arg1, f32* arg2) {
+extern "C" void quat_from_axis_angle(f32* arg0, f32 arg1, f32* arg2) {
     arg1 = arg1 * 0.5f;
     f32 temp_f0 = __sinf(arg1);
     arg2[0] = arg0[0] * temp_f0;
@@ -436,13 +436,40 @@ extern "C" void func_8000F95C(f32* arg0, f32 arg1, f32* arg2) {
 }
 
 // TODO: implement
-INCLUDE_ASM("asm/nonmatchings/E2C0", func_8000F9D8);
+INCLUDE_ASM("asm/nonmatchings/E2C0", mat4_from_axis_angle);
 
 // TODO: implement
-INCLUDE_ASM("asm/nonmatchings/E2C0", func_8000FB10);
+INCLUDE_ASM("asm/nonmatchings/E2C0", mat4x3_from_axis_angle);
+
+extern "C" void vec3_normalize(Vector3* arg0, Vector3* arg1) {
+    f32 length_sq;
+    f32 z;
+    f32 y;
+    f32 x;
+    f32 length;
+    f32 z_sq;
+    f32 y_sq;
+
+    x = arg0->x;
+    length_sq = x * x;
+    y = arg0->y;
+    y_sq = y * y;
+    z = arg0->z;
+    z_sq = z * z;
+    length_sq = length_sq + y_sq;
+    length_sq = length_sq + z_sq;
+    length = sqrtf(length_sq);
+    if ((f64)length == 0.0) {
+        arg1->x = 0.0f;
+        arg1->y = 0.0f;
+        arg1->z = 0.0f;
+        return;
+    }
+    length = 1.0f / length;
+    arg1->x = x * length;
+    arg1->y = y * length;
+    arg1->z = z * length;
+}
 
 // TODO: implement
-INCLUDE_ASM("asm/nonmatchings/E2C0", func_8000FC48);
-
-// TODO: implement
-INCLUDE_ASM("asm/nonmatchings/E2C0", func_8000FD14);
+INCLUDE_ASM("asm/nonmatchings/E2C0", vec2_normalize);
