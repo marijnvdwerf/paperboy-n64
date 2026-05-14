@@ -293,7 +293,6 @@ extern "C" {
 f32 __sinf(f32 arg);
 void func_8000D2FC(void*, void*);
 void func_8000D5CC(void*, void*, void*);
-s32 func_800431D0(void*);
 void func_800C5610(s32, void*);
 void func_800CB780(s32);
 void func_800CB804(s32, void*);
@@ -544,7 +543,7 @@ SceneNode* func_800DCA68(UnkArgStruct* arg0, SceneNodeEntry* entry, s32 arg2) {
             func_8000D5CC(sp10, temp_s1, "OBB");
             s32 temp_s3 = D_801272F0;
             func_800CB804(temp_s3, "OBF");
-            if (func_800431D0(sp10) != 8) {
+            if (AbstractFile::findFile(sp10) != 8) {
                 func_80101C44(obj);
                 func_800C5610(obj->unkD8, temp_s1);
             }

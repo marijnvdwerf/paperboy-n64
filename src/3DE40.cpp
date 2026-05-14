@@ -31,7 +31,7 @@ extern void* D_80003F00;
 
 void func_8003DBD4(StructWWBase*);
 void func_800079A8(void*, s32, s32, s32);
-s32 func_80048D60(LocalIOBase*);
+s32 func_80048D60(RomFile*);
 s32 func_8004AA98(void*);
 void func_8004B390(void);
 void func_8004B3BC(s32);
@@ -56,14 +56,14 @@ void* memset(void*, s32, s32);
 
 #ifdef NON_MATCHING
 extern "C" s32 vfunc1__12StructWWBase(StructWWBase* self, s32 arg1) {
-    LocalIO sp18;
+    File sp18;
     s32 sp48;
     s32 size;
-    LocalIO* io = &sp18;
+    File* io = &sp18;
     if (self->unk0 & 1) {
         self->vfunc2();
     }
-    if (io->LocalIOBase::open(D_80003D90, 2, 0)) {
+    if (io->RomFile::open(D_80003D90, 2, 0)) {
         func_800079A8(&D_80003D9C, 0, 0, 0);
     }
     func_8004B3BC(D_80074114);
@@ -72,15 +72,15 @@ extern "C" s32 vfunc1__12StructWWBase(StructWWBase* self, s32 arg1) {
     if (self->ptrbank == NULL) {
         func_800079A8(&D_80003D9C, 0, 0, 0);
     }
-    if (io->LocalIOBase::readAt(0, self->ptrbank, io->unk10, &sp48)) {
+    if (io->RomFile::readAt(0, self->ptrbank, io->unk10, &sp48)) {
         func_800079A8(&D_80003D9C, 0, 0, 0);
     }
-    io->LocalIOBase::close();
-    if (io->LocalIOBase::open(D_80003DA0, 2, 0)) {
+    io->RomFile::close();
+    if (io->RomFile::open(D_80003DA0, 2, 0)) {
         func_800079A8(&D_80003D9C, 0, 0, 0);
     }
     self->wbk = (u8*)func_80048D60(io);
-    io->LocalIOBase::close();
+    io->RomFile::close();
     func_8004B3BC(D_80074114);
     size = func_8004AA98(&((D_800768F0_Row*)&D_800768F0)[D_80074114].fieldC) - 0x1000;
     self->heap = (u8*)func_80064320(size);

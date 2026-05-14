@@ -91,7 +91,7 @@ s32 StructYY::vfunc9(s32 a, s32 b, s32 c, s32 d) {
 }
 
 void StructYY::func_8000CDD8() {
-    LocalIO2* io = &this->io[0];
+    File* io = &this->io[0];
     if (io->func_80048A40((s32)D_1106A0, D_BDE740 - D_1106A0, 0x82, 0x8000)) {
         func_800079A8(&D_80000B70, 0, 0, 0);
     }

@@ -46,59 +46,89 @@ class StructTT : public StructTTBase {
     /* 0xC */ u8 unkC;
 };
 
-class LocalIOParent {
+class JamArchive;
+
+class AbstractFile {
   public:
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ s32 unk1C;
-    /* 0x20 */ u8* unk20;
-    /* 0x24 */ s32 unk24;
+    /* 0x00 */ s32 openFlags;
+    /* 0x04 */ s32 state;
+    /* 0x08 */ s32 fileOffset;
+    /* 0x0C */ s32 readCursor;
+    /* 0x10 */ s32 fileSize;
+    /* 0x14 */ u32 bufferCapacity;
+    /* 0x18 */ s32 bufferStart;
+    /* 0x1C */ s32 bufferEnd;
+    /* 0x20 */ u8* buffer;
+    /* 0x24 */ s32 archiveIndex;
     /* 0x28 */ // vtable
 
-    LocalIOParent();
-    virtual s32 virt1() = 0;
-    virtual s32 virt2() = 0;
-    virtual s32 virt3(u32) = 0;
-    virtual s32 virt4(void*, s32, s32*) = 0;
-    virtual s32 virt5();
-    virtual s32 virt6();
-    virtual ~LocalIOParent();
+    AbstractFile();
+    virtual s32 rawOpen() = 0;
+    virtual s32 rawClose() = 0;
+    virtual s32 seek(u32) = 0;
+    virtual s32 rawRead(void*, s32, s32*) = 0;
+    virtual s32 rawWrite(void* buf, s32 len);
+    virtual s32 sync();
+    virtual ~AbstractFile();
     virtual s32 open(const char*, s32, s32);
     virtual void close();
     virtual s32 readAt(s32, void*, s32, void*);
     virtual s32 read(void*, s32);
-    virtual void virt12();
-    virtual void virt13();
-    virtual void virt14();
+    virtual s32 writeAt(s32 pos, void* buf, s32 len);
+    virtual s32 writeLine(void* buf, s32 len);
+    virtual s32 flush();
+
+    static s32 findFile(const char*);
+    static void buildPath(const char*, const char*);
+    void setBuffer(s32, s32, u8*);
+    static void setSectorSize(s32);
+    static void resetAllBuffers();
+    static void addSearchPath(const char*);
+    static void clearSearchPaths();
+    static s32 isAbsolutePath(const char*);
+    static void toUpperCase(char*);
+    static s32 getDeviceParam(s32);
+    static void setCurrentDir(const char*);
+    static char* getCurrentDir();
+    static u32 getSearchPathCount();
+    static char* getSearchPath(s32);
+    static u32 getArchiveCount();
+    static JamArchive* getArchives();
+    static void setArchives(JamArchive*, u32);
+    void reset();
+    void init();
+    s32 locateInArchives();
+    s32 getFileSize();
+    s32 isDirty();
+    s32 isBuffered();
+    s32 isArchiveMode();
+    s32 isCreateMode();
+    s32 isReadMode();
+    s32 isSequentialMode();
+    s32 isOpen();
+    void resetBufferRange();
 };
 
-class LocalIOBase : public LocalIOParent {
+class RomFile : public AbstractFile {
   public:
     /* 0x2C */ u32 unk2C;
 
-    LocalIOBase();
+    RomFile();
 
-    virtual s32 virt1();
-    virtual s32 virt2();
-    virtual s32 virt3(u32);
-    virtual s32 virt4(void*, s32, s32*);
-    virtual ~LocalIOBase();
-    virtual s32 virt15(void*, s32, s32*);
-    virtual s32 virt16();
+    virtual s32 rawOpen();
+    virtual s32 rawClose();
+    virtual s32 seek(u32);
+    virtual s32 rawRead(void*, s32, s32*);
+    virtual ~RomFile();
+    virtual s32 rawReadAsync(void*, s32, s32*);
+    virtual s32 rawReadWait();
 
     static s32 func_80048A30();
     s32 func_80048A40(s32, s32, s32, s32);
-    static s32 func_80048D58();
+    static s32 func_80048D58(char* path);
 };
 
-class LocalIO : public LocalIOBase {};
-
-class LocalIO2 : public LocalIOBase {};
+class File : public RomFile {};
 
 struct FileNode {
     /* 0x00 */ char name[12];
@@ -117,14 +147,14 @@ struct FolderNode {
 
     FolderNode* init();
     void reset();
-    void load(LocalIOParent* io);
-    FileNode* findFile(const char* name, LocalIOParent* io);
-    FolderNode* findFolder(const char* name, LocalIOParent* io);
+    void load(AbstractFile* io);
+    FileNode* findFile(const char* name, AbstractFile* io);
+    FolderNode* findFolder(const char* name, AbstractFile* io);
 };
 
 class JamArchive {
   public:
-    /* 0x00 */ LocalIOParent* io;
+    /* 0x00 */ AbstractFile* io;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ FolderNode root;
     /* 0x2C */ FileNode* curFile;
@@ -140,9 +170,9 @@ class JamArchive {
 
     void func_80045288();
     void reset();
-    void open(LocalIOParent* io);
+    void open(AbstractFile* io);
     FileNode* getCurFile();
-    LocalIOParent* getIO();
+    AbstractFile* getIO();
     bool hasIO();
 };
 
@@ -175,7 +205,7 @@ class StructYYInner;
 class StructYYBase {
   public:
     /* 0x00 */ s32 unk0;
-    /* 0x04 */ LocalIO2 io[1];
+    /* 0x04 */ File io[1];
     /* 0x34 */ JamArchive archives[1];
     /* 0x68 */ s32 unk68;
     /* 0x6C */ StructYYInner* unk6C;
@@ -532,7 +562,7 @@ class StructVV : public StructVVParent {
     void setNext(StructVV*);
     StructVV* getNext();
 
-    void func_8003DCE0(LocalIOBase*);
+    void func_8003DCE0(RomFile*);
     void func_8003DE48();
     void func_8003DE90();
 };

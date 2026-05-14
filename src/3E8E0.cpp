@@ -21,7 +21,7 @@ u8* strncpy(u8*, u8*, s32);
 s32 atoi(const u8*);
 }
 
-void StructVV::func_8003DCE0(LocalIOBase* arg1) {
+void StructVV::func_8003DCE0(RomFile* arg1) {
     u8 sp10[0x10];
     u32 i;
 
@@ -144,7 +144,7 @@ void StructVV::vfunc2() {
 
 // vv vfunc1
 void StructVV::vfunc1(const char* arg1) {
-    LocalIO2 sp10;
+    File sp10;
     char sp40[0x40];
 
     if (this->vfunc3()) {
@@ -186,5 +186,5 @@ StructVV* StructVV::getNext() {
     return this->next;
 }
 
-// Auto generated virtual dtor of LocalIO2
+// Auto generated virtual dtor of File
 // INCLUDE_ASM("asm/nonmatchings/3E8E0", func_8003E22C);

@@ -95,7 +95,7 @@ INCLUDE_ASM("asm/nonmatchings/455F0", readLine__10JamArchivelPUcUlUlPUl);
 // Structurally matches, but the SN compiler's register-allocation choices for
 // `this` (s2 vs s3) propagate diffs throughout — would need more reshaping to
 // fully match.
-void FolderNode::load(LocalIOParent* io)
+void FolderNode::load(AbstractFile* io)
 {
     s32 bytesRead;
     if (this->initialized) {
@@ -173,10 +173,10 @@ void FolderNode::load(LocalIOParent* io)
     this->initialized = 1;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/455F0", load__10FolderNodeP13LocalIOParent);
+INCLUDE_ASM("asm/nonmatchings/455F0", load__10FolderNodeP12AbstractFile);
 #endif
 
-FileNode* FolderNode::findFile(const char* name, LocalIOParent* io) {
+FileNode* FolderNode::findFile(const char* name, AbstractFile* io) {
     if (!this->initialized) {
         this->load(io);
     }
@@ -188,7 +188,7 @@ FileNode* FolderNode::findFile(const char* name, LocalIOParent* io) {
     return NULL;
 }
 
-FolderNode* FolderNode::findFolder(const char* name, LocalIOParent* io) {
+FolderNode* FolderNode::findFolder(const char* name, AbstractFile* io) {
     if (!this->initialized) {
         this->load(io);
     }
@@ -322,7 +322,7 @@ void JamArchive::reset() {
 INCLUDE_RODATA("asm/nonmatchings/455F0", D_80004870);
 INCLUDE_RODATA("asm/nonmatchings/455F0", D_80004888);
 
-void JamArchive::open(LocalIOParent* io) {
+void JamArchive::open(AbstractFile* io) {
     s32 bytesRead;
     this->io = io;
     this->unk4 = 0;
@@ -349,7 +349,7 @@ FileNode* JamArchive::getCurFile() {
     return this->curFile;
 }
 
-LocalIOParent* JamArchive::getIO() {
+AbstractFile* JamArchive::getIO() {
     return this->io;
 }
 

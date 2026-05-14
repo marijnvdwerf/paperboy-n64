@@ -130,7 +130,7 @@ segments:
       - [0x5090, rodata]
       - [0x5230, rodata]
       - [0x5260, rodata]
-      - [0x53F0, rodata]
+      - [0x53F0, .rdata, 43DD0]
       - [0x5470, .rdata, 455F0]
       - [0x54D0, rodata]
       - [0x55C0, rodata]

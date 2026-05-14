@@ -160,5 +160,5 @@ s32 StructYYBase::func_8000CB08() {
     return this->unk0 & 1;
 }
 
-// automatic LocalIO2 destructor
+// automatic File destructor
 // INCLUDE_ASM("asm/nonmatchings/D2C0", func_8000CB14);

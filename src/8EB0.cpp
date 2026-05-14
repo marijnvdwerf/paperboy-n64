@@ -172,7 +172,6 @@ extern UnkD8620* D_80128620;
 extern ObjDB8* D_80128FD8;
 
 extern "C" char* strcpy(char*, const char*);
-extern "C" s32 func_800431D0(char*);
 extern "C" void func_8004B848(s32, s32);
 extern "C" void func_8004B878(s32, s32);
 extern "C" void func_800CAFA0(Entry98*);
@@ -314,8 +313,8 @@ void GameSubContext::func_800085B8() {
     unk10C = 0;
     unkA8 = new ObjA8();
     char* filename = D_80000738;
-    LocalIO2 sp10;
-    if (func_800431D0(filename) != 8) {
+    File sp10;
+    if (AbstractFile::findFile(filename) != 8) {
         sp10.open(filename, 0x8A, 0x20);
         sp10.read(unk140, 0xC);
         sp10.close();
