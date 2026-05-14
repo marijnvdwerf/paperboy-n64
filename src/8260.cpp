@@ -2,27 +2,7 @@
 #include "os_pi.h"
 #include "os_thread.h"
 #include "structs.h"
-
-class Actor;
-
-struct GameSubContext {
-    /* 0x000 */ char pad0[0xB0];
-    /* 0x0B0 */ s32 unk0B0; // = 1
-    /* 0x0B4 */ s32 unk0B4; // = 1
-    /* 0x0B8 */ f32 unk0B8; // D_80000668 (80.0f)
-    /* 0x0BC */ f32 unk0BC; // D_8000066C (4.0f)
-    /* 0x0C0 */ f32 unk0C0; // D_8006AB00
-    /* 0x0C4 */ char pad0C4[0x4];
-    /* 0x0C8 */ s32 unk0C8; // = 1
-    /* 0x0CC */ s32 unk0CC; // = 0
-    /* 0x0D0 */ s32 unk0D0; // = 0
-    /* 0x0D4 */ s32 unk0D4; // = 1
-    /* 0x0D8 */ char pad0D8[0x524];
-    /* 0x5FC */
-
-    GameSubContext();
-    ~GameSubContext();
-};
+#include "game.h"
 
 class StructYY;
 class StructWW;
@@ -69,8 +49,6 @@ extern "C" {
 void* memset(void*, s32, u32);
 void strncpy(u8*, u8*, s32);
 void func_8000812C();
-void func_800085B8(Actor*);
-void func_80008FA8(Actor*);
 void func_80011500(s32);
 void func_80019080(s32);
 void func_80020DA4(s32);
@@ -135,7 +113,6 @@ extern u32 D_8006AAF8;
 extern u32 D_8006D5F0;
 extern u8 D_800768F0;
 extern void* D_8006AB04;
-extern Actor* D_8006AB10;
 extern u32 D_80000668;
 extern u32 D_8000066C;
 extern f32 D_8006AB00;
@@ -299,12 +276,12 @@ void GameContext::func_80007A60() {
     D_801286D4 = D_8006AAE8;
     func_80007D14();
 
-    Actor* actor = D_8006AB10;
-    func_800085B8(actor);
-    while (this->unk54.unk0B4 != 0) {
+    GameSubContext* actor = D_8006AB10;
+    actor->func_800085B8();
+    while (this->unk54.unkB4 != 0) {
         func_800BFF50(&this->unk54);
     }
-    func_80008FA8(actor);
+    actor->func_80008FA8();
     func_80007CB8();
 }
 
@@ -406,17 +383,17 @@ GameContext::GameContext() {
     unk8 = D_8006AAF4;
     unkC = D_8006AAF8;
     unk48 = 0;
-    this->unk54.unk0B0 = 1;
+    this->unk54.unkB0 = 1;
     unk50 = 0x58;
-    this->unk54.unk0B4 = 1;
-    this->unk54.unk0C8 = 1;
-    this->unk54.unk0CC = 0;
-    this->unk54.unk0D0 = 0;
-    this->unk54.unk0D4 = 1;
+    this->unk54.unkB4 = 1;
+    this->unk54.unkC8 = 1;
+    this->unk54.unkCC = 0;
+    this->unk54.unkD0 = 0;
+    this->unk54.unkD4 = 1;
     unk10 = 1;
-    this->unk54.unk0B8 = 80; // D_80000668
-    this->unk54.unk0BC = 4;  // D_8000066C
-    this->unk54.unk0C0 = D_8006AB00;
+    this->unk54.unkB8 = 80; // D_80000668
+    this->unk54.unkBC = 4;  // D_8000066C
+    this->unk54.unkC0 = D_8006AB00;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/8260", __11GameContext); // ctor

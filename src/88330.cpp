@@ -1,4 +1,5 @@
 #include "common.h"
+#include "game.h"
 
 struct UnkResult;
 
@@ -44,31 +45,15 @@ struct UnkResult {
     s32 unk34;
 };
 
-struct Actor {
-    char pad0[0x8];
-    s32 unk8;
-    s32 unkC;
-    s32 unk10;
-    char pad14[0x108];
-    s32 unk11C;
-    char pad120[0x494];
-    s32 unk5B4;
-};
-
 extern "C" {
 
 void func_800081A0(s32 arg);
-void func_80008C58(Actor* actor);
-s32 func_80008C68(Actor* actor);
-s32 func_80008C74(Actor* actor);
-void func_80008C80(Actor* actor, s32 arg);
-void func_800090BC(s32 arg);
 void func_8004B0D4(void* a, s32 b);
 void* __builtin_new(s32 size);
 SceneNode* func_800BFF2C(void* mem);
 void func_800BFDC0(SceneNode* node);
 void func_800BFE30(SceneNode* node);
-void func_800BFE5C(SceneNode* node, Actor* actor);
+void func_800BFE5C(SceneNode* node, GameSubContext* actor);
 void func_800BFF00(SceneNode* node, s32 arg);
 s32 func_800C02F4();
 Obj* func_800C1094(void* mem);
@@ -82,12 +67,11 @@ extern s32 D_80000300;
 
 extern s32 D_8006AAE4;
 extern UnkStructTop* D_8006AB04;
-extern s32 D_8006AB10;
 extern s32 D_800768F0;
 extern s32 D_80125894;
 extern SceneNode* D_801295E0;
 
-void func_800BFF50(Actor* self) {
+void func_800BFF50(GameSubContext* self) {
     s32 state;
     s32 var_s0;
     UnkResult* result;
@@ -95,7 +79,7 @@ void func_800BFF50(Actor* self) {
     UnkStruct48* unk48;
 
     D_801295E0 = func_800BFF2C(__builtin_new(0xC));
-    if (func_80008C68(self) == 7) {
+    if (self->func_80008C68() == 7) {
         unk48 = D_8006AB04->unk48;
         result = unk48->vfunc14();
         if (self->unkC == 0) {
@@ -109,12 +93,12 @@ void func_800BFF50(Actor* self) {
 #else
                 if (D_80000300 != 1 && D_80000300 != 2) {
 #endif
-                    func_80008C80(self, 1);
+                    self->func_80008C80(1);
                     if (self->unk5B4 == 0) {
-                        func_80008C80(self, 6);
+                        self->func_80008C80(6);
                     }
                     if (self->unk11C == 0) {
-                        func_80008C80(self, 5);
+                        self->func_80008C80(5);
                     }
                 } else {
                     self->unk8 = 1;
@@ -124,10 +108,10 @@ void func_800BFF50(Actor* self) {
             }
         }
     }
-    func_80008C58(self);
+    self->func_80008C58();
     func_8004B0D4(&D_800768F0, D_8006AAE4);
     child = NULL;
-    state = func_80008C74(self);
+    state = self->func_80008C74();
     switch (state) {
         case 5:
             child = func_800C15F8(__builtin_new(0x28));
@@ -148,7 +132,7 @@ void func_800BFF50(Actor* self) {
             child = func_800C1094(__builtin_new(0x238));
             break;
     }
-    func_800090BC(D_8006AB10);
+    D_8006AB10->func_800090BC();
     if (child != NULL) {
         child->state = state;
     }

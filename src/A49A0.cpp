@@ -1,4 +1,5 @@
 #include "common.h"
+#include "game.h"
 
 struct SceneNode;
 
@@ -193,11 +194,6 @@ struct UnkStruct7954 {
     s32 unkC1C;
 };
 
-struct Actor {
-    char pad0[0x168];
-    s32 unk168;
-};
-
 struct ChildDef {
     char pad0[0xC];
     char unk0C[0xC];
@@ -294,7 +290,6 @@ struct SceneNode : SceneNodeBase {
 
 extern "C" {
 
-s32 func_80008C74(Actor* arg);
 f32 __sinf(f32 arg);
 void func_8000D2FC(void*, void*);
 void func_8000D5CC(void*, void*, void*);
@@ -340,7 +335,6 @@ void func_80101C44(SceneNode*);
 void func_80114BB0(SoundState* a0, const char* a1, s32 a2, s32 a3, f32 a4, f32 a5, s32 a6);
 
 extern GameTop* D_8006AB04;
-extern Actor* D_8006AB10;
 extern GameScene* D_801258C0;
 extern SceneEntry* D_80127670;
 extern UnkStruct7954* D_80127954;
@@ -362,7 +356,7 @@ void func_800DC5C0(UnkArgStruct* self) {
     s32 var_s0;
     s32 state;
     s32 i;
-    Actor* actor_s4;
+    GameSubContext* sc;
 
     gameObj = D_8006AB04->unk48->unk78;
     sceneEntry = D_80127670;
@@ -393,7 +387,7 @@ void func_800DC5C0(UnkArgStruct* self) {
 
     gameObj->vfunc_58(0);
     var_s0 = 0;
-    if (func_80008C74(D_8006AB10) == 5) {
+    if (D_8006AB10->func_80008C74() == 5) {
         var_s0 = D_80128010->unkB4 == 0;
     }
     if (var_s0 != 0) {
@@ -403,8 +397,8 @@ void func_800DC5C0(UnkArgStruct* self) {
 
     gameObj->vfunc_57();
     gameObj->vfunc_58(0);
-    actor_s4 = D_8006AB10;
-    state = func_80008C74(actor_s4);
+    sc = D_8006AB10;
+    state = sc->func_80008C74();
     if (state == 1 && D_80127954->unkC1C != 0) {
         char* dumy = "DUMY";
         func_800CC3B8(self->unk44, dumy);
@@ -423,7 +417,7 @@ void func_800DC5C0(UnkArgStruct* self) {
         func_80114BB0(snd, "INSERT CONTROLLER%CPAK NOW", func_800CC3B8(self->unk44, dumy), 0, -8.25f, 1.0f, state);
     }
 #endif
-    if (func_80008C74(actor_s4) == 5 && actor_s4->unk168 != 0) {
+    if (sc->func_80008C74() == 5 && sc->unk168 != 0) {
         char* dumy = "DUMY";
         func_800CC3B8(self->unk44, dumy);
         SoundState* snd = D_80129060;
