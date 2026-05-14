@@ -68,6 +68,17 @@ struct ObjF { // at D_801274A0; full size unknown
     /* 0x1E */ u8 unk1E;
 };
 
+struct UnkEntry {
+    /* 0x00 */ u8 pad0[0x20];
+    /* 0x20 */ s32 unk20;
+    /* 0x24 */ s32 unk24;
+};
+
+struct Unk330 {
+    /* 0x00 */ u8 pad0[0x4C];
+    /* 0x4C */ UnkEntry** unk4C;
+};
+
 // Base for D_80128FD8: 0x30 bytes of data, then a vptr at 0x30, then >= 54 virtuals.
 // (Per SN cfront, vptr is placed after data members of the declaring class.)
 class ObjDB8Base {
@@ -153,7 +164,7 @@ extern s32 D_80076D20;
 extern ObjF* D_801274A0;
 extern s32 D_801274D0;
 extern s32 D_80127304;
-extern void* D_80127330;
+extern Unk330* D_80127330;
 extern s32 D_80127950;
 extern s32 D_80127AD0;
 extern UnkD8620* D_80128620;
@@ -166,9 +177,12 @@ extern "C" void func_8004B878(s32, s32);
 extern "C" void func_800CAFA0(Entry98*);
 extern "C" void func_800CB8BC(ObjC*);
 extern "C" void func_800CB8D8(ObjC*, char*);
+extern "C" s32 func_800CAEE0(Entry98*);
+extern "C" s32 func_800CAF14(Entry98*);
 extern "C" s32 func_800CB930(s32);
 extern "C" void func_800CB950(s32, Pkt12, s32);
 extern "C" s32 func_800CCD18(void*);
+extern "C" u32 func_800CDE24(void*);
 extern "C" void func_800CE410(ObjF*);
 extern "C" void func_800CE81C(ObjF*, s32);
 extern "C" void func_800CE8AC(ObjF*, s32);
@@ -344,7 +358,84 @@ void GameSubContext::func_8000884C(s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/8EB0", func_80008938__14GameSubContext);
+void GameSubContext::func_80008938() {
+    s32 s5 = D_8006AB10->unk120;
+    Unk330* tbl = D_80127330;
+    unk94 = 0;
+    u8 i = 0;
+    while (1) {
+        if (i >= 0x1C) break;
+        UnkEntry* entry = tbl->unk4C[i];
+        s32 count = 0;
+        s32 newState = 1;
+        switch (entry->unk24) {
+        default:
+        {
+            s32 vv = unk98[i].unk140;
+            if (vv != 1) {
+                if (vv >= 2) {
+                    if (vv != 2) {
+                        if (vv == 3) {
+                            goto set_count_3;
+                        }
+                    } else {
+                        count = 2;
+                        goto count_matched;
+                    }
+                }
+            } else {
+                count = 1;
+                goto count_matched;
+            }
+            goto count_unmatched;
+        set_count_3:
+            count = 3;
+        count_matched:
+        count_unmatched:
+            if (i == 0) {
+                newState = 1;
+            } else {
+                u8 prev = i - 1;
+                u8 bits = unk98[prev].unk13C;
+                s32 pop = 0;
+                s32 k = 0;
+                do {
+                    if ((bits >> k) & 1) pop++;
+                    k++;
+                } while ((u8)k < 8);
+                if ((pop << 24) > 0x02000000) {
+                    newState = 1;
+                } else {
+                    newState = 0;
+                }
+            }
+            break;
+        }
+        case 0:
+        case 7:
+            if (i == 1 && func_800CAF14(&unk98[1]) == 0) {
+                count = entry->unk20;
+            } else if (i == 3 && func_800CAF14(&unk98[3]) == 0) {
+                count = entry->unk20;
+            } else {
+                count = func_800CAEE0(&unk98[i]);
+            }
+            if (count == 0) {
+                if (!(unk94 < func_800CDE24(entry) && !s5)) {
+                    count = entry->unk20;
+                } else {
+                    newState = 0;
+                }
+            }
+            break;
+        }
+        if (unk24[i] != 0) newState = 1;
+        if (s5 != 0) newState = 1;
+        unk24[i] = newState;
+        unk94 += count;
+        i++;
+    }
+}
 
 void GameSubContext::func_80008B88() {
     s8 i;
