@@ -10,7 +10,7 @@ struct NNScClient {
 
 struct NNSched {
     /* 0x000 */ u32 retraceMsg; // NN_SC_RETRACE_MSG
-    /* 0x004 */ u32 prenmiMsg;  // NN_SC_PRE_NMI_MSG
+    /* 0x004 */ u32 prenmiMsg; // NN_SC_PRE_NMI_MSG
     /* 0x008 */ OSMesgQueue audioRequestMQ;
     /* 0x020 */ OSMesg audioRequestBuf[8];
     /* 0x040 */ OSMesgQueue graphicsRequestMQ;

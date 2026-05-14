@@ -4,22 +4,22 @@
 #if !defined(M2CTX) && !defined(PERMUTER)
 
 #ifndef INCLUDE_ASM
-#define INCLUDE_ASM(FOLDER, NAME)                   \
-    __asm__(                                        \
-        ".section .text\n"                          \
-        "    .set noat\n"                           \
-        "    .set noreorder\n"                      \
+#define INCLUDE_ASM(FOLDER, NAME) \
+    __asm__( \
+        ".section .text\n" \
+        "    .set noat\n" \
+        "    .set noreorder\n" \
         "    .include \"" FOLDER "/" #NAME ".s\"\n" \
-        "    .set reorder\n"                        \
-        "    .set at\n"                             \
+        "    .set reorder\n" \
+        "    .set at\n" \
     )
 #endif
 #ifndef INCLUDE_RODATA
-#define INCLUDE_RODATA(FOLDER, NAME)                \
-    __asm__(                                        \
-        ".section .rodata\n"                        \
+#define INCLUDE_RODATA(FOLDER, NAME) \
+    __asm__( \
+        ".section .rodata\n" \
         "    .include \"" FOLDER "/" #NAME ".s\"\n" \
-        ".section .text"                            \
+        ".section .text" \
     )
 #endif
 

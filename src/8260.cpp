@@ -392,7 +392,7 @@ GameContext::GameContext() {
     this->unk54.unkD4 = 1;
     unk10 = 1;
     this->unk54.unkB8 = 80; // D_80000668
-    this->unk54.unkBC = 4;  // D_8000066C
+    this->unk54.unkBC = 4; // D_8000066C
     this->unk54.unkC0 = D_8006AB00;
 }
 #else

@@ -20,8 +20,8 @@ AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: false
-AlignEscapedNewlines: Left
-AlignTrailingComments: true
+AlignEscapedNewlines: DontAlign
+AlignTrailingComments: false
 SortIncludes: false
 
 SeparateDefinitionBlocks: Always
