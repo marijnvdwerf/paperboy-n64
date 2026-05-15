@@ -13,8 +13,15 @@ relationships, struct layouts, roles, open questions).
 ```
 AbstractFile        (43DD0.c)
 └─ RomFile          (43DD0.c)
-   ├─ File          (header-defined; canonical TU is 462D0.c)
+   ├─ Pelican       (RomFile subclass with full open/close lifecycle — 462D0.c)
    ├─ Frogmouth     (inline subclass for Kookaburra string-table loader — 465A0.c)
+   ├─ [the "File" pattern]
+   │                — many small one-off RomFile subclasses where the author
+   │                  left out a destructor, so cfront auto-generated one.
+   │                  Each TU that declares one emits its own copy of the
+   │                  same shape; lots of near-identical vtables in the
+   │                  binary. Pelican is the one that grew real methods;
+   │                  Frogmouth is the explicit inline-stub case.
    └─ Parrot        (text parser .adf/.tdf/.mdf/.gdf/.sdf/.bdf/.maf — 46B40.c)
       ├─ Magpie     (sorted-name dictionary — 4A000.c)
       ├─ Cockatoo   (binary parser .adb/.bin — 40D10.c)
@@ -71,7 +78,7 @@ ControllerSystem    (forward-declared in include/input.h; manages many
                      — file unread, see Gaps; contains 6-plane frustum at
                      unk6C..unkCC, embedded file at unk10, palette area
                      at unkA4..unk4A4, vtable slot at unk5AC)
-├─ Pelican          (BMP file loader — 12480.c; instance at D_8006F630)
+├─ Albatross          (BMP file loader — 12480.c; instance at D_8006F630)
 └─ Cormorant        (TGA file loader — 27D10.c; instance at D_80070508)
 ```
 
@@ -745,7 +752,7 @@ not symbols we want to track long-term.
 2. **43DD0.c (AbstractFile / LocalIOParent / RomFile)** — verify the
    AbstractFile → RomFile → File chain and surface LocalIOParent's role.
 3. **File containing `func_8001E884`** — the parent ctor of both
-   Pelican (BMP loader, 12480.c) and Cormorant (TGA loader, 27D10.c).
+   Albatross (BMP loader, 12480.c) and Cormorant (TGA loader, 27D10.c).
    This is the image-base / render-context class that also owns the
    6-plane frustum at `unk6C..unkCC` referenced by 28F80.c's frustum
    tests.
