@@ -12,7 +12,7 @@ INCLUDE_ASM("asm/nonmatchings/27D10", func_8002820C);
 
 INCLUDE_ASM("asm/nonmatchings/27D10", func_80028308);
 
-INCLUDE_ASM("asm/nonmatchings/27D10", func_80028318);
+INCLUDE_ASM("asm/nonmatchings/27D10", __9Cormorant);
 
 void func_80028354(void) {
 }
