@@ -27,7 +27,7 @@ struct DirEntry {
     /* 0xE */ char name[0x10];
 };
 
-extern "C" s32 func_80049400(Otter* self, const char* name) {
+s32 Otter::vfunc5(const char* name) {
     u8 pad[24];
     FileInfo info;
     DirEntry entry;
@@ -35,7 +35,7 @@ extern "C" s32 func_80049400(Otter* self, const char* name) {
     u32 i = 0;
 
     for (i = 0; i < 0x10; i++) {
-        self->vfunc9(i, &info);
+        this->vfunc9(i, &info);
         if (stricmp(name, info.name) == 0) {
             found = 1;
             break;
@@ -46,30 +46,30 @@ extern "C" s32 func_80049400(Otter* self, const char* name) {
         return 8;
     }
 
-    func_80047428(self->stream->unk4, self->buf, i, &entry);
-    Stream* s = self->stream;
+    func_80047428(this->stream->unk4, this->buf, i, &entry);
+    Stream* s = this->stream;
     void* unk4 = s->unk4;
-    char* buf = self->buf;
+    char* buf = this->buf;
     s32 status = func_8004775C(unk4, buf, entry.unk8, entry.unk4, entry.name, entry.ext);
     if (status == 5) {
         return 8;
     }
     switch (status) {
         case 0:
-            self->state = 0;
+            this->state = 0;
             break;
         case 1:
-            self->state = 0x12;
+            this->state = 0x12;
             break;
         case 2:
-            self->flag = 1;
-            self->state = 0x13;
+            this->flag = 1;
+            this->state = 0x13;
             break;
         case 4:
-            self->state = 0x14;
+            this->state = 0x14;
             break;
         case 10:
-            self->state = 0x15;
+            this->state = 0x15;
             break;
         case 3:
         case 5:
@@ -78,14 +78,14 @@ extern "C" s32 func_80049400(Otter* self, const char* name) {
         case 8:
         case 9:
         default:
-            self->state = 1;
+            this->state = 1;
             break;
     }
-    return self->state;
+    return this->state;
 }
 
 #ifdef NON_MATCHING
-extern "C" s32 func_8004954C(Otter* self, FileInfo* arg1) {
+s32 Otter::vfunc6(FileInfo* arg1) {
     char extBuf[4];
     char nameBuf[0x10];
 
@@ -119,26 +119,26 @@ extern "C" s32 func_8004954C(Otter* self, FileInfo* arg1) {
         func_8000752C(arg1->name + len, extBuf, extLen);
     }
 
-    s32 status = func_8004775C(self->stream->unk4, self->buf, (u16)arg1->unk24, arg1->unk28, nameBuf, extBuf);
+    s32 status = func_8004775C(this->stream->unk4, this->buf, (u16)arg1->unk24, arg1->unk28, nameBuf, extBuf);
     if (status == 5) {
         return 8;
     }
     switch (status) {
         case 0:
-            self->state = 0;
+            this->state = 0;
             break;
         case 1:
-            self->state = 0x12;
+            this->state = 0x12;
             break;
         case 2:
-            self->flag = 1;
-            self->state = 0x13;
+            this->flag = 1;
+            this->state = 0x13;
             break;
         case 4:
-            self->state = 0x14;
+            this->state = 0x14;
             break;
         case 10:
-            self->state = 0x15;
+            this->state = 0x15;
             break;
         case 3:
         case 5:
@@ -147,37 +147,38 @@ extern "C" s32 func_8004954C(Otter* self, FileInfo* arg1) {
         case 8:
         case 9:
         default:
-            self->state = 1;
+            this->state = 1;
             break;
     }
-    return self->state;
+    return this->state;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/otter", func_8004954C);
+INCLUDE_ASM("asm/nonmatchings/otter", vfunc6__5OtterP8FileInfo);
 #endif
+INCLUDE_RODATA("asm/nonmatchings/otter", _vt.5Otter);
 
-extern "C" s32 func_800496DC(Otter* self, s32* out) {
+s32 Otter::vfunc8(s32* out) {
     s32 outVal;
-    s32 status = func_800473C4(self->stream->unk4, self->buf, &outVal);
+    s32 status = func_800473C4(this->stream->unk4, this->buf, &outVal);
     if (status == 0) {
         *out = outVal;
     }
     switch (status) {
         case 0:
-            self->state = 0;
+            this->state = 0;
             break;
         case 1:
-            self->state = 0x12;
+            this->state = 0x12;
             break;
         case 2:
-            self->flag = 1;
-            self->state = 0x13;
+            this->flag = 1;
+            this->state = 0x13;
             break;
         case 4:
-            self->state = 0x14;
+            this->state = 0x14;
             break;
         case 10:
-            self->state = 0x15;
+            this->state = 0x15;
             break;
         case 3:
         case 5:
@@ -186,15 +187,15 @@ extern "C" s32 func_800496DC(Otter* self, s32* out) {
         case 8:
         case 9:
         default:
-            self->state = 1;
+            this->state = 1;
             break;
     }
-    return self->state;
+    return this->state;
 }
 
-extern "C" s32 func_80049790(Otter* self, s32 arg1, FileInfo* info) {
+s32 Otter::vfunc9(s32 arg1, FileInfo* info) {
     DirEntry entry;
-    s32 status = func_80047428(self->stream->unk4, self->buf, arg1, &entry);
+    s32 status = func_80047428(this->stream->unk4, this->buf, arg1, &entry);
     if (status == 0) {
         info->fileSize = entry.size;
         info->unk24 = entry.unk8;
@@ -209,20 +210,20 @@ extern "C" s32 func_80049790(Otter* self, s32 arg1, FileInfo* info) {
     }
     switch (status) {
         case 0:
-            self->state = 0;
+            this->state = 0;
             break;
         case 1:
-            self->state = 0x12;
+            this->state = 0x12;
             break;
         case 2:
-            self->flag = 1;
-            self->state = 0x13;
+            this->flag = 1;
+            this->state = 0x13;
             break;
         case 4:
-            self->state = 0x14;
+            this->state = 0x14;
             break;
         case 10:
-            self->state = 0x15;
+            this->state = 0x15;
             break;
         case 3:
         case 5:
@@ -231,36 +232,36 @@ extern "C" s32 func_80049790(Otter* self, s32 arg1, FileInfo* info) {
         case 8:
         case 9:
         default:
-            self->state = 1;
+            this->state = 1;
             break;
     }
-    return self->state;
+    return this->state;
 }
 
-extern "C" s32 func_800498B8(Otter* self, s32* out1, s32* out2) {
+s32 Otter::vfunc7(s32* out1, s32* out2) {
     s32 outSecond;
     s32 outFirst;
-    s32 status = func_80047490(self->stream->unk4, self->buf, &outFirst, &outSecond);
+    s32 status = func_80047490(this->stream->unk4, this->buf, &outFirst, &outSecond);
     *out1 = outSecond;
     if (out2) {
         *out2 = outFirst;
     }
     switch (status) {
         case 0:
-            self->state = 0;
+            this->state = 0;
             break;
         case 1:
-            self->state = 0x12;
+            this->state = 0x12;
             break;
         case 2:
-            self->flag = 1;
-            self->state = 0x13;
+            this->flag = 1;
+            this->state = 0x13;
             break;
         case 4:
-            self->state = 0x14;
+            this->state = 0x14;
             break;
         case 10:
-            self->state = 0x15;
+            this->state = 0x15;
             break;
         case 3:
         case 5:
@@ -269,10 +270,10 @@ extern "C" s32 func_800498B8(Otter* self, s32* out1, s32* out2) {
         case 8:
         case 9:
         default:
-            self->state = 1;
+            this->state = 1;
             break;
     }
-    return self->state;
+    return this->state;
 }
 
 #ifdef NON_MATCHING
@@ -318,13 +319,13 @@ INCLUDE_ASM("asm/nonmatchings/otter", func_80049980);
 #ifdef NON_MATCHING
 // Score ~60: lhu/lw scheduling for s->unkA / s->unkC swapped vs target;
 // no source-level lever found within budget.
-extern "C" s32 func_80049A74(Otter* self, const char* path) {
+s32 Otter::vfunc4(const char* path) {
     char ext[4];
     char name[0x10];
     char header[8];
     func_80049980(path, name, ext);
-    Stream* s = self->stream;
-    char* buf = self->buf;
+    Stream* s = this->stream;
+    char* buf = this->buf;
     void* unk4 = s->unk4;
     u16 unkA = s->unkA;
     s32 unkC = s->unkC;
@@ -334,20 +335,20 @@ extern "C" s32 func_80049A74(Otter* self, const char* path) {
     }
     switch (status) {
         case 0:
-            self->state = 0;
+            this->state = 0;
             break;
         case 1:
-            self->state = 0x12;
+            this->state = 0x12;
             break;
         case 2:
-            self->flag = 1;
-            self->state = 0x13;
+            this->flag = 1;
+            this->state = 0x13;
             break;
         case 4:
-            self->state = 0x14;
+            this->state = 0x14;
             break;
         case 10:
-            self->state = 0x15;
+            this->state = 0x15;
             break;
         case 3:
         case 5:
@@ -356,13 +357,13 @@ extern "C" s32 func_80049A74(Otter* self, const char* path) {
         case 8:
         case 9:
         default:
-            self->state = 1;
+            this->state = 1;
             break;
     }
-    return self->state;
+    return this->state;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/otter", func_80049A74);
+INCLUDE_ASM("asm/nonmatchings/otter", vfunc4__5OtterPCc);
 #endif
 
 extern "C" void func_80049B50(Otter* self) {
@@ -399,27 +400,27 @@ extern "C" void func_80049B58(Otter* self, s32 mode) {
     }
 }
 
-extern "C" void func_80049BC8(Otter* self) {
-    s32 status = func_8004767C(self->stream->unk4, self->buf);
-    func_80049B58(self, status);
-    if (self->state == 0) {
-        self->vfunc2();
+void Otter::vfunc3() {
+    s32 status = func_8004767C(this->stream->unk4, this->buf);
+    func_80049B58(this, status);
+    if (this->state == 0) {
+        this->vfunc2();
     }
 }
 
-extern "C" s32 func_80049C24(Otter* self) {
+s32 Otter::vfunc2() {
     s32 success = 0;
-    void* x = self->stream->unk4;
+    void* x = this->stream->unk4;
     void* y = x;
-    if (func_80047A64(x, self->unk10) != 0) {
-        success = func_80047A50(x, self->unk10) != 0;
+    if (func_80047A64(x, this->unk10) != 0) {
+        success = func_80047A50(x, this->unk10) != 0;
     }
     if (success) {
-        func_80049B58(self, func_8004798C(y, self->buf, self->unk10));
+        func_80049B58(this, func_8004798C(y, this->buf, this->unk10));
     } else {
-        self->state = 0x12;
+        this->state = 0x12;
     }
-    return self->state;
+    return this->state;
 }
 
 extern "C" void func_80049CC4(Otter* self, Stream* stream, s32 mode, s32 hasInit) {
@@ -432,9 +433,13 @@ extern "C" void func_80049CC4(Otter* self, Stream* stream, s32 mode, s32 hasInit
     }
 }
 
+#if 0
 Otter::~Otter() {
     func_80049B50(this);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/otter", _._5Otter);
+#endif
 
 Otter::Otter() {
     stream = NULL;

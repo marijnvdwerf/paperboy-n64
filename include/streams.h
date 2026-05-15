@@ -18,7 +18,7 @@ struct Sentry {
     Sentry();
     virtual ~Sentry();
     virtual s32 vfunc2() = 0;
-    virtual s32 vfunc3() = 0;
+    virtual void vfunc3() = 0;
     virtual s32 vfunc4(const char* path) = 0;
     virtual s32 vfunc5(const char* name) = 0;
     virtual s32 vfunc6(FileInfo* info);
@@ -54,6 +54,14 @@ struct Otter : public Sentry {
 
     Otter();
     virtual ~Otter();
+    virtual s32 vfunc2();
+    virtual void vfunc3();
+    virtual s32 vfunc4(const char* path);
+    virtual s32 vfunc5(const char* name);
+    virtual s32 vfunc6(FileInfo* info);
+    virtual s32 vfunc7(s32* out1, s32* out2);
+    virtual s32 vfunc8(s32* out);
+    virtual s32 vfunc9(s32 idx, FileInfo* info);
 };
 
 #endif
