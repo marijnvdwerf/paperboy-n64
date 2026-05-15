@@ -56,4 +56,33 @@ If no variation flips the allocation in your favour within the budget, **park**.
 
 ---
 
+## `bnel`-with-useful-delay-slot reusing a parameter register
+
+**Symptom**: target has `bnel ..., .L_loop` whose delay slot is `move <param_reg>, <some_reg>` (e.g. `move a0, v0`), and the loop body downstream reads from that param register as if it were a different variable. Your C, structurally equivalent, produces `bne ... + nop` instead, and the loop variable lives in a fresh register (`a2`/`a3`/...) — diff shows `r` markers throughout.
+
+**Cause**: the compiler emitted `bnel` because the branch target needed the param register loaded with a different value (e.g. the loop's "current" pointer). Branch-likely with a useful delay-slot move only happens when the value being moved is the *same register the loop body already expects*. If your C keeps the loop variable in a separate local, the compiler allocates it to a fresh register, the move-into-param-slot isn't needed, and you get plain `bne + nop`.
+
+**Fix**: reassign the parameter itself instead of introducing a new local. The compiler then keeps the loop variable in the parameter's register slot, and the branch likely + delay slot move appears.
+
+```cpp
+// produces bne + nop, loop var in a2
+void f(Joey* parent, Joey* child) {
+    Joey* cur = parent->child;
+    if (cur == child) { /* first-child path */ return; }
+    /* loop using cur */
+}
+
+// produces bnel + `move a0, v0` in delay, loop var in a0
+void f(Joey* parent, Joey* child) {
+    Joey* head = parent->child;
+    if (head == child) { /* first-child path */ return; }
+    parent = head;          // reuse the a0 slot
+    /* loop using parent */
+}
+```
+
+For C++ methods where `this` is the parameter you'd like to reuse, copy `this` into a local of the same name and reassign the local — `this` itself is not assignable, but a `Joey* parent = this;` then `parent = head;` produces the same codegen.
+
+---
+
 *Add new tips as they're discovered. Each tip names its symptom, its cause, and its fix.*
