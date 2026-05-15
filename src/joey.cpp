@@ -11,9 +11,7 @@ void Joey::removeChild(Joey* child) {
     }
     parent = head;
     Joey* nxt = parent->next;
-    if (nxt == NULL)
-        return;
-    do {
+    while (nxt != NULL) {
         if (nxt == child) {
             parent->next = nxt->next;
             nxt->parent = NULL;
@@ -22,7 +20,7 @@ void Joey::removeChild(Joey* child) {
         }
         parent = nxt;
         nxt = nxt->next;
-    } while (nxt != NULL);
+    }
 }
 
 void Joey::addChild(Joey* child) {
