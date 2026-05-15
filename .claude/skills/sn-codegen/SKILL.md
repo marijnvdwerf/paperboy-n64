@@ -85,4 +85,92 @@ For C++ methods where `this` is the parameter you'd like to reuse, copy `this` i
 
 ---
 
+## Signed vs unsigned loop counter → `slti` vs `sltiu`
+
+**Symptom**: loop-bound check at the end of a counted loop emits `slti` (signed) or `sltiu` (unsigned), and you have the opposite of target.
+
+**Cause**: the compiler picks the comparison instruction directly from the loop variable's declared signedness. `s32 i; i < N` → `slti`. `u32 i; i < N` → `sltiu`. A cast at the comparison site (`(u32)i < N`) also flips it, but the cleanest match is to use the right type at declaration.
+
+**Fix**: match the type of the loop counter to the asm. If target shows `sltiu`, declare `u32 i`. If `slti`, declare `s32 i`. This often cascades: with the right comparison, the surrounding branch pattern (`bnez` vs `bnezl`) also flips into place.
+
+---
+
+## `arr[i++] = X` triggers register-incremental address reuse
+
+**Symptom**: target emits an indexed byte/word store (`sb`, `sw`, …) at `base+i` and then immediately uses `base+(i+1)` as the destination of a following call — keeping `i` in a register and incrementing it with `addiu a1, a1, 1; addu a1, base, a1`. Your code recomputes the second address as a single `addiu a1, base, i_plus_1`, and the diff shifts.
+
+**Cause**: `arr[i] = X; f(&arr[i + 1], ...)` makes the compiler treat `i + 1` as a fresh expression and fold it into one `addiu` against `base`. `arr[i++] = X; f(&arr[i], ...)` makes the compiler reuse the register that holds `i`, bumping it in place with `addiu i, i, 1`, then computing `base + i` once.
+
+**Fix**: use post-increment when the asm shows an "increment-then-index" pattern:
+
+```cpp
+// recomputes the address from scratch
+info->name[sz] = '.';
+func(&info->name[sz + 1], ...);
+
+// keeps sz in a register, bumps it, reuses
+info->name[sz++] = '.';
+func(&info->name[sz], ...);
+```
+
+---
+
+## Split nested member access into intermediate locals to control scheduling
+
+**Symptom**: at a call site whose arg list mixes several `self->stream->X` accesses, the instructions are present in both versions but in a different order — `r` markers on register choices, `|` markers on schedule slots. Common around 4+ arg calls that need stack arg setup.
+
+**Cause**: when args come from nested member accesses, the compiler treats each access as a separate dependency chain and reorders them based on register-pressure heuristics. The scheduler is sensitive to surrounding code (especially what was clobbered by a previous call), and the inline form gives it the most freedom — usually picking a different register (`v1` instead of `v0`) for the inner pointer, which cascades into a different schedule.
+
+**Fix**: introduce named intermediate locals matching the target's load order. The locals' declaration order pins the load order in the emitted asm, and the named locals end up in registers the scheduler then respects:
+
+```cpp
+// nested access — scheduler chooses its own load order and registers
+func(self->stream->unk4, self->buf, self->stream->unkA, self->stream->unkC, ...);
+
+// explicit locals — loads happen in declaration order, registers stabilize
+Stream* s = self->stream;
+char* buf = self->buf;
+void* unk4 = s->unk4;
+u16 unkA  = s->unkA;
+s32 unkC  = s->unkC;
+func(unk4, buf, unkA, unkC, ...);
+```
+
+Doing this also tends to flip the post-call reload's register choice (`lw v0, …` instead of `lw v1, …`), because the fresh local "claims" the natural temp slot.
+
+---
+
+## Duplicate local for callee-saved value preservation
+
+**Symptom**: target keeps a *duplicate* of the same value in two callee-saved registers across a span of calls (`move s3, s0` in some delay slot, then later uses `s3` instead of `s0` for an arg setup even though both hold the same pointer). Your version uses one register everywhere, the frame is one register smaller, and the diff shows a missing `move` plus a cascade of shifted save offsets.
+
+**Cause**: when the C source has the *same* value reachable through two separately-named locals, the compiler allocates each to its own register and preserves both across calls — even when one is a trivial copy of the other. Reach the same value through a single local and you get one register.
+
+**Fix**: introduce an aliasing local with a different name. The compiler will allocate it to its own callee-saved register and use it wherever that name is referenced in the source:
+
+```cpp
+// one local → one register, no extra save
+void* x = self->stream->unk4;
+if (f(x, …)) g(x, …);
+if (cond) h(x, …);
+
+// two locals → two callee-saved registers, extra save+move appear
+void* x = self->stream->unk4;
+void* y = x;
+if (f(x, …)) g(x, …);
+if (cond) h(y, …);
+```
+
+---
+
+## Mismatched return type produces ghost `move v0, zero` at function end
+
+**Symptom**: body matches but the epilogue has an extra `move v0, zero` (or similar `v0` setup) the target doesn't have. Often appears when porting a method that "looks like it returns" but the target asm just falls through to `jr ra` without touching `v0`.
+
+**Cause**: function declared with a non-void return type (e.g. `s32`) but the C body has no explicit `return` statement at every path. The compiler emits an implicit zero-return at the fallthrough. The original source had the function declared `void`, so no `v0` is touched.
+
+**Fix**: change the function's return type to `void` if the target asm doesn't set `v0` before return. For virtual methods, the *base class declaration* must also be `void` — otherwise the override's signature mismatches and the compiler errors. Update the pure-virtual declaration in the base class and any sibling overrides.
+
+---
+
 *Add new tips as they're discovered. Each tip names its symptom, its cause, and its fix.*
