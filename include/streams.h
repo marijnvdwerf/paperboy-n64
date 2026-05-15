@@ -31,4 +31,21 @@ struct Sentry {
     void reset();
 };
 
+struct Stream {
+    /* 0x0 */ u8 pad0[4];
+    /* 0x4 */ void* unk4;
+    /* 0x8 */ u8 pad8[2];
+    /* 0xA */ u16 unkA;
+    /* 0xC */ s32 unkC;
+};
+
+struct Otter : public Sentry {
+    /* 0xC  */ Stream* stream;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ char buf[0x68];
+
+    Otter();
+    virtual ~Otter();
+};
+
 #endif
