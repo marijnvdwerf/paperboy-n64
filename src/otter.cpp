@@ -28,20 +28,19 @@ struct DirEntry {
 };
 
 extern "C" s32 func_80049400(Otter* self, const char* name) {
+    u8 pad[24];
     FileInfo info;
     DirEntry entry;
     s32 found = 0;
     u32 i = 0;
-    FileInfo* p = &info;
 
-    do {
-        self->vfunc9(i, p);
-        if (stricmp(name, p->name) == 0) {
+    for (i = 0; i < 0x10; i++) {
+        self->vfunc9(i, &info);
+        if (stricmp(name, info.name) == 0) {
             found = 1;
             break;
         }
-        i++;
-    } while (i < 0x10);
+    }
 
     if (!found) {
         return 8;

@@ -8,6 +8,7 @@ struct FileInfo {
     /* 0x20 */ s32 fileSize;
     /* 0x24 */ s32 unk24;
     /* 0x28 */ s32 unk28;
+    /* 0x2C */ s32 unk2C;
 };
 
 struct Sentry {
