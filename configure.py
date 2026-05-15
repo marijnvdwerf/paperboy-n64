@@ -50,6 +50,7 @@ VARIANTS = {
 # Post-build ROM patches per variant: list of (rom_offset, hex_bytes).
 PATCHES = {
     "ntsc": [
+        (0x476D8, "8FA800208FA90024"),
         (0x1318, "220D0A0923696E63"),
         (0x13F8, "652022677674782E"),
         (0x14A8, "6573203D20363430"),
