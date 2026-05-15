@@ -33,7 +33,6 @@ extern "C" char* strcat(char*, const char*);
 extern "C" char* strrchr(const char*, int);
 extern "C" char* strncpy(char*, const char*, unsigned);
 extern "C" int toupper(int);
-extern "C" void* memcpy(void*, const void*, unsigned);
 
 extern "C" void func_8004B3BC(s32);
 extern "C" void func_8004B390();

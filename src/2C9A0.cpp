@@ -6,8 +6,6 @@ extern s32 D_80072BC0;
 extern void func_800079A8(const char*, s32, s32, s32);
 extern void func_8004B390(void);
 extern void func_8004B3BC(s32);
-void* memcpy(void* dst, const void* src, unsigned n);
-void* memset(void* p, s32 v, unsigned n);
 }
 
 struct StructYYSubA8Ctx {

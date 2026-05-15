@@ -6,7 +6,7 @@ INCLUDE_ASM("asm/nonmatchings/libc", qsort);
 
 INCLUDE_ASM("asm/nonmatchings/libc", strtok);
 
-int memcmp(const void* s1, const void* s2, u32 n) {
+int memcmp(const void* s1, const void* s2, unsigned n) {
     const u8* u1 = (const u8*)s1;
     const u8* u2 = (const u8*)s2;
     u32 i;
@@ -24,7 +24,7 @@ int memcmp(const void* s1, const void* s2, u32 n) {
     return 0;
 }
 
-void* memset(void* dst, s32 c, u32 n) {
+void* memset(void* dst, int c, unsigned n) {
     u8* p;
     u8* end;
 

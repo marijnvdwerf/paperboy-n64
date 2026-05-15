@@ -1,7 +1,6 @@
 #include "common.h"
 #include "input.h"
 
-extern "C" void memset(void*, int, unsigned);
 extern "C" char* strncpy(char*, const char*, unsigned);
 extern "C" f32 atanf(f32);
 extern "C" void __builtin_delete(void*);

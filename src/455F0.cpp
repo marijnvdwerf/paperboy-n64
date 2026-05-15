@@ -3,9 +3,7 @@
 
 extern "C" {
 void func_800079A8(const char* msg, int a, int b, int c);
-int memcmp(const void* a, const void* b, u32 n);
-int strncmp(const char* a, const char* b, u32 n);
-void* memcpy(void* dst, const void* src, u32 n);
+int strncmp(const char* a, const char* b, unsigned n);
 void func_8004B390(void);
 void func_8004B3BC(int);
 }

@@ -2,7 +2,6 @@
 #include "structs.h"
 
 extern "C" {
-extern void* memset(void*, s32, u32);
 extern u8 D_80072BA0[];
 extern OSViMode D_80077C30[];
 }

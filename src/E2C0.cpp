@@ -14,7 +14,6 @@ struct Vector3 {
 extern "C" f32 sqrtf(f32);
 extern "C" f32 __sinf(f32);
 extern "C" f32 __cosf(f32);
-extern "C" void* memcpy(void*, const void*, u32);
 
 extern "C" f32 D_8006C5F0[0x400];
 

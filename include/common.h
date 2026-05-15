@@ -8,6 +8,18 @@
 #define NULL 0
 #endif
 
+#ifdef _LANGUAGE_C_PLUS_PLUS
+extern "C" {
+#endif
+
+int memcmp(const void*, const void*, unsigned);
+void* memcpy(void*, const void*, unsigned);
+void* memset(void*, int, unsigned);
+
+#ifdef _LANGUAGE_C_PLUS_PLUS
+}
+#endif
+
 #define TEXT_PAD(size) \
     __asm__(".section .text\n" \
             "    .set noat\n" \

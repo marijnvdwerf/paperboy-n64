@@ -5,7 +5,6 @@ extern "C" s32 func_80047618(class ControllerSystem*, OSPfs*, s32);
 extern "C" s32 func_800474F8(class ControllerSystem*, OSPfs*);
 extern "C" s32 func_80047558(class ControllerSystem*, OSPfs*);
 extern "C" s32 func_800475B8(class ControllerSystem*, OSPfs*);
-extern "C" void memset(void*, s32, s32);
 
 #ifdef NON_MATCHING
 void ControllerDevice::func_80047ED0() {

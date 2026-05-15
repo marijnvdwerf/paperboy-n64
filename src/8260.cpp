@@ -46,7 +46,6 @@ struct GameContext : StructTTBase {
 
 extern "C" {
 // Functions
-void* memset(void*, s32, u32);
 void strncpy(u8*, u8*, s32);
 void func_8000812C();
 void func_80011500(s32);

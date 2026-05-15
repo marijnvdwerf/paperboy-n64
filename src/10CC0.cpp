@@ -2,8 +2,6 @@
 
 extern "C" {
 typedef unsigned int size_t;
-void* memset(void*, s32, unsigned);
-void* memcpy(void*, const void*, unsigned);
 size_t wcslen(const unsigned short* wcs);
 }
 

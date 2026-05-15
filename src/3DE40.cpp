@@ -51,7 +51,6 @@ u8* strncpy(u8*, u8*, s32);
 s32 atoi(const char*);
 extern s32 D_800740D4;
 extern s32 D_800740F4;
-void* memset(void*, s32, s32);
 }
 
 #ifdef NON_MATCHING
