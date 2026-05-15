@@ -84,20 +84,21 @@ s32 Otter::vfunc5(const char* name) {
     return this->state;
 }
 
-#ifdef NON_MATCHING
 s32 Otter::vfunc6(FileInfo* arg1) {
     char extBuf[4];
     char nameBuf[0x10];
+    char* extPtr = extBuf;
 
     memset(nameBuf, 0, 0x10);
-    memset(extBuf, 0, 4);
+    memset(extPtr, 0, 4);
 
     s32 dotPos = 0;
     s32 len = 0;
     if (arg1->name[0]) {
+        s32 dot = '.';
         const char* p = arg1->name;
         do {
-            if (*p == '.') {
+            if (*p == dot) {
                 dotPos = len;
             }
             p++;
@@ -116,10 +117,13 @@ s32 Otter::vfunc6(FileInfo* arg1) {
                 extLen++;
             } while (arg1->name[len + extLen]);
         }
-        func_8000752C(arg1->name + len, extBuf, extLen);
+        func_8000752C(arg1->name + len, extPtr, extLen);
     }
 
-    s32 status = func_8004775C(this->stream->unk4, this->buf, (u16)arg1->unk24, arg1->unk28, nameBuf, extBuf);
+    Stream* s = this->stream;
+    void* unk4 = s->unk4;
+    char* buf = this->buf;
+    s32 status = func_8004775C(unk4, buf, (u16)arg1->unk24, arg1->unk28, nameBuf, extBuf);
     if (status == 5) {
         return 8;
     }
@@ -152,9 +156,7 @@ s32 Otter::vfunc6(FileInfo* arg1) {
     }
     return this->state;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/otter", vfunc6__5OtterP8FileInfo);
-#endif
+
 INCLUDE_RODATA("asm/nonmatchings/otter", _vt.5Otter);
 
 s32 Otter::vfunc8(s32* out) {
@@ -276,8 +278,6 @@ s32 Otter::vfunc7(s32* out1, s32* out2) {
     return this->state;
 }
 
-#ifdef NON_MATCHING
-// Score ~60: `move v1,s1` and `li a1,0x2e` swap in scheduling.
 extern "C" void func_80049980(const char* path, char* name, char* ext) {
     memset(name, 0, 0x10);
     memset(ext, 0, 4);
@@ -285,9 +285,10 @@ extern "C" void func_80049980(const char* path, char* name, char* ext) {
     s32 dotPos = 0;
     s32 len = 0;
     if (*path) {
+        s32 dot = '.';
         const char* p = path;
         do {
-            if (*p == '.') {
+            if (*p == dot) {
                 dotPos = len;
             }
             p++;
@@ -312,13 +313,7 @@ extern "C" void func_80049980(const char* path, char* name, char* ext) {
         func_8000752C(path + len, ext, extLen);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/otter", func_80049980);
-#endif
 
-#ifdef NON_MATCHING
-// Score ~60: lhu/lw scheduling for s->unkA / s->unkC swapped vs target;
-// no source-level lever found within budget.
 s32 Otter::vfunc4(const char* path) {
     char ext[4];
     char name[0x10];
@@ -328,8 +323,8 @@ s32 Otter::vfunc4(const char* path) {
     char* buf = this->buf;
     void* unk4 = s->unk4;
     u16 unkA = s->unkA;
-    s32 unkC = s->unkC;
-    s32 status = func_800477D4(unk4, buf, unkA, unkC, name, ext, header);
+    u32 unkC;
+    s32 status = func_800477D4(unk4, buf, unkA, (unkC = s->unkC), name, ext, header);
     if (status == 5) {
         return 8;
     }
@@ -362,9 +357,6 @@ s32 Otter::vfunc4(const char* path) {
     }
     return this->state;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/otter", vfunc4__5OtterPCc);
-#endif
 
 extern "C" void func_80049B50(Otter* self) {
     self->stream = NULL;
