@@ -1,37 +1,76 @@
-#include "common.h"
+#include "streams.h"
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_800456D0);
+s32 Sentry::vfunc6() {
+    return 6;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_800456D8);
+s32 Sentry::vfunc9() {
+    return 6;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_800456E0);
+s32 Sentry::vfunc8() {
+    return 6;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", .L800456E8);
+s32 Sentry::vfunc7() {
+    return 6;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", _._6Sentry);
+Sentry::~Sentry() {
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", __6Sentry);
+Sentry::Sentry() {
+    state = 0;
+    flag = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_8004573C);
+void Sentry::clearFlag() {
+    flag = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_80045744);
+s32 Sentry::getFlag() {
+    return flag;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_80045750);
+s32 Sentry::getState() {
+    return state;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_8004575C);
+s32 Sentry::isInactive() {
+    return state == 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_80045768);
+s32 Sentry::activate() {
+    state = 1;
+    return 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_80045774);
+s32 Sentry::setMode15() {
+    state = 0x15;
+    return 0x15;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_80045780);
+s32 Sentry::setMode19() {
+    state = 0x19;
+    return 0x19;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_8004578C);
+s32 Sentry::setMode14() {
+    state = 0x14;
+    return 0x14;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_80045798);
+s32 Sentry::setMode13() {
+    flag = 1;
+    state = 0x13;
+    return 0x13;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_800457AC);
+s32 Sentry::setMode12() {
+    state = 0x12;
+    return 0x12;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sentry", func_800457B8);
-
-INCLUDE_RODATA("asm/nonmatchings/sentry", _vt.6Sentry);
+void Sentry::reset() {
+    state = 0;
+}
