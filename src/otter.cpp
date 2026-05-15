@@ -48,7 +48,10 @@ extern "C" s32 func_80049400(Otter* self, const char* name) {
     }
 
     func_80047428(self->stream->unk4, self->buf, i, &entry);
-    s32 status = func_8004775C(self->stream->unk4, self->buf, entry.unk8, entry.unk4, entry.name, entry.ext);
+    Stream* s = self->stream;
+    void* unk4 = s->unk4;
+    char* buf = self->buf;
+    s32 status = func_8004775C(unk4, buf, entry.unk8, entry.unk4, entry.name, entry.ext);
     if (status == 5) {
         return 8;
     }
