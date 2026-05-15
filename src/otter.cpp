@@ -17,7 +17,6 @@ extern s32 func_8004775C(void*, char*, u16, s32, char*, char*);
 extern void func_800073E0(const void* src, void* dst, s32 n);
 extern unsigned strlen(const char*);
 extern s32 stricmp(const char*, const char*);
-extern s32 func_80049790(Otter*, s32, struct FileInfo*);
 }
 
 struct DirEntry {
@@ -28,26 +27,16 @@ struct DirEntry {
     /* 0xE */ char name[0x10];
 };
 
-struct FileInfo {
-    /* 0x00 */ char name[0x20];
-    /* 0x20 */ s32 fileSize;
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ s32 unk28;
-};
-
-#ifdef NON_MATCHING
-// Calls self->vfunc9(i, &info) via vtable dispatch in the original; we lack
-// the right virtual signature in Sentry's declaration, so this draft uses a
-// direct call to func_80049790. Logic is correct, dispatch isn't.
 extern "C" s32 func_80049400(Otter* self, const char* name) {
     FileInfo info;
     DirEntry entry;
     s32 found = 0;
-    s32 i = 0;
+    u32 i = 0;
+    FileInfo* p = &info;
 
     do {
-        func_80049790(self, i, &info);
-        if (stricmp(name, info.name) == 0) {
+        self->vfunc9(i, p);
+        if (stricmp(name, p->name) == 0) {
             found = 1;
             break;
         }
@@ -92,9 +81,6 @@ extern "C" s32 func_80049400(Otter* self, const char* name) {
     }
     return self->state;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/otter", func_80049400);
-#endif
 
 #ifdef NON_MATCHING
 extern "C" s32 func_8004954C(Otter* self, FileInfo* arg1) {

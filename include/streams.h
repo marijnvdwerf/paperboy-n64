@@ -3,6 +3,13 @@
 
 #include "common.h"
 
+struct FileInfo {
+    /* 0x00 */ char name[0x20];
+    /* 0x20 */ s32 fileSize;
+    /* 0x24 */ s32 unk24;
+    /* 0x28 */ s32 unk28;
+};
+
 struct Sentry {
     /* 0x0 */ s32 state;
     /* 0x4 */ s32 flag;
@@ -11,12 +18,12 @@ struct Sentry {
     virtual ~Sentry();
     virtual s32 vfunc2() = 0;
     virtual s32 vfunc3() = 0;
-    virtual s32 vfunc4() = 0;
-    virtual s32 vfunc5() = 0;
-    virtual s32 vfunc6();
-    virtual s32 vfunc7();
-    virtual s32 vfunc8();
-    virtual s32 vfunc9();
+    virtual s32 vfunc4(const char* path) = 0;
+    virtual s32 vfunc5(const char* name) = 0;
+    virtual s32 vfunc6(FileInfo* info);
+    virtual s32 vfunc7(s32* out1, s32* out2);
+    virtual s32 vfunc8(s32* out);
+    virtual s32 vfunc9(s32 idx, FileInfo* info);
 
     void clearFlag();
     s32 getFlag();

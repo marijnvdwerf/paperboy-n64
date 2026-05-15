@@ -1,18 +1,18 @@
 #include "streams.h"
 
-s32 Sentry::vfunc6() {
+s32 Sentry::vfunc6(FileInfo*) {
     return 6;
 }
 
-s32 Sentry::vfunc9() {
+s32 Sentry::vfunc9(s32, FileInfo*) {
     return 6;
 }
 
-s32 Sentry::vfunc8() {
+s32 Sentry::vfunc8(s32*) {
     return 6;
 }
 
-s32 Sentry::vfunc7() {
+s32 Sentry::vfunc7(s32*, s32*) {
     return 6;
 }
 
