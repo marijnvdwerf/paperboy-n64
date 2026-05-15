@@ -57,7 +57,7 @@ void func_8000FEEC(void* arg) {
     while (1) {}
 }
 
-void D_8000FF88(void* arg) {
+void func_8000FF88(void* arg) {
     func_8001005C();
     D_8006D5F0 = 0x400000 - OS_K0_TO_PHYSICAL(&D_80148370);
     func_8004B268(&D_800768F0, &D_80148370, D_8006D5F0, 0x40);
