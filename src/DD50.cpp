@@ -14,7 +14,7 @@ extern "C" u32 D_8006B5E0;
 // fixed-point string-to-float parser; reg-alloc diff (a1<->a2 swap) on the
 // scan/accumulate loop, structurally matches otherwise
 #ifdef NON_MATCHING
-extern "C" f32 func_8000D150(u8* str) {
+extern "C" f32 str_to_fixed(u8* str) {
     s32 mult = 0x1000;
     s32 frac = 0xA;
     if (*str == 0x2D) {
@@ -68,10 +68,10 @@ block_9:;
     return (f32)sum;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/DD50", func_8000D150);
+INCLUDE_ASM("asm/nonmatchings/DD50", str_to_fixed);
 #endif
 
-extern "C" void func_8000D270(char* dst, const char* src) {
+extern "C" void filename_copy8(char* dst, const char* src) {
     strncpy(dst, src, 8);
     unsigned i = 0;
     do {
@@ -85,7 +85,7 @@ extern "C" void func_8000D270(char* dst, const char* src) {
 
 extern "C" const char D_80000CE4[];
 
-extern "C" void func_8000D2C0(char* dst, const void* src) {
+extern "C" void filename_read8(char* dst, const void* src) {
     if (src == NULL) {
         src = D_80000CE4;
     }
@@ -93,7 +93,7 @@ extern "C" void func_8000D2C0(char* dst, const void* src) {
     dst[8] = 0;
 }
 
-extern "C" void func_8000D2FC(char* dst, const void* src) {
+extern "C" void filename_read8_strip_ext(char* dst, const void* src) {
     s32 i = 8;
     if (src == NULL) {
         *dst = 0;
@@ -114,7 +114,7 @@ extern "C" void func_8000D2FC(char* dst, const void* src) {
     } while (i != -1);
 }
 
-extern "C" s32 func_8000D374(const char* a, const char* b) {
+extern "C" s32 filename_icmp8(const char* a, const char* b) {
     if (a == NULL) {
         a = D_80000CE4;
     }
@@ -147,11 +147,11 @@ extern "C" s32 func_8000D374(const char* a, const char* b) {
     return 0;
 }
 
-extern "C" char* func_8000D438(char* dst, const char* src) {
+extern "C" char* filename_copy12(char* dst, const char* src) {
     return strncpy(dst, src, 12);
 }
 
-extern "C" void func_8000D454(char* dst, const void* src) {
+extern "C" void filename_read12(char* dst, const void* src) {
     if (src == NULL) {
         src = D_80000CE4;
     }
@@ -159,7 +159,7 @@ extern "C" void func_8000D454(char* dst, const void* src) {
     dst[12] = 0;
 }
 
-extern "C" void func_8000D490(char* dst, const void* src) {
+extern "C" void filename_read12_strip_ext(char* dst, const void* src) {
     s32 i = 12;
     if (src == NULL) {
         *dst = 0;
@@ -180,7 +180,7 @@ extern "C" void func_8000D490(char* dst, const void* src) {
     } while (i != -1);
 }
 
-extern "C" s32 func_8000D508(const char* a, const char* b) {
+extern "C" s32 filename_icmp12(const char* a, const char* b) {
     if (a == NULL) {
         a = D_80000CE4;
     }
@@ -226,14 +226,14 @@ __asm__(
 extern char D_80000CE0[];
 }
 
-extern "C" char* func_8000D5CC(char* dst, const char* a, const char* b) {
+extern "C" char* filename_make_path(char* dst, const char* a, const char* b) {
     strncpy(dst, a, 8);
     dst[8] = 0;
     strcat(dst, D_80000CE0);
     return strcat(dst, b);
 }
 
-extern "C" void func_8000D620(char* dst, const char* src, u32 maxLen) {
+extern "C" void strnappend(char* dst, const char* src, u32 maxLen) {
     u32 len = strlen(dst);
     s32 remaining = maxLen - len;
     dst += len;
@@ -255,7 +255,7 @@ extern "C" void func_8000D620(char* dst, const char* src, u32 maxLen) {
     }
 }
 
-extern "C" void func_8000D690(void) {
+extern "C" void rand_seed(void) {
     u32 lo = (u32)osGetTime();
     D_8006B5E0 = lo & 0x3FF;
 }
