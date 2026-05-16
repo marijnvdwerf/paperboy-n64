@@ -473,7 +473,7 @@ s32 N64ControllerSystem::pfsAllocateFile(OSPfs* pfs, u16 cc, u32 gc, u8* gn, u8*
 
 // reg-alloc: target keeps 0xB constant in s0 via bne+delay-slot trick; mine emits bnel and loses it
 #ifdef NON_MATCHING
-s32 N64ControllerSystem::func_800478DC(OSPfs* pfs, s32 controller_no) {
+s32 N64ControllerSystem::tryInitAccessory(OSPfs* pfs, s32 controller_no) {
     InitPakArgs msg;
     msg.pfs = pfs;
     msg.controller_no = controller_no;
@@ -490,7 +490,7 @@ s32 N64ControllerSystem::func_800478DC(OSPfs* pfs, s32 controller_no) {
     return v;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/477C0", func_800478DC);
+INCLUDE_ASM("asm/nonmatchings/n64_controller_system", tryInitAccessory__19N64ControllerSystemP5OSPfsl);
 #endif
 
 s32 N64ControllerSystem::pfsInitPak(OSPfs* pfs, s32 controller_no) {
@@ -552,7 +552,7 @@ s32 N64ControllerSystem::poll(s32 arg1) {
     return result;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/477C0", poll__19N64ControllerSysteml);
+INCLUDE_ASM("asm/nonmatchings/n64_controller_system", poll__19N64ControllerSysteml);
 #endif
 // scheduling: target places `li v0,1` before register restores (offset 104c); mine puts it last
 #ifdef NON_MATCHING
@@ -573,7 +573,7 @@ s32 N64ControllerSystem::shutdown() {
     return 1;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/477C0", shutdown__19N64ControllerSystem);
+INCLUDE_ASM("asm/nonmatchings/n64_controller_system", shutdown__19N64ControllerSystem);
 #endif
 
 void N64ControllerSystem::startThread() {

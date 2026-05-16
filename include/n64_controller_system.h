@@ -45,7 +45,7 @@ struct N64ControllerSystem : public ControllerSystem {
     s32 pfsDeleteFile(OSPfs* pfs, u16 cc, u32 gc, u8* gn, u8* en);
     s32 pfsFindFile(OSPfs* pfs, u16 cc, u32 gc, u8* gn, u8* en, s32* file_no);
     s32 pfsAllocateFile(OSPfs* pfs, u16 cc, u32 gc, u8* gn, u8* en, s32 length, s32* file_no);
-    s32 func_800478DC(OSPfs* pfs, s32 controller_no);
+    s32 tryInitAccessory(OSPfs* pfs, s32 controller_no);
     s32 pfsInitPak(OSPfs* pfs, s32 controller_no);
     s32 pfsIsPlug(u8* bitpattern);
     s32 isAbsolute(s32 i);
