@@ -1,8 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "include_asm.h"
-#include "os.h"
+#include "include_asm.h" // IWYU pragma: export
+#include "os.h" // IWYU pragma: export
 
 #ifndef NULL
 #define NULL 0

@@ -81,12 +81,12 @@ void StructYYSubA8Inner1::vfunc14(void* buf, u16 w, u16 h, u32 bpp) {
     this->unk30 = buf;
     this->unk28 = h;
     this->unk38 = NULL;
-    this->hdr.unk0 = 0xF800;
-    this->hdr.unk4 = 0x7C0;
-    this->hdr.unk8 = 0x3E;
+    this->hdr.maskRed = 0xF800;
+    this->hdr.maskGreen = 0x7C0;
+    this->hdr.maskBlue = 0x3E;
     this->unk20 = this->unk26 * bpp >> 3;
-    this->hdr.unkC = 1;
-    this->hdr.unk16 = 0x10;
+    this->hdr.maskAlpha = 1;
+    this->hdr.bitDepth = 0x10;
     u32 size = this->unk20 * this->unk28;
     func_8004B3BC(D_80072BC0);
     this->unk18 = new u8[size];

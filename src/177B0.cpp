@@ -9,7 +9,7 @@ void Surface177B0::vfunc14(void* buf, u16 w, u16 h, u32 bpp) {
     this->unk30 = buf;
     this->unk26 = w;
     this->unk28 = h;
-    this->hdr.unk16 = bpp;
+    this->hdr.bitDepth = bpp;
 }
 
 Surface177B0::~Surface177B0() {

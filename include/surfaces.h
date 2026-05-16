@@ -2,6 +2,7 @@
 #define SURFACES_H
 
 #include "common.h"
+#include "pixel_format.h"
 
 // TODO: real names unknown. Looks like a Surface/Bitmap class with a virtual
 // "lock/unlock" pair (slots 2/3), a palette accessor (slot 8) and a blit
@@ -23,19 +24,9 @@ struct Rect16970 {
     /* 0x0C */ s32 unkC;
 };
 
-struct Surface16970Header {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ u16 unk14;
-    /* 0x16 */ u16 unk16;
-};
-
 class Surface16970 {
   public:
-    /* 0x00 */ Surface16970Header hdr;
+    /* 0x00 */ PixelFormat hdr;
     /* 0x18 */ u8* unk18;
     /* 0x1C */ u32 unk1C;
     /* 0x20 */ u16 unk20;

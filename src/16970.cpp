@@ -15,7 +15,7 @@ void Surface16970::vfunc9(u32 fill) {
     }
     u32 width = this->unk26;
     u32 height = this->unk28;
-    switch (this->hdr.unk16) {
+    switch (this->hdr.bitDepth) {
         case 4:
             fill &= 0xF;
             width = this->unk26 / 2;
@@ -142,7 +142,7 @@ void Surface16970::vfunc11(s32 dstX, s32 dstY, u8* srcAddr, s32 srcPitch, Rect16
         this->vfunc2(&dstAddr, &dstPitch, 2);
         didLock = 1;
     }
-    if (this->hdr.unk16 == 4) {
+    if (this->hdr.bitDepth == 4) {
         srcAddr += srcPitch * clip->unk4;
         dstAddr += dstPitch * dstY;
         u32 dstMaskInit;
@@ -192,7 +192,7 @@ void Surface16970::vfunc11(s32 dstX, s32 dstY, u8* srcAddr, s32 srcPitch, Rect16
             } while (y < srcH);
         }
     } else {
-        u32 bpp = this->hdr.unk16 >> 3;
+        u32 bpp = this->hdr.bitDepth >> 3;
         srcAddr += bpp * clip->unk0;
         srcAddr += srcPitch * clip->unk4;
         dstAddr += bpp * dstX;
@@ -224,7 +224,7 @@ INCLUDE_ASM("asm/nonmatchings/16970", vfunc11__12Surface16970llPUclP9Rect16970);
 #endif
 
 void Surface16970::vfunc10(s32 a1, s32 a2, Surface16970* src, Rect16970* clip) {
-    if (this->hdr.unk16 != src->hdr.unk16) {
+    if (this->hdr.bitDepth != src->hdr.bitDepth) {
         return;
     }
     if ((s32)src->unk26 < clip->unk8) {
@@ -233,7 +233,7 @@ void Surface16970::vfunc10(s32 a1, s32 a2, Surface16970* src, Rect16970* clip) {
     if ((s32)src->unk28 < clip->unkC) {
         clip->unkC = src->unk28;
     }
-    if (this->hdr.unk14) {
+    if (this->hdr.paletteMask) {
         this->vfunc8()->vfunc4(src->vfunc8());
     }
     u8* addr;
@@ -316,13 +316,13 @@ INCLUDE_ASM("asm/nonmatchings/16970", _._12Surface16970);
 #endif
 
 Surface16970::Surface16970() {
-    this->hdr.unk0 = 0;
-    this->hdr.unk4 = 0;
-    this->hdr.unk8 = 0;
-    this->hdr.unkC = 0;
+    this->hdr.maskRed = 0;
+    this->hdr.maskGreen = 0;
+    this->hdr.maskBlue = 0;
+    this->hdr.maskAlpha = 0;
     this->hdr.unk10 = 0;
-    this->hdr.unk14 = 0;
-    this->hdr.unk16 = 0;
+    this->hdr.paletteMask = 0;
+    this->hdr.bitDepth = 0;
     this->unk18 = NULL;
     this->unk1C = 0;
     this->unk20 = 0;
@@ -332,14 +332,12 @@ Surface16970::Surface16970() {
     this->unk28 = 0;
 }
 
-extern "C" s32 func_80015510(Surface16970Header* a, Surface16970Header* b);
-
-extern "C" s32 func_800165C4(Surface16970* a, Surface16970* b) {
-    return func_80015510(&a->hdr, &b->hdr);
+extern "C" s32 func_800165C4(Surface16970* self, const u8* rgba) {
+    return self->hdr.packColor(rgba);
 }
 
 extern "C" u16 func_800165E0(Surface16970* self) {
-    return self->hdr.unk14;
+    return self->hdr.paletteMask;
 }
 
 extern "C" s32 func_800165EC(Surface16970* self) {
@@ -347,80 +345,67 @@ extern "C" s32 func_800165EC(Surface16970* self) {
 }
 
 extern "C" s32 func_800165F8(Surface16970* self) {
-    return self->hdr.unkC;
+    return self->hdr.maskAlpha;
 }
 
 extern "C" s32 func_80016604(Surface16970* self) {
-    return self->hdr.unk8;
+    return self->hdr.maskBlue;
 }
 
 extern "C" s32 func_80016610(Surface16970* self) {
-    return self->hdr.unk4;
+    return self->hdr.maskGreen;
 }
 
 extern "C" s32 func_8001661C(Surface16970* self) {
-    return self->hdr.unk0;
+    return self->hdr.maskRed;
 }
 
-extern "C" s32 func_8001596C(Surface16970Header* hdr);
-extern "C" s32 func_800159A8(Surface16970Header* hdr);
-extern "C" s32 func_800159E0(Surface16970Header* hdr);
-extern "C" s32 func_80015A18(Surface16970Header* hdr);
-extern "C" s32 func_80015A50(Surface16970Header* hdr);
-extern "C" s32 func_80015A88(Surface16970Header* hdr);
-extern "C" s32 func_80015AC0(Surface16970Header* hdr);
-extern "C" s32 func_80015B18(Surface16970Header* hdr);
-extern "C" s32 func_80015B6C(Surface16970Header* hdr);
-extern "C" s32 func_80015BC0(Surface16970Header* hdr);
-extern "C" s32 func_80015C14(Surface16970Header* hdr);
-extern "C" s32 func_80015C68(Surface16970Header* hdr);
-
 extern "C" s32 func_80016628(Surface16970* self) {
-    return func_8001596C(&self->hdr);
+    return self->hdr.ctzPaletteMask();
 }
 
 extern "C" s32 func_80016644(Surface16970* self) {
-    return func_800159A8(&self->hdr);
+    return self->hdr.ctzUnk10();
 }
 
 extern "C" s32 func_80016660(Surface16970* self) {
-    return func_800159E0(&self->hdr);
+    return self->hdr.ctzMaskAlpha();
 }
 
 extern "C" s32 func_8001667C(Surface16970* self) {
-    return func_80015A18(&self->hdr);
+    return self->hdr.ctzMaskBlue();
 }
 
 extern "C" s32 func_80016698(Surface16970* self) {
-    return func_80015A50(&self->hdr);
+    return self->hdr.ctzMaskGreen();
 }
 
 extern "C" s32 func_800166B4(Surface16970* self) {
-    return func_80015A88(&self->hdr);
+    return self->hdr.ctzMaskRed();
 }
 
 extern "C" s32 func_800166D0(Surface16970* self) {
-    return func_80015AC0(&self->hdr);
+    return self->hdr.bitWidthPaletteMask();
 }
 
 extern "C" s32 func_800166EC(Surface16970* self) {
-    return func_80015B18(&self->hdr);
+    return self->hdr.bitWidthUnk10();
 }
 
 extern "C" s32 func_80016708(Surface16970* self) {
-    return func_80015B6C(&self->hdr);
+    return self->hdr.bitWidthMaskAlpha();
 }
 
 extern "C" s32 func_80016724(Surface16970* self) {
-    return func_80015BC0(&self->hdr);
+    return self->hdr.bitWidthMaskBlue();
 }
 
 extern "C" s32 func_80016740(Surface16970* self) {
-    return func_80015C14(&self->hdr);
+    return self->hdr.bitWidthMaskGreen();
 }
 
 extern "C" s32 func_8001675C(Surface16970* self) {
-    return func_80015C68(&self->hdr);
+    return self->hdr.bitWidthMaskRed();
 }
 
 extern "C" s32 func_80016778(Surface16970* self) {
@@ -428,11 +413,11 @@ extern "C" s32 func_80016778(Surface16970* self) {
 }
 
 extern "C" s32 func_80016784(Surface16970* self) {
-    return self->hdr.unkC != 0;
+    return self->hdr.maskAlpha != 0;
 }
 
 extern "C" s32 func_80016790(Surface16970* self) {
-    return self->hdr.unk14 != 0;
+    return self->hdr.paletteMask != 0;
 }
 
 extern "C" s32 func_8001679C(Surface16970* self) {
@@ -456,7 +441,7 @@ extern "C" void func_800167CC(Surface16970* self, Surface16970* dst) {
 }
 
 extern "C" u16 func_80016800(Surface16970* self) {
-    return self->hdr.unk16;
+    return self->hdr.bitDepth;
 }
 
 extern "C" u16 func_8001680C(Surface16970* self) {
