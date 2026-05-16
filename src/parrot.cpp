@@ -103,8 +103,38 @@ INCLUDE_RODATA("asm/nonmatchings/parrot", D_80004C10);
 
 INCLUDE_RODATA("asm/nonmatchings/parrot", D_80004C14);
 
-// reg-alloc differences in the inArray state-machine read
-#ifdef NON_MATCHING
+static inline s32 nextRepeatedToken(Parrot* self) {
+    s32 ret;
+    if (self->inStruct) {
+        u32 idx = self->structPos;
+        ret = self->structDefs[self->structId][idx];
+        idx++;
+        self->structPos = idx;
+        if (idx < self->structLengths[self->structId]) {
+            return ret;
+        }
+        self->structPos = 0;
+    } else if (self->inArray) {
+        u32 idx = self->structPos;
+        ret = D_80004D50[idx];
+        idx++;
+        self->structPos = idx;
+        if (idx < 4u) {
+            return ret;
+        }
+        self->structPos = 0;
+    } else {
+        ret = self->repeatType;
+    }
+    self->repeatCount--;
+    if (self->repeatCount == 0) {
+        self->inStruct = 0;
+        self->inArray = 0;
+    }
+    return ret;
+}
+
+#if 1
 f32 Parrot::readFloat() {
     if (this->pushedBack != 0) {
         this->pushedBack = 0;
@@ -119,29 +149,7 @@ f32 Parrot::readFloat() {
         s32 pos = total - base;
         s32 op;
         if (this->repeatCount != 0) {
-            do {
-                if (this->inStruct) {
-                    op = this->structDefs[this->structId][this->structPos];
-                    s32 v = this->structPos + 1;
-                    this->structPos = v;
-                    if ((u32)v < this->structLengths[this->structId])
-                        break;
-                    this->structPos = 0;
-                } else if (this->inArray) {
-                    op = D_80004D50[this->structPos];
-                    s32 v = this->structPos + 1;
-                    this->structPos = v;
-                    if ((u32)v < 4)
-                        break;
-                    this->structPos = 0;
-                } else {
-                    op = this->repeatType;
-                }
-                if (--this->repeatCount == 0) {
-                    this->inStruct = 0;
-                    this->inArray = 0;
-                }
-            } while (0);
+            op = nextRepeatedToken(this);
         } else {
             op = this->driver->data[pos];
             pos++;
@@ -150,44 +158,29 @@ f32 Parrot::readFloat() {
         this->currentType = TOKEN_FLOAT;
         switch (op) {
             case TOKEN_FLOAT: {
-                u8* p = this->driver->data + pos;
-                u32 b0 = p[0];
-                u32 b1 = p[1];
-                u32 b2 = p[2];
-                u32 b3 = p[3];
-                raw = b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
-                s32 oldUnk1E8 = this->cursor;
+                raw = this->driver->data[pos] + (this->driver->data[pos + 1] << 8) +
+                      (this->driver->data[pos + 2] << 16) + (this->driver->data[pos + 3] << 24);
                 f32 fval = *(f32*)&raw;
-                this->cursor = oldUnk1E8 + 4;
+                this->cursor += 4;
                 this->floatValue = fval;
                 return fval;
             }
             case TOKEN_FIXED_4096: {
-                u8* p = this->driver->data + pos;
-                u32 b0 = p[0];
-                u32 b1 = p[1];
-                s16 v = (s16)(b0 + (b1 << 8));
-                f32 fval = (f32)v * 0.000244140625f;
+                f32 fval =
+                    (f32)(s16)(this->driver->data[pos] + (this->driver->data[pos + 1] << 8)) * 0.000244140625f;
                 this->cursor += 2;
                 this->floatValue = fval;
                 return fval;
             }
             case TOKEN_FIXED_32: {
-                u8* p = this->driver->data + pos;
-                u32 b0 = p[0];
-                u32 b1 = p[1];
-                s16 v = (s16)(b0 + (b1 << 8));
-                f32 fval = (f32)v * 0.03125f;
+                f32 fval =
+                    (f32)(s16)(this->driver->data[pos] + (this->driver->data[pos + 1] << 8)) * 0.03125f;
                 this->cursor += 2;
                 this->floatValue = fval;
                 return fval;
             }
             case TOKEN_SHORT_F: {
-                u8* p = this->driver->data + pos;
-                u32 b0 = p[0];
-                u32 b1 = p[1];
-                s16 v = (s16)(b0 + (b1 << 8));
-                f32 fval = (f32)v;
+                f32 fval = (f32)(s16)(this->driver->data[pos] + (this->driver->data[pos + 1] << 8));
                 this->cursor += 2;
                 this->floatValue = fval;
                 return fval;
@@ -224,29 +217,7 @@ s32 Parrot::readInt() {
         s32 pos = total - base;
         s32 op;
         if (this->repeatCount != 0) {
-            do {
-                if (this->inStruct) {
-                    op = this->structDefs[this->structId][this->structPos];
-                    s32 v = this->structPos + 1;
-                    this->structPos = v;
-                    if ((u32)v < this->structLengths[this->structId])
-                        break;
-                    this->structPos = 0;
-                } else if (this->inArray) {
-                    op = D_80004D50[this->structPos];
-                    s32 v = this->structPos + 1;
-                    this->structPos = v;
-                    if ((u32)v < 4)
-                        break;
-                    this->structPos = 0;
-                } else {
-                    op = this->repeatType;
-                }
-                if (--this->repeatCount == 0) {
-                    this->inStruct = 0;
-                    this->inArray = 0;
-                }
-            } while (0);
+            op = nextRepeatedToken(this);
         } else {
             op = this->driver->data[pos];
             pos++;
