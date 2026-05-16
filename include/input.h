@@ -43,7 +43,7 @@ class InputDeviceBase {
     InputDeviceBase();
     virtual void init();
     virtual void onInput(s32 code, s32 value, s32 deliver);
-    virtual void onRepeat(s32 button, s32 zero) = 0;
+    virtual void onRepeat(s32 axis, f32 val) = 0;
     virtual ~InputDeviceBase();
     virtual s32 disconnect();
     virtual s32 vfunc6(s32 deliver);

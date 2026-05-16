@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 
 #include "common.h"
+#include "n64_controller_system.h"
 #include "surfaces.h"
 
 extern "C" {
@@ -199,7 +200,6 @@ class StructYYUnk88 {
     virtual void vfunc1();
 };
 
-class StructYYSubD0E8;
 class StructYYInner;
 
 class StructYYBase {
@@ -261,7 +261,7 @@ class StructYYBase {
     virtual void vfunc10() = 0;
     virtual void vfunc11() = 0;
     virtual s32 vfunc12() = 0;
-    virtual StructYYSubD0E8* vfunc13() = 0;
+    virtual N64ControllerSystem* vfunc13() = 0;
     virtual s32 vfunc14(s32) = 0;
 };
 
@@ -461,15 +461,6 @@ class StructYYSubA8 : public StructYYSubA8Base {
     OSMesgQueue* func_80029D08();
 };
 
-class StructYYSubD0E8 {
-  public:
-    /* 0x0000 */ char pad0[0x47AC];
-    /* 0x47AC */ u8* unk47AC;
-
-    StructYYSubD0E8();
-    ~StructYYSubD0E8();
-};
-
 class StructYYSub11898 {
   public:
     char pad[0x210];
@@ -481,7 +472,7 @@ class StructYY : public StructYYBase {
   public:
     /* 0x00A0 */ StructYYInner inner;
     /* 0x00A8 */ StructYYSubA8 subA8;
-    /* 0x0D0E8 */ StructYYSubD0E8 subD0E8;
+    /* 0x0D0E8 */ N64ControllerSystem subD0E8;
     /* 0x11898 */ StructYYSub11898 sub11898;
     /* 0x11AA8 */ s32 unk11AA8;
     /* 0x11AAC */ s32 unk11AAC;
@@ -498,7 +489,7 @@ class StructYY : public StructYYBase {
     virtual void vfunc10();
     virtual void vfunc11();
     virtual s32 vfunc12();
-    virtual StructYYSubD0E8* vfunc13();
+    virtual N64ControllerSystem* vfunc13();
     virtual s32 vfunc14(s32);
 
     void func_8000CDD8();

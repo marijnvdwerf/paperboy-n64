@@ -1,33 +1,16 @@
 #include "otter.h"
 
 extern "C" {
-extern s32 func_8004767C(void*, void*);
-extern s32 func_80047A64(void*, s32);
-extern s32 func_80047A50(void*, s32);
-extern s32 func_8004798C(void*, void*, s32);
-extern s32 func_800477D4(void*, char*, u16, s32, char*, char*, void*);
-extern s32 func_80047490(void*, char*, s32*, s32*);
-extern s32 func_80047428(void*, char*, s32, void*);
-extern s32 func_800473C4(void*, char*, s32*);
-extern s32 func_8004775C(void*, char*, u16, s32, char*, char*);
 extern void func_800073E0(const void* src, void* dst, s32 n);
 extern void func_8000752C(const char*, char*, s32);
 extern unsigned strlen(const char*);
 extern s32 stricmp(const char*, const char*);
 }
 
-struct DirEntry {
-    /* 0x0 */ s32 size;
-    /* 0x4 */ s32 unk4;
-    /* 0x8 */ u16 unk8;
-    /* 0xA */ char ext[4];
-    /* 0xE */ char name[0x10];
-};
-
 s32 Otter::vfunc5(const char* name) {
     u8 pad[24];
     FileInfo info;
-    DirEntry entry;
+    OSPfsState entry;
     s32 found = 0;
     u32 i = 0;
 
@@ -43,11 +26,11 @@ s32 Otter::vfunc5(const char* name) {
         return 8;
     }
 
-    func_80047428(this->unkC->unk4, this->buf, i, &entry);
+    this->unkC->unk4->pfsFileState(&this->pfs, i, &entry);
     OtterStone* s = this->unkC;
-    void* unk4 = s->unk4;
-    char* buf = this->buf;
-    s32 status = func_8004775C(unk4, buf, entry.unk8, entry.unk4, entry.name, entry.ext);
+    N64ControllerSystem* unk4 = s->unk4;
+    OSPfs* pfs = &this->pfs;
+    s32 status = unk4->pfsDeleteFile(pfs, entry.company_code, entry.game_code, (u8*)entry.game_name, (u8*)entry.ext_name);
     if (status == 5) {
         return 8;
     }
@@ -118,9 +101,9 @@ s32 Otter::vfunc6(FileInfo* arg1) {
     }
 
     OtterStone* s = this->unkC;
-    void* unk4 = s->unk4;
-    char* buf = this->buf;
-    s32 status = func_8004775C(unk4, buf, (u16)arg1->unk24, arg1->unk28, nameBuf, extBuf);
+    N64ControllerSystem* unk4 = s->unk4;
+    OSPfs* pfs = &this->pfs;
+    s32 status = unk4->pfsDeleteFile(pfs, (u16)arg1->companyCode, arg1->gameCode, (u8*)nameBuf, (u8*)extBuf);
     if (status == 5) {
         return 8;
     }
@@ -156,7 +139,7 @@ s32 Otter::vfunc6(FileInfo* arg1) {
 
 inline void Otter::func_80049CC4(OtterStone* arg0, s32 mode, s32 hasInit) {
     this->unkC = arg0;
-    this->unk10 = mode;
+    this->port = mode;
     if (hasInit) {
         this->vfunc2();
     } else {
@@ -166,13 +149,13 @@ inline void Otter::func_80049CC4(OtterStone* arg0, s32 mode, s32 hasInit) {
 
 inline s32 Otter::vfunc2() {
     s32 success = 0;
-    void* x = this->unkC->unk4;
-    void* y = x;
-    if (func_80047A64(x, this->unk10) != 0) {
-        success = func_80047A50(x, this->unk10) != 0;
+    N64ControllerSystem* x = this->unkC->unk4;
+    N64ControllerSystem* y = x;
+    if (x->isJoyport(this->port) != 0) {
+        success = x->isAbsolute(this->port) != 0;
     }
     if (success) {
-        this->func_80049B58(func_8004798C(y, this->buf, this->unk10));
+        this->func_80049B58(y->pfsInitPak(&this->pfs, this->port));
     } else {
         this->state = 0x12;
     }
@@ -180,7 +163,7 @@ inline s32 Otter::vfunc2() {
 }
 
 inline void Otter::vfunc3() {
-    s32 status = func_8004767C(this->unkC->unk4, this->buf);
+    s32 status = this->unkC->unk4->pfsRepairId(&this->pfs);
     this->func_80049B58(status);
     if (this->state == 0) {
         this->vfunc2();
@@ -224,14 +207,14 @@ inline void Otter::func_80049B50() {
 inline s32 Otter::vfunc4(const char* path) {
     char ext[4];
     char name[0x10];
-    char header[8];
+    s32 header[2];
     func_80049980(path, name, ext);
     OtterStone* s = this->unkC;
-    char* buf = this->buf;
-    void* unk4 = s->unk4;
-    u16 unkA = s->unkA;
+    OSPfs* pfs = &this->pfs;
+    N64ControllerSystem* unk4 = s->unk4;
+    u16 unkA = s->companyCode;
     u32 unkC;
-    s32 status = func_800477D4(unk4, buf, unkA, (unkC = s->unkC), name, ext, header);
+    s32 status = unk4->pfsFindFile(pfs, unkA, (unkC = s->gameCode), (u8*)name, (u8*)ext, header);
     if (status == 5) {
         return 8;
     }
@@ -304,7 +287,7 @@ inline void Otter::func_80049980(const char* path, char* name, char* ext) {
 inline s32 Otter::vfunc7(s32* out1, s32* out2) {
     s32 outSecond;
     s32 outFirst;
-    s32 status = func_80047490(this->unkC->unk4, this->buf, &outFirst, &outSecond);
+    s32 status = this->unkC->unk4->pfsNumFiles(&this->pfs, &outFirst, &outSecond);
     *out1 = outSecond;
     if (out2) {
         *out2 = outFirst;
@@ -340,18 +323,18 @@ inline s32 Otter::vfunc7(s32* out1, s32* out2) {
 }
 
 inline s32 Otter::vfunc9(s32 arg1, FileInfo* info) {
-    DirEntry entry;
-    s32 status = func_80047428(this->unkC->unk4, this->buf, arg1, &entry);
+    OSPfsState entry;
+    s32 status = this->unkC->unk4->pfsFileState(&this->pfs, arg1, &entry);
     if (status == 0) {
-        info->fileSize = entry.size;
-        info->unk24 = entry.unk8;
-        info->unk28 = entry.unk4;
+        info->fileSize = entry.file_size;
+        info->companyCode = entry.company_code;
+        info->gameCode = entry.game_code;
         memset(info, 0, 0x20);
-        func_800073E0(entry.name, info->name, 0x10);
+        func_800073E0(entry.game_name, info->name, 0x10);
         s32 sz = strlen(info->name);
-        if (entry.ext[0]) {
+        if (entry.ext_name[0]) {
             info->name[sz++] = '.';
-            func_800073E0(entry.ext, &info->name[sz], 4);
+            func_800073E0(entry.ext_name, &info->name[sz], 4);
         }
     }
     switch (status) {
@@ -386,7 +369,7 @@ inline s32 Otter::vfunc9(s32 arg1, FileInfo* info) {
 
 inline s32 Otter::vfunc8(s32* out) {
     s32 outVal;
-    s32 status = func_800473C4(this->unkC->unk4, this->buf, &outVal);
+    s32 status = this->unkC->unk4->pfsFreeBlocks(&this->pfs, &outVal);
     if (status == 0) {
         *out = outVal;
     }

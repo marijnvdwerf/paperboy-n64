@@ -1,10 +1,10 @@
 #include "common.h"
 #include "input.h"
 
-extern "C" s32 func_80047618(class ControllerSystem*, OSPfs*, s32);
-extern "C" s32 func_800474F8(class ControllerSystem*, OSPfs*);
-extern "C" s32 func_80047558(class ControllerSystem*, OSPfs*);
-extern "C" s32 func_800475B8(class ControllerSystem*, OSPfs*);
+extern "C" s32 motorInit__19N64ControllerSystemP5OSPfsl(void*, OSPfs*, s32);
+extern "C" s32 func_800474F8__19N64ControllerSystemP5OSPfs(void*, OSPfs*);
+extern "C" s32 motorStop__19N64ControllerSystemP5OSPfs(void*, OSPfs*);
+extern "C" s32 motorStart__19N64ControllerSystemP5OSPfs(void*, OSPfs*);
 
 #ifdef NON_MATCHING
 void ControllerDevice::func_80047ED0() {
@@ -188,8 +188,8 @@ s32 ControllerDevice::pakCheck() {
     if (this->system == NULL && this->pakPresent != 0) {
         return 1;
     }
-    func_80047618(this->system, &this->pfs, this->port);
-    return mapPfsRc(this, func_800474F8(this->system, &this->pfs));
+    motorInit__19N64ControllerSystemP5OSPfsl(this->system, &this->pfs, this->port);
+    return mapPfsRc(this, func_800474F8__19N64ControllerSystemP5OSPfs(this->system, &this->pfs));
 }
 
 s32 ControllerDevice::func_8004836C(s32 rc) {
@@ -200,21 +200,21 @@ s32 ControllerDevice::vfunc37() {
     if (this->system == NULL && this->pakPresent != 0) {
         return 1;
     }
-    return this->func_8004836C(func_80047558(this->system, &this->pfs));
+    return this->func_8004836C(motorStop__19N64ControllerSystemP5OSPfs(this->system, &this->pfs));
 }
 
 s32 ControllerDevice::vfunc36() {
     if (this->system == NULL && this->pakPresent != 0) {
         return 1;
     }
-    return this->func_8004836C(func_800475B8(this->system, &this->pfs));
+    return this->func_8004836C(motorStart__19N64ControllerSystemP5OSPfs(this->system, &this->pfs));
 }
 
 s32 ControllerDevice::pakInit() {
     if (this->system == NULL) {
         return 1;
     }
-    return this->func_8004836C(func_80047618(this->system, &this->pfs, this->port));
+    return this->func_8004836C(motorInit__19N64ControllerSystemP5OSPfsl(this->system, &this->pfs, this->port));
 }
 
 void ControllerDevice::onRepeat(s32 axis, f32 val) {

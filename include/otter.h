@@ -1,27 +1,28 @@
 #ifndef OTTER_H
 #define OTTER_H
 
+#include "n64_controller_system.h"
 #include "sentry.h"
 
 struct OtterStone {
     /* 0x0 */ u8 pad0[4];
-    /* 0x4 */ void* unk4;
+    /* 0x4 */ N64ControllerSystem* unk4;
     /* 0x8 */ u8 pad8[2];
-    /* 0xA */ u16 unkA;
-    /* 0xC */ s32 unkC;
+    /* 0xA */ u16 companyCode;
+    /* 0xC */ s32 gameCode;
 };
 
 struct Otter : public Sentry {
     /* 0xC  */ OtterStone* unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ char buf[0x68];
+    /* 0x10 */ s32 port;
+    /* 0x14 */ OSPfs pfs;
 
     s32 func_80049DB4() {
         return this->unkC != NULL;
     }
 
     char* func_80049DAC() {
-        return this->buf;
+        return (char*)&this->pfs;
     }
 
     OtterStone* func_80049DA0() {
@@ -30,8 +31,8 @@ struct Otter : public Sentry {
 
     Otter() {
         unkC = NULL;
-        unk10 = 0;
-        memset(buf, 0, 0x68);
+        port = 0;
+        memset(&pfs, 0, sizeof(pfs));
     }
 
     virtual ~Otter() {

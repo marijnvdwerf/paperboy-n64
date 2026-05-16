@@ -19,9 +19,6 @@ class StructYYHandlerInner {
 extern "C" {
 extern s32 D_80000300;
 StructYYHandler* func_80039420(StructYYInner*);
-void func_80047B94(StructYYSubD0E8*);
-void func_80046BC0(StructYYSubD0E8*);
-void func_80047A84(StructYYSubD0E8*, u32);
 void func_800079A8(void*, s32, s32, s32);
 extern u8 D_1106A0[];
 extern u8 D_BDE740[];
@@ -50,7 +47,7 @@ s32 StructYY::vfunc14(s32 flags) {
     return v;
 }
 
-StructYYSubD0E8* StructYY::vfunc13() {
+N64ControllerSystem* StructYY::vfunc13() {
     return &this->subD0E8;
 }
 
@@ -64,7 +61,7 @@ s32 StructYY::vfunc12() {
     }
     this->unk11AA8 = lo;
     this->unk8C = lo / 1000000;
-    func_80047A84(&this->subD0E8, this->unk90);
+    this->subD0E8.poll(this->unk90);
     return 1;
 }
 
@@ -113,13 +110,13 @@ void StructYY::vfunc4() {
 }
 
 void StructYY::vfunc7() {
-    func_80047B94(&this->subD0E8);
+    this->subD0E8.shutdown();
 }
 
 void StructYY::vfunc6() {
-    StructYYSubD0E8* sub = &this->subD0E8;
-    sub->unk47AC = (u8*)this->unk70 + 0x20;
-    func_80046BC0(sub);
+    N64ControllerSystem* sub = &this->subD0E8;
+    sub->sched = (OSSched*)((u8*)this->unk70 + 0x20);
+    sub->func_80046BC0();
 }
 
 void StructYY::vfunc3() {

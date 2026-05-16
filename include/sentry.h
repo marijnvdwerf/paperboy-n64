@@ -6,8 +6,8 @@
 struct FileInfo {
     /* 0x00 */ char name[0x20];
     /* 0x20 */ s32 fileSize;
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ s32 unk28;
+    /* 0x24 */ s32 companyCode;
+    /* 0x28 */ s32 gameCode;
     /* 0x2C */ s32 unk2C;
 };
 

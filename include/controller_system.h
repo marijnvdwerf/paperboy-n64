@@ -23,10 +23,10 @@ class ControllerSystem {
     virtual ~ControllerSystem();
     virtual ControllerDevice* findByPort(s32 port);
     virtual ControllerDevice* findOrDefault(s32 port);
-    virtual void vfunc5() = 0;
-    virtual void vfunc6() = 0;
-    virtual void vfunc7() = 0;
-    virtual void vfunc8() = 0;
+    virtual s32 shutdown() = 0;
+    virtual s32 restart() = 0;
+    virtual s32 poll(s32 arg1) = 0;
+    virtual s32 getChangeCount() = 0;
 
     void func_80041D40();
     void func_80041E1C();
