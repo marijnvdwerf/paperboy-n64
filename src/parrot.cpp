@@ -3,66 +3,66 @@
 
 struct ParrotDriver {
     /* 0x00 */ u8 pad00[0x18];
-    /* 0x18 */ u32 unk18;
-    /* 0x1C */ u32 unk1C;
-    /* 0x20 */ u8* unk20;
+    /* 0x18 */ u32 dataStart;
+    /* 0x1C */ u32 dataEnd;
+    /* 0x20 */ u8* data;
 };
 
 struct Parrot : public RomFile {
-    /* 0x030 */ s32 unk30;
-    /* 0x034 */ s32 unk34;
-    /* 0x038 */ s32 unk38;
+    /* 0x030 */ s32 pushedBack;
+    /* 0x034 */ s32 currentType;
+    /* 0x038 */ s32 intValue;
     /* 0x03C */ f32 unk3C;
-    /* 0x040 */ f32 unk40;
+    /* 0x040 */ f32 floatValue;
     /* 0x044 */ u8 unk44[0x40];
-    /* 0x084 */ u8 unk84[0x120];
-    /* 0x1A4 */ u8* unk1A4;
-    /* 0x1A8 */ u8 inlineBuf[0x40];
-    /* 0x1E8 */ s32 unk1E8;
-    /* 0x1EC */ char unk1EC[4];
-    /* 0x1F0 */ u8 unk1F0[4];
-    /* 0x1F4 */ s32 unk1F4;
-    /* 0x1F8 */ s32 unk1F8;
-    /* 0x1FC */ s32 unk1FC;
-    /* 0x200 */ s32 unk200;
-    /* 0x204 */ s32 unk204;
-    /* 0x208 */ s32 unk208;
-    /* 0x20C */ u32 unk20C[16][16];
-    /* 0x60C */ u32 unk60C[0x10];
-    /* 0x64C */ ParrotDriver* unk64C;
+    /* 0x084 */ u8 unk84[0x20];
+    /* 0x0A4 */ char pathBuf[0x100];
+    /* 0x1A4 */ char* unk1A4;
+    /* 0x1A8 */ char inlineBuf[0x40];
+    /* 0x1E8 */ s32 cursor;
+    /* 0x1EC */ char extension[5];
+    /* 0x1F4 */ s32 repeatCount;
+    /* 0x1F8 */ s32 repeatType;
+    /* 0x1FC */ s32 inArray;
+    /* 0x200 */ s32 inStruct;
+    /* 0x204 */ s32 structId;
+    /* 0x208 */ u32 structPos;
+    /* 0x20C */ u32 structDefs[16][16];
+    /* 0x60C */ u32 structLengths[0x10];
+    /* 0x64C */ ParrotDriver* driver;
 
     Parrot();
     virtual ~Parrot();
     virtual s32 close();
-    virtual void func_800466D0();
-    virtual char* func_800466B4();
+    virtual void selectDriver();
+    virtual char* getExtension();
     virtual void vfunc19() = 0;
     virtual s32 func_8004667C();
     virtual s32 func_800465BC();
 
-    void func_80046868();
-    void func_80046450(s32 arg1);
+    void init();
+    void expectToken(s32 arg1);
     s32 func_80046570();
     s32 func_800465C4();
-    void func_80046684(const char* src);
+    void setExtension(const char* src);
     void func_80046700(s32 arg1);
-    s32 func_800467B8(s32 idx);
-    f32 func_80045F40();
-    s32 func_800461F0();
+    const char* func_800467B8(s32 idx);
+    f32 readFloat();
+    s32 readInt();
     u8* func_8004698C();
-    s32 func_80046994();
-    f32 func_800469A0();
+    s32 getInt();
+    f32 getFloat();
     f32 func_800469AC();
-    s32 func_800469B8();
-    s32 func_800469C4();
-    u8* func_800469D0();
+    s32 pushBack();
+    s32 getCurrentType();
+    char* func_800469D0();
     u8* func_800469DC();
     u8* func_80046A14();
-    void func_80046A4C();
-    void func_80046A68();
-    void func_80046A84();
-    void func_80046AA0();
-    void func_80046ABC(s32 arg1);
+    void expectCloseBrace();
+    void expectOpenBrace();
+    void expectCloseBracket();
+    void expectOpenBracket();
+    void readToken(s32 arg1);
 };
 
 extern "C" {
@@ -70,15 +70,32 @@ extern char* strncpy(char*, const char*, s32);
 extern unsigned strlen(const char*);
 extern char* strcat(char*, const char*);
 extern int sprintf(char*, const char*, ...);
-extern u8 D_80004C10;
-extern u8* D_80004C14;
+extern char D_80004C10[];
+extern char D_80004C14[];
 extern void* D_800763F8;
 extern char* D_80076640;
-extern u32 D_80076644;
+extern const char* D_80076644[];
 extern s32 func_800079A8(const char*, s32, s32, s32);
 }
 
-const u32 D_80004D50[] = { 7, 4, 8, 8 };
+enum Token {
+    TOKEN_FLOAT = 3,
+    TOKEN_INT = 4,
+    TOKEN_OPEN_BRACE = 5,
+    TOKEN_CLOSE_BRACE = 6,
+    TOKEN_OPEN_BRACKET = 7,
+    TOKEN_CLOSE_BRACKET = 8,
+    TOKEN_SBYTE = 11,
+    TOKEN_BYTE = 12,
+    TOKEN_SHORT = 13,
+    TOKEN_USHORT = 14,
+    TOKEN_FIXED_4096 = 15, // s16 * (1/4096)
+    TOKEN_FIXED_32 = 16, // s16 * (1/32)
+    TOKEN_SHORT_F = 17, // s16 as float
+    TOKEN_NORM_BYTE = 18, // byte * (1/127)
+};
+
+const u32 D_80004D50[] = { TOKEN_OPEN_BRACKET, TOKEN_INT, TOKEN_CLOSE_BRACKET, TOKEN_CLOSE_BRACKET };
 
 INCLUDE_RODATA("asm/nonmatchings/parrot", D_80004A80);
 
@@ -86,241 +103,239 @@ INCLUDE_RODATA("asm/nonmatchings/parrot", D_80004C10);
 
 INCLUDE_RODATA("asm/nonmatchings/parrot", D_80004C14);
 
-// reg-alloc differences in the unk1FC state-machine read
+// reg-alloc differences in the inArray state-machine read
 #ifdef NON_MATCHING
-f32 Parrot::func_80045F40() {
-    if (this->unk30 != 0) {
-        this->unk30 = 0;
-        return this->unk40;
+f32 Parrot::readFloat() {
+    if (this->pushedBack != 0) {
+        this->pushedBack = 0;
+        return this->floatValue;
     }
-    s32 cur1E8 = this->unk1E8;
-    ParrotDriver* driver = this->unk64C;
+    s32 cur1E8 = this->cursor;
+    ParrotDriver* driver = this->driver;
     u32 total = cur1E8 + this->fileOffset;
-    u32 base = driver->unk18;
+    u32 base = driver->dataStart;
     s32 raw;
-    if (total >= base && driver->unk1C >= total + 5) {
+    if (total >= base && driver->dataEnd >= total + 5) {
         s32 pos = total - base;
         s32 op;
-        if (this->unk1F4 != 0) {
+        if (this->repeatCount != 0) {
             do {
-                if (this->unk200) {
-                    op = this->unk20C[this->unk204][this->unk208];
-                    s32 v = this->unk208 + 1;
-                    this->unk208 = v;
-                    if ((u32)v < this->unk60C[this->unk204])
+                if (this->inStruct) {
+                    op = this->structDefs[this->structId][this->structPos];
+                    s32 v = this->structPos + 1;
+                    this->structPos = v;
+                    if ((u32)v < this->structLengths[this->structId])
                         break;
-                    this->unk208 = 0;
-                } else if (this->unk1FC) {
-                    op = D_80004D50[this->unk208];
-                    s32 v = this->unk208 + 1;
-                    this->unk208 = v;
+                    this->structPos = 0;
+                } else if (this->inArray) {
+                    op = D_80004D50[this->structPos];
+                    s32 v = this->structPos + 1;
+                    this->structPos = v;
                     if ((u32)v < 4)
                         break;
-                    this->unk208 = 0;
+                    this->structPos = 0;
                 } else {
-                    op = this->unk1F8;
+                    op = this->repeatType;
                 }
-                if (--this->unk1F4 == 0) {
-                    this->unk200 = 0;
-                    this->unk1FC = 0;
+                if (--this->repeatCount == 0) {
+                    this->inStruct = 0;
+                    this->inArray = 0;
                 }
             } while (0);
         } else {
-            op = this->unk64C->unk20[pos];
+            op = this->driver->data[pos];
             pos++;
-            this->unk1E8 = cur1E8 + 1;
+            this->cursor = cur1E8 + 1;
         }
-        this->unk34 = 3;
+        this->currentType = TOKEN_FLOAT;
         switch (op) {
-            case 3: {
-                u8* p = this->unk64C->unk20 + pos;
+            case TOKEN_FLOAT: {
+                u8* p = this->driver->data + pos;
                 u32 b0 = p[0];
                 u32 b1 = p[1];
                 u32 b2 = p[2];
                 u32 b3 = p[3];
                 raw = b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
-                s32 oldUnk1E8 = this->unk1E8;
+                s32 oldUnk1E8 = this->cursor;
                 f32 fval = *(f32*)&raw;
-                this->unk1E8 = oldUnk1E8 + 4;
-                this->unk40 = fval;
+                this->cursor = oldUnk1E8 + 4;
+                this->floatValue = fval;
                 return fval;
             }
-            case 15: {
-                u8* p = this->unk64C->unk20 + pos;
+            case TOKEN_FIXED_4096: {
+                u8* p = this->driver->data + pos;
                 u32 b0 = p[0];
                 u32 b1 = p[1];
                 s16 v = (s16)(b0 + (b1 << 8));
                 f32 fval = (f32)v * 0.000244140625f;
-                this->unk1E8 += 2;
-                this->unk40 = fval;
+                this->cursor += 2;
+                this->floatValue = fval;
                 return fval;
             }
-            case 16: {
-                u8* p = this->unk64C->unk20 + pos;
+            case TOKEN_FIXED_32: {
+                u8* p = this->driver->data + pos;
                 u32 b0 = p[0];
                 u32 b1 = p[1];
                 s16 v = (s16)(b0 + (b1 << 8));
                 f32 fval = (f32)v * 0.03125f;
-                this->unk1E8 += 2;
-                this->unk40 = fval;
+                this->cursor += 2;
+                this->floatValue = fval;
                 return fval;
             }
-            case 17: {
-                u8* p = this->unk64C->unk20 + pos;
+            case TOKEN_SHORT_F: {
+                u8* p = this->driver->data + pos;
                 u32 b0 = p[0];
                 u32 b1 = p[1];
                 s16 v = (s16)(b0 + (b1 << 8));
                 f32 fval = (f32)v;
-                this->unk1E8 += 2;
-                this->unk40 = fval;
+                this->cursor += 2;
+                this->floatValue = fval;
                 return fval;
             }
-            case 18: {
-                raw = this->unk64C->unk20[pos];
+            case TOKEN_NORM_BYTE: {
+                raw = this->driver->data[pos];
                 f32 fval = (f32)raw * 0.007874015719f;
-                this->unk1E8 += 1;
-                this->unk40 = fval;
+                this->cursor += 1;
+                this->floatValue = fval;
                 return fval;
             }
         }
-        this->unk1E8 = cur1E8;
+        this->cursor = cur1E8;
     }
     this->func_8004667C();
-    return this->unk40;
+    return this->floatValue;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/parrot", func_80045F40__6Parrot);
+INCLUDE_ASM("asm/nonmatchings/parrot", readFloat__6Parrot);
 #endif
 
 // case 4 accumulator goes to v0 instead of target's a0 (avoids `move v0, a0` at end)
 #ifdef NON_MATCHING
-s32 Parrot::func_800461F0() {
-    if (this->unk30 != 0) {
-        this->unk30 = 0;
-        return this->unk38;
+s32 Parrot::readInt() {
+    if (this->pushedBack != 0) {
+        this->pushedBack = 0;
+        return this->intValue;
     }
-    s32 cur1E8 = this->unk1E8;
-    ParrotDriver* driver = this->unk64C;
+    s32 cur1E8 = this->cursor;
+    ParrotDriver* driver = this->driver;
     u32 total = cur1E8 + this->fileOffset;
-    u32 base = driver->unk18;
-    if (total >= base && driver->unk1C >= total + 5) {
+    u32 base = driver->dataStart;
+    if (total >= base && driver->dataEnd >= total + 5) {
         s32 pos = total - base;
         s32 op;
-        if (this->unk1F4 != 0) {
+        if (this->repeatCount != 0) {
             do {
-                if (this->unk200) {
-                    op = this->unk20C[this->unk204][this->unk208];
-                    s32 v = this->unk208 + 1;
-                    this->unk208 = v;
-                    if ((u32)v < this->unk60C[this->unk204])
+                if (this->inStruct) {
+                    op = this->structDefs[this->structId][this->structPos];
+                    s32 v = this->structPos + 1;
+                    this->structPos = v;
+                    if ((u32)v < this->structLengths[this->structId])
                         break;
-                    this->unk208 = 0;
-                } else if (this->unk1FC) {
-                    op = D_80004D50[this->unk208];
-                    s32 v = this->unk208 + 1;
-                    this->unk208 = v;
+                    this->structPos = 0;
+                } else if (this->inArray) {
+                    op = D_80004D50[this->structPos];
+                    s32 v = this->structPos + 1;
+                    this->structPos = v;
                     if ((u32)v < 4)
                         break;
-                    this->unk208 = 0;
+                    this->structPos = 0;
                 } else {
-                    op = this->unk1F8;
+                    op = this->repeatType;
                 }
-                if (--this->unk1F4 == 0) {
-                    this->unk200 = 0;
-                    this->unk1FC = 0;
+                if (--this->repeatCount == 0) {
+                    this->inStruct = 0;
+                    this->inArray = 0;
                 }
             } while (0);
         } else {
-            op = this->unk64C->unk20[pos];
+            op = this->driver->data[pos];
             pos++;
-            this->unk1E8 = cur1E8 + 1;
+            this->cursor = cur1E8 + 1;
         }
-        this->unk34 = 4;
+        this->currentType = TOKEN_INT;
         switch (op) {
-            case 4: {
-                s32 oldUnk1E8 = this->unk1E8;
-                u8* p = this->unk64C->unk20 + pos;
+            case TOKEN_INT: {
+                s32 oldUnk1E8 = this->cursor;
+                u8* p = this->driver->data + pos;
                 u32 b0 = p[0];
                 u32 b1 = p[1];
                 u32 b2 = p[2];
                 u32 b3 = p[3];
-                this->unk1E8 = oldUnk1E8 + 4;
-                return this->unk38 = b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
+                this->cursor = oldUnk1E8 + 4;
+                return this->intValue = b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
             }
-            case 11:
-            case 12: {
-                this->unk1E8++;
-                return this->unk38 = this->unk64C->unk20[pos];
+            case TOKEN_SBYTE:
+            case TOKEN_BYTE: {
+                this->cursor++;
+                return this->intValue = this->driver->data[pos];
             }
-            case 13: {
-                u8* p = this->unk64C->unk20 + pos;
+            case TOKEN_SHORT: {
+                u8* p = this->driver->data + pos;
                 u32 b0 = p[0];
                 u32 b1 = p[1];
-                this->unk1E8 += 2;
-                return this->unk38 = (s16)(b0 + (b1 << 8));
+                this->cursor += 2;
+                return this->intValue = (s16)(b0 + (b1 << 8));
             }
-            case 14: {
-                u8* p = this->unk64C->unk20 + pos;
+            case TOKEN_USHORT: {
+                u8* p = this->driver->data + pos;
                 u32 b0 = p[0];
                 u32 b1 = p[1];
-                this->unk1E8 += 2;
-                return this->unk38 = b0 | (b1 << 8);
+                this->cursor += 2;
+                return this->intValue = b0 | (b1 << 8);
             }
         }
-        this->unk1E8 = cur1E8;
+        this->cursor = cur1E8;
     }
     this->func_8004667C();
-    return this->unk38;
+    return this->intValue;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/parrot", func_800461F0__6Parrot);
+INCLUDE_ASM("asm/nonmatchings/parrot", readInt__6Parrot);
 #endif
 
-void Parrot::func_80046450(s32 arg1) {
-    if (this->unk30 != 0) {
-        this->unk30 = 0;
+void Parrot::expectToken(s32 arg1) {
+    if (this->pushedBack != 0) {
+        this->pushedBack = 0;
         return;
     }
-    u32 base = this->unk1E8;
-    ParrotDriver* driver = this->unk64C;
+    u32 base = this->cursor;
+    ParrotDriver* driver = this->driver;
     u32 total = base + this->fileOffset;
-    if (total < driver->unk18 || driver->unk1C < total + 1) {
+    if (total < driver->dataStart || driver->dataEnd < total + 1) {
         this->func_8004667C();
         return;
     }
-    this->unk34 = arg1;
-    if (this->unk1F4 != 0) {
-        if (this->unk200) {
-            s32 v = ++this->unk208;
-            if ((u32)v < (u32)this->unk60C[this->unk204])
+    this->currentType = arg1;
+    if (this->repeatCount != 0) {
+        if (this->inStruct) {
+            if (++this->structPos < this->structLengths[this->structId])
                 return;
-            this->unk208 = 0;
-        } else if (this->unk1FC) {
-            s32 v = ++this->unk208;
-            if ((u32)v < 4)
+            this->structPos = 0;
+        } else if (this->inArray) {
+            if (++this->structPos < 4)
                 return;
-            this->unk208 = 0;
+            this->structPos = 0;
         }
-        if (--this->unk1F4 == 0) {
-            this->unk200 = 0;
-            this->unk1FC = 0;
+        if (--this->repeatCount == 0) {
+            this->inStruct = 0;
+            this->inArray = 0;
         }
         return;
     }
-    ParrotDriver* d2 = this->unk64C;
-    if (d2->unk20[total - d2->unk18] == arg1) {
-        this->unk1E8++;
+    ParrotDriver* d2 = this->driver;
+    if (d2->data[total - d2->dataStart] == arg1) {
+        this->cursor++;
         return;
     }
     this->func_8004667C();
 }
 
 s32 Parrot::func_80046570() {
-    this->func_80046450(7);
-    this->func_800461F0();
-    this->func_80046450(8);
-    this->func_80046450(5);
-    return this->unk38;
+    this->expectToken(TOKEN_OPEN_BRACKET);
+    this->readInt();
+    this->expectToken(TOKEN_CLOSE_BRACKET);
+    this->expectToken(TOKEN_OPEN_BRACE);
+    return this->intValue;
 }
 
 s32 Parrot::func_800465BC() {
@@ -329,31 +344,31 @@ s32 Parrot::func_800465BC() {
 
 s32 Parrot::func_800465C4() {
     s32 ret;
-    if (this->unk200) {
-        s32 idx = this->unk208;
-        ret = this->unk20C[this->unk204][idx];
+    if (this->inStruct) {
+        u32 idx = this->structPos;
+        ret = this->structDefs[this->structId][idx];
         idx++;
-        this->unk208 = idx;
-        if ((u32)idx < (u32)this->unk60C[this->unk204]) {
+        this->structPos = idx;
+        if (idx < this->structLengths[this->structId]) {
             return ret;
         }
-        this->unk208 = 0;
-    } else if (this->unk1FC) {
-        s32 idx = this->unk208;
+        this->structPos = 0;
+    } else if (this->inArray) {
+        u32 idx = this->structPos;
         ret = D_80004D50[idx];
         idx++;
-        this->unk208 = idx;
-        if ((u32)idx < 4u) {
+        this->structPos = idx;
+        if (idx < 4u) {
             return ret;
         }
-        this->unk208 = 0;
+        this->structPos = 0;
     } else {
-        ret = this->unk1F8;
+        ret = this->repeatType;
     }
-    this->unk1F4--;
-    if (this->unk1F4 == 0) {
-        this->unk200 = 0;
-        this->unk1FC = 0;
+    this->repeatCount--;
+    if (this->repeatCount == 0) {
+        this->inStruct = 0;
+        this->inArray = 0;
     }
     return ret;
 }
@@ -362,40 +377,40 @@ s32 Parrot::func_8004667C() {
     return 0;
 }
 
-void Parrot::func_80046684(const char* src) {
-    strncpy(this->unk1EC, src, 5);
-    this->unk1F0[0] = 0;
+void Parrot::setExtension(const char* src) {
+    strncpy(this->extension, src, 5);
+    this->extension[4] = 0;
 }
 
-char* Parrot::func_800466B4() {
-    if (this->unk1EC[0]) {
-        return this->unk1EC;
+char* Parrot::getExtension() {
+    if (this->extension[0]) {
+        return this->extension;
     }
-    return (char*)&D_80004C14;
+    return D_80004C14;
 }
 
-void Parrot::func_800466D0() {
+void Parrot::selectDriver() {
     s32 idx = this->archiveIndex * 13;
-    this->unk64C = ((ParrotDriver**)D_800763F8)[idx];
+    this->driver = ((ParrotDriver**)D_800763F8)[idx];
 }
 
 void Parrot::func_80046700(s32 arg1) {
     if (this->unk1A4 != NULL) {
-        s32 total = strlen((char*)this->unk1A4) + strlen(D_80076640) + strlen((char*)AbstractFile::getDeviceParam(arg1));
-        ((char*)this)[0xA4] = 0;
+        s32 total = strlen(this->unk1A4) + strlen(D_80076640) + strlen(AbstractFile::getDeviceParam(arg1));
+        this->pathBuf[0] = 0;
         if (total < 0xFF) {
-            sprintf((char*)this + 0xA4, D_80076640, this->unk1A4);
+            sprintf(this->pathBuf, D_80076640, this->unk1A4);
         }
-        strcat((char*)this + 0xA4, (char*)AbstractFile::getDeviceParam(arg1));
+        strcat(this->pathBuf, AbstractFile::getDeviceParam(arg1));
     }
-    func_800079A8((const char*)&D_80004C10, 0, 0, 0);
+    func_800079A8(D_80004C10, 0, 0, 0);
 }
 
-s32 Parrot::func_800467B8(s32 idx) {
+const char* Parrot::func_800467B8(s32 idx) {
     if (idx >= 0x14) {
-        func_800079A8((const char*)&D_80004C10, 0, 0, 0);
+        func_800079A8(D_80004C10, 0, 0, 0);
     }
-    return ((s32*)&D_80076644)[idx];
+    return D_80076644[idx];
 }
 
 s32 Parrot::close() {
@@ -407,22 +422,22 @@ s32 Parrot::close() {
     return ret;
 }
 
-void Parrot::func_80046868() {
-    this->unk30 = 0;
-    this->unk34 = 0;
+void Parrot::init() {
+    this->pushedBack = 0;
+    this->currentType = 0;
     this->unk44[0] = 0;
     this->unk84[0] = 0;
     this->unk1A4 = NULL;
-    memset(this->unk1EC, 0, 5);
-    this->unk1F4 = 0;
-    this->unk1F8 = 0;
-    this->unk1FC = 0;
-    this->unk200 = 0;
-    this->unk204 = 0;
-    this->unk208 = 0;
-    memset(&this->unk20C[0][0], 0, 0x400);
-    memset(this->unk60C, 0, 0x40);
-    this->unk64C = NULL;
+    memset(this->extension, 0, sizeof(this->extension));
+    this->repeatCount = 0;
+    this->repeatType = 0;
+    this->inArray = 0;
+    this->inStruct = 0;
+    this->structId = 0;
+    this->structPos = 0;
+    memset(this->structDefs, 0, sizeof(this->structDefs));
+    memset(this->structLengths, 0, sizeof(this->structLengths));
+    this->driver = NULL;
 }
 
 Parrot::~Parrot() {
@@ -432,35 +447,35 @@ Parrot::~Parrot() {
 }
 
 Parrot::Parrot() {
-    this->func_80046868();
+    this->init();
 }
 
 u8* Parrot::func_8004698C() {
     return this->unk44;
 }
 
-s32 Parrot::func_80046994() {
-    return this->unk38;
+s32 Parrot::getInt() {
+    return this->intValue;
 }
 
-f32 Parrot::func_800469A0() {
-    return this->unk40;
+f32 Parrot::getFloat() {
+    return this->floatValue;
 }
 
 f32 Parrot::func_800469AC() {
     return this->unk3C;
 }
 
-s32 Parrot::func_800469B8() {
-    this->unk30 = 1;
+s32 Parrot::pushBack() {
+    this->pushedBack = 1;
     return 1;
 }
 
-s32 Parrot::func_800469C4() {
-    return this->unk34;
+s32 Parrot::getCurrentType() {
+    return this->currentType;
 }
 
-u8* Parrot::func_800469D0() {
+char* Parrot::func_800469D0() {
     return this->unk1A4;
 }
 
@@ -474,22 +489,22 @@ u8* Parrot::func_80046A14() {
     return this->unk44;
 }
 
-void Parrot::func_80046A4C() {
-    this->func_80046450(6);
+void Parrot::expectCloseBrace() {
+    this->expectToken(TOKEN_CLOSE_BRACE);
 }
 
-void Parrot::func_80046A68() {
-    this->func_80046450(5);
+void Parrot::expectOpenBrace() {
+    this->expectToken(TOKEN_OPEN_BRACE);
 }
 
-void Parrot::func_80046A84() {
-    this->func_80046450(8);
+void Parrot::expectCloseBracket() {
+    this->expectToken(TOKEN_CLOSE_BRACKET);
 }
 
-void Parrot::func_80046AA0() {
-    this->func_80046450(7);
+void Parrot::expectOpenBracket() {
+    this->expectToken(TOKEN_OPEN_BRACKET);
 }
 
-void Parrot::func_80046ABC(s32 arg1) {
-    this->func_80046450(arg1);
+void Parrot::readToken(s32 arg1) {
+    this->expectToken(arg1);
 }

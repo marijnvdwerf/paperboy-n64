@@ -26,6 +26,10 @@ Note: all multi-byte datatypes (int16, float, etc) are stored in little-endian b
 | `0x0C` | `byte`    | 8-bit unsigned integer |
 | `0x0D` | `short`   | 16-bit signed integer. Sometimes used as an 8.8 fixed-point. |
 | `0x0E` | `ushort`  | 16-bit unsigned integer |
+| `0x0F` | `fixed4096` | s16 fixed-point payload, decoded as float by multiplying by `1/4096` (i.e. Q3.12). |
+| `0x10` | `fixed32` | s16 fixed-point payload, decoded as float by multiplying by `1/32` (i.e. Q10.5). |
+| `0x11` | `shortf`  | s16 payload, decoded as float (no scaling). |
+| `0x12` | `normbyte` | u8 payload, decoded as float by multiplying by `1/127` (approx `0.00787402`). |
 | `0x14` | `array`   | `{ ushort length; byte type; }` — followed by `length` payloads of type `type`, *without* their token headers. |
 | `0x16` | `struct`  | `{ byte id; byte length; byte tokens[length]; }` — any time throughout the file that `id` is found as a token, it will be followed by a series of payloads of the types specified in `tokens`. For example, a struct `{ 0x17; 0x03; [0x02, 0x04, 0x04]; }` would mean that any use of the token `0x17` would be followed by a string and then two int32s, *without* their token headers. |
 | `0xXX` | `keyword` | If the token in question has been defined as a struct ID, read data according to that struct definition. Otherwise, there is no payload, and this is a file-specific block/property ID. |

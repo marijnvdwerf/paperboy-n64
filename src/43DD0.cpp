@@ -24,7 +24,7 @@ extern "C" char D_80076404[256];
 extern "C" s32 D_80076504;
 extern "C" char D_80076508[256];
 extern "C" char* D_80076608[4];
-extern "C" s32 D_80076390[28];
+extern "C" char* D_80076390[28];
 extern "C" u8 D_80064360[];
 
 extern "C" unsigned strlen(const char*);
@@ -712,7 +712,7 @@ void AbstractFile::toUpperCase(char* str) {
     }
 }
 
-s32 AbstractFile::getDeviceParam(s32 index) {
+char* AbstractFile::getDeviceParam(s32 index) {
     return D_80076390[index];
 }
 

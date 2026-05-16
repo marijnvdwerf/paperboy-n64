@@ -88,7 +88,7 @@ class AbstractFile {
     static void clearSearchPaths();
     static s32 isAbsolutePath(const char*);
     static void toUpperCase(char*);
-    static s32 getDeviceParam(s32);
+    static char* getDeviceParam(s32);
     static void setCurrentDir(const char*);
     static char* getCurrentDir();
     static u32 getSearchPathCount();
