@@ -84,6 +84,7 @@ s32 Otter::vfunc5(const char* name) {
     return this->state;
 }
 
+#if 0
 s32 Otter::vfunc6(FileInfo* arg1) {
     char extBuf[4];
     char nameBuf[0x10];
@@ -157,7 +158,10 @@ s32 Otter::vfunc6(FileInfo* arg1) {
     return this->state;
 }
 
+#else
+INCLUDE_ASM("asm/nonmatchings/otter", vfunc6__5OtterP8FileInfo);
 INCLUDE_RODATA("asm/nonmatchings/otter", _vt.5Otter);
+#endif
 
 s32 Otter::vfunc8(s32* out) {
     s32 outVal;
