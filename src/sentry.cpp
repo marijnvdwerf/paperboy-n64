@@ -1,4 +1,4 @@
-#include "streams.h"
+#include "sentry.h"
 
 s32 Sentry::vfunc6(FileInfo*) {
     return 6;

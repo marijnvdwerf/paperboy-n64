@@ -1,5 +1,5 @@
-#ifndef STREAMS_H
-#define STREAMS_H
+#ifndef SENTRY_H
+#define SENTRY_H
 
 #include "common.h"
 
@@ -37,31 +37,6 @@ struct Sentry {
     s32 setMode13();
     s32 setMode12();
     void reset();
-};
-
-struct Stream {
-    /* 0x0 */ u8 pad0[4];
-    /* 0x4 */ void* unk4;
-    /* 0x8 */ u8 pad8[2];
-    /* 0xA */ u16 unkA;
-    /* 0xC */ s32 unkC;
-};
-
-struct Otter : public Sentry {
-    /* 0xC  */ Stream* stream;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ char buf[0x68];
-
-    Otter();
-    virtual ~Otter();
-    virtual s32 vfunc2();
-    virtual void vfunc3();
-    virtual s32 vfunc4(const char* path);
-    virtual s32 vfunc5(const char* name);
-    virtual s32 vfunc6(FileInfo* info);
-    virtual s32 vfunc7(s32* out1, s32* out2);
-    virtual s32 vfunc8(s32* out);
-    virtual s32 vfunc9(s32 idx, FileInfo* info);
 };
 
 #endif
