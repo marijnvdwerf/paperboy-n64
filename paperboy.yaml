@@ -25,7 +25,7 @@ options:
 
   undefined_funcs_auto_path: undefined_funcs_auto.txt
   undefined_syms_auto_path: undefined_syms_auto.txt
-  create_undefined_funcs_auto: True
+  create_undefined_funcs_auto: False
   create_undefined_syms_auto: True
   migrate_rodata_to_functions: True
 
