@@ -72,7 +72,7 @@ class AbstractFile {
     virtual s32 sync();
     virtual ~AbstractFile();
     virtual s32 open(const char*, s32, s32);
-    virtual void close();
+    virtual s32 close();
     virtual s32 readAt(s32, void*, s32, void*);
     virtual s32 read(void*, s32);
     virtual s32 writeAt(s32 pos, void* buf, s32 len);
