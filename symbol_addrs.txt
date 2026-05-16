@@ -616,6 +616,7 @@ _._7RomFile = 0x80048E00; // type:func
 __7RomFile = 0x80048E48; // type:func
 _._7Boobook = 0x8004928C; // type:func
 __7Boobook = 0x80049324; // type:func
+init__16ControllerSystem = 0x80042038; // type:func
 _._11Sugarglider = 0x800493E0; // type:func   (trivial Otter-tail-call dtor stub)
 vfunc5__5OtterPCc = 0x80049400; // type:func
 vfunc6__5OtterP8FileInfo = 0x8004954C; // type:func
