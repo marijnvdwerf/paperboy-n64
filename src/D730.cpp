@@ -19,10 +19,9 @@ class StructYYHandlerInner {
 extern "C" {
 extern s32 D_80000300;
 StructYYHandler* func_80039420(StructYYInner*);
-void func_800079A8(void*, s32, s32, s32);
 extern u8 D_1106A0[];
 extern u8 D_BDE740[];
-extern s32 D_80000B70;
+extern char D_80000B70[];
 extern JamArchive* D_800763F8;
 extern s32 D_800763FC;
 }
@@ -90,7 +89,7 @@ s32 StructYY::vfunc9(s32 a, s32 b, s32 c, s32 d) {
 void StructYY::func_8000CDD8() {
     File* io = &this->io[0];
     if (io->func_80048A40((s32)D_1106A0, D_BDE740 - D_1106A0, 0x82, 0x8000)) {
-        func_800079A8(&D_80000B70, 0, 0, 0);
+        __assert(D_80000B70, 0, 0, 0);
     }
     JamArchive* archive = &this->archives[0];
     this->unk68 = 1;

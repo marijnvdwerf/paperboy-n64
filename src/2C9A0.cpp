@@ -3,7 +3,6 @@
 extern "C" {
 #include <PR/os_vi.h>
 extern s32 D_80072BC0;
-extern void func_800079A8(const char*, s32, s32, s32);
 extern void func_8004B390(void);
 extern void func_8004B3BC(s32);
 }
@@ -92,7 +91,7 @@ void StructYYSubA8Inner1::vfunc14(void* buf, u16 w, u16 h, u32 bpp) {
     this->unk18 = new u8[size];
     func_8004B390();
     if (!this->unk18) {
-        func_800079A8("", 0, 0, 0);
+        __assert("", 0, 0, 0);
     }
     memset(this->unk18, 0, size);
     if (ctx->unkD03C != 0) {
@@ -104,7 +103,7 @@ void StructYYSubA8Inner1::vfunc14(void* buf, u16 w, u16 h, u32 bpp) {
     this->unk38 = new u8[size];
     func_8004B390();
     if (!this->unk38) {
-        func_800079A8("", 0, 0, 0);
+        __assert("", 0, 0, 0);
     }
 }
 

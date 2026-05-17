@@ -10,7 +10,6 @@ extern char D_80004C14[];
 extern void* D_800763F8;
 extern char* D_80076640;
 extern const char* D_80076644[];
-extern s32 func_800079A8(const char*, s32, s32, s32);
 }
 
 const u32 D_80004D50[] = { TOKEN_OPEN_BRACKET, TOKEN_INT, TOKEN_CLOSE_BRACKET, TOKEN_CLOSE_BRACKET };
@@ -288,12 +287,12 @@ void Parrot::ioError(s32 err) {
         }
         strcat((char*)this->readBuf, AbstractFile::errorMessage(err));
     }
-    func_800079A8(D_80004C10, 0, 0, 0);
+    __assert(D_80004C10, 0, 0, 0);
 }
 
 const char* Parrot::errorMessage(s32 code) {
     if (code >= 0x14) {
-        func_800079A8(D_80004C10, 0, 0, 0);
+        __assert(D_80004C10, 0, 0, 0);
     }
     return D_80076644[code];
 }

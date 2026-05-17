@@ -5,7 +5,6 @@ extern char* strcpy(char*, const char*);
 extern char* strcat(char*, const char*);
 extern unsigned strlen(const char*);
 extern int sprintf(char*, const char*, ...);
-extern s32 func_800079A8(const char*, s32, s32, s32);
 
 extern char* D_80076160;
 extern char D_80004320[];
@@ -38,7 +37,7 @@ void Cockatoo::selectDriver(const char* path) {
         pathLen += strlen(ext);
         self->path = pathLen < 0x40 ? self->inlineBuf : new char[pathLen + 1];
         if (self->path == NULL) {
-            func_800079A8(D_8000432C, 0, 0, 0);
+            __assert(D_8000432C, 0, 0, 0);
         }
         strcpy(self->path, path);
         strcat(self->path, ext);
@@ -47,14 +46,14 @@ void Cockatoo::selectDriver(const char* path) {
         pathLen += strlen(ext);
         self->path = pathLen < 0x40 ? self->inlineBuf : new char[pathLen + 1];
         if (self->path == NULL) {
-            func_800079A8(D_8000432C, 0, 0, 0);
+            __assert(D_8000432C, 0, 0, 0);
         }
         strcpy(self->path, path);
         strcpy(self->path + dotIdx, ext);
     } else {
         self->path = pathLen < 0x40 ? self->inlineBuf : new char[pathLen + 1];
         if (self->path == NULL) {
-            func_800079A8(D_8000432C, 0, 0, 0);
+            __assert(D_8000432C, 0, 0, 0);
         }
         strcpy(self->path, path);
     }
@@ -291,7 +290,7 @@ void Cockatoo::parseError(s32 code) {
         }
         strcat((char*)this->readBuf, this->errorMessage(code));
     }
-    func_800079A8(D_8000432C, 0, 0, 0);
+    __assert(D_8000432C, 0, 0, 0);
 }
 
 s32 Cockatoo::isStreaming() {

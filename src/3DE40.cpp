@@ -24,13 +24,12 @@ extern u8 D_800AE370[];
 extern const char D_80003D90[];
 extern const char D_80003DA0[];
 extern const char D_80003EB0[];
-extern void* D_80003D9C;
+extern char D_80003D9C[];
 extern void* D_80003DB0;
 extern void* D_80003EB8;
 extern void* D_80003F00;
 
 void func_8003DBD4(StructWWBase*);
-void func_800079A8(void*, s32, s32, s32);
 s32 func_80048D60(RomFile*);
 s32 func_8004AA98(void*);
 void func_8004B390(void);
@@ -63,20 +62,20 @@ extern "C" s32 vfunc1__12StructWWBase(StructWWBase* self, s32 arg1) {
         self->vfunc2();
     }
     if (io->RomFile::open(D_80003D90, 2, 0)) {
-        func_800079A8(&D_80003D9C, 0, 0, 0);
+        __assert(D_80003D9C, 0, 0, 0);
     }
     func_8004B3BC(D_80074114);
     self->ptrbank = (u8*)func_80064320(io->unk10);
     func_8004B390();
     if (self->ptrbank == NULL) {
-        func_800079A8(&D_80003D9C, 0, 0, 0);
+        __assert(D_80003D9C, 0, 0, 0);
     }
     if (io->RomFile::readAt(0, self->ptrbank, io->unk10, &sp48)) {
-        func_800079A8(&D_80003D9C, 0, 0, 0);
+        __assert(D_80003D9C, 0, 0, 0);
     }
     io->RomFile::close();
     if (io->RomFile::open(D_80003DA0, 2, 0)) {
-        func_800079A8(&D_80003D9C, 0, 0, 0);
+        __assert(D_80003D9C, 0, 0, 0);
     }
     self->wbk = (u8*)func_80048D60(io);
     io->RomFile::close();
@@ -85,7 +84,7 @@ extern "C" s32 vfunc1__12StructWWBase(StructWWBase* self, s32 arg1) {
     self->heap = (u8*)func_80064320(size);
     func_8004B390();
     if (self->heap == NULL) {
-        func_800079A8(&D_80003D9C, 0, 0, 0);
+        __assert(D_80003D9C, 0, 0, 0);
     }
     memset(self->heap, 0, size);
     self->config.control_flag = 0;
@@ -283,7 +282,7 @@ Node3* StructWWBase::vfunc9() {
     node = new Node3();
     func_8004B390();
     if (node == NULL) {
-        func_800079A8(&D_80003D9C, 0, 0, 0);
+        __assert(D_80003D9C, 0, 0, 0);
     }
     return node;
 }
@@ -296,7 +295,7 @@ Node2* StructWWBase::vfunc7() {
     node = new Node2();
     func_8004B390();
     if (node == NULL) {
-        func_800079A8(&D_80003D9C, 0, 0, 0);
+        __assert(D_80003D9C, 0, 0, 0);
     }
     node->owner = this;
     node->next = this->unk6C;
@@ -344,7 +343,7 @@ StructVV* StructWWBase::vfunc5() {
     node = new StructVV();
     func_8004B390();
     if (node == NULL) {
-        func_800079A8(&D_80003D9C, 0, 0, 0);
+        __assert(D_80003D9C, 0, 0, 0);
     }
     node->owner = this;
     node->next = this->unk68;

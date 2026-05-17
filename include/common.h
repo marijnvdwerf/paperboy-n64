@@ -16,6 +16,8 @@ int memcmp(const void*, const void*, unsigned);
 void* memcpy(void*, const void*, unsigned);
 void* memset(void*, int, unsigned);
 
+void __assert(const char* msg, const char* file, s32 line, const char* prettyMsg);
+
 #ifdef _LANGUAGE_C_PLUS_PLUS
 }
 #endif

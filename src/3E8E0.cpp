@@ -8,7 +8,6 @@ extern void* D_80003F00;
 extern char D_80003EB0[];
 extern char D_80003EB8[];
 
-void func_800079A8(const void*, s32, s32, s32);
 void func_8004B390(void);
 void func_8004B3BC(s32);
 void func_80064340(void*);
@@ -26,23 +25,23 @@ void StructVV::func_8003DCE0(RomFile* arg1) {
     u32 i;
 
     if (arg1->read(sp10, 0x10) != 0) {
-        func_800079A8(D_80003EB8, 0, 0, 0);
+        __assert(D_80003EB8, 0, 0, 0);
     }
     this->unk0 = atoi(sp10);
     if (this->unk0 == 0) {
-        func_800079A8(D_80003EB8, 0, 0, 0);
+        __assert(D_80003EB8, 0, 0, 0);
     }
 
     func_8004B3BC(D_80074120);
     this->unk10 = new u8[this->unk0 * 8];
     func_8004B390();
     if (this->unk10 == NULL) {
-        func_800079A8(D_80003EB8, 0, 0, 0);
+        __assert(D_80003EB8, 0, 0, 0);
     }
     i = 0;
     while (i < this->unk0) {
         if (arg1->read(sp10, 0x10) != 0) {
-            func_800079A8(D_80003EB8, 0, 0, 0);
+            __assert(D_80003EB8, 0, 0, 0);
         }
         strncpy(this->unk10 + i * 8, sp10, 8);
         i += 1;
@@ -117,7 +116,7 @@ StructUU* StructVV::vfunc4(s32 arg) {
     node = new StructUU();
     func_8004B390();
     if (node == NULL) {
-        func_800079A8(D_80003EB8, 0, 0, 0);
+        __assert(D_80003EB8, 0, 0, 0);
     }
     node->owner = this;
     node->next = this->unk14;
@@ -153,7 +152,7 @@ void StructVV::vfunc1(const char* arg1) {
     strcpy(sp40, arg1);
     strcat(sp40, D_80003EB0);
     if (sp10.open(sp40, 0xA, 0x1000)) {
-        func_800079A8(D_80003EB8, 0, 0, 0);
+        __assert(D_80003EB8, 0, 0, 0);
     }
     this->func_8003DCE0(&sp10);
     sp10.close();

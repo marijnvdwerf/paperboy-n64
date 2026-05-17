@@ -89,6 +89,7 @@ tolower = 0x80006920; // type:func
 toupper = 0x80006940; // type:func
 shortsort = 0x80006960; // type:func
 swap = 0x80006A10; // type:func
+__assert = 0x800079A8; // type:func
 func_80007DE0__11GameContext = 0x80007DE0; // type:func
 _._11GameContext = 0x80007FE0; // type:func
 __11GameContext = 0x80008040;

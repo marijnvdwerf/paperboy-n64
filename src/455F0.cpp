@@ -2,7 +2,6 @@
 #include "structs.h"
 
 extern "C" {
-void func_800079A8(const char* msg, int a, int b, int c);
 int strncmp(const char* a, const char* b, unsigned n);
 void func_8004B390(void);
 void func_8004B3BC(int);
@@ -102,13 +101,13 @@ void FolderNode::load(AbstractFile* io)
     s32 offset = this->offset;
 
     if (io->readAt(offset, D_800AE780, 4, &bytesRead) != 0) {
-        func_800079A8(D_80004888, 0, 0, 0);
+        __assert(D_80004888, 0, 0, 0);
     }
     offset += 4;
     this->fileCount = D_800AE780[0] + (D_800AE780[1] << 8)
                     + (D_800AE780[2] << 16) + (D_800AE780[3] << 24);
     if (this->fileCount > 0x186A0) {
-        func_800079A8(D_80004888, 0, 0, 0);
+        __assert(D_80004888, 0, 0, 0);
     }
 
     if (this->fileCount != 0) {
@@ -116,11 +115,11 @@ void FolderNode::load(AbstractFile* io)
         this->files = (FileNode*)new u8[this->fileCount * sizeof(FileNode)];
         func_8004B390();
         if (this->files == NULL) {
-            func_800079A8(D_80004888, 0, 0, 0);
+            __assert(D_80004888, 0, 0, 0);
         }
         for (u32 i = 0; i < this->fileCount; i++) {
             if (io->readAt(offset, D_800AE780, 0x14, &bytesRead) != 0) {
-                func_800079A8(D_80004888, 0, 0, 0);
+                __assert(D_80004888, 0, 0, 0);
             }
             offset += bytesRead;
             memcpy(this->files[i].name, D_800AE780, 12);
@@ -132,13 +131,13 @@ void FolderNode::load(AbstractFile* io)
     }
 
     if (io->readAt(offset, D_800AE780, 4, &bytesRead) != 0) {
-        func_800079A8(D_80004888, 0, 0, 0);
+        __assert(D_80004888, 0, 0, 0);
     }
     offset += 4;
     this->folderCount = D_800AE780[0] + (D_800AE780[1] << 8)
                       + (D_800AE780[2] << 16) + (D_800AE780[3] << 24);
     if (this->folderCount > 0x186A0) {
-        func_800079A8(D_80004888, 0, 0, 0);
+        __assert(D_80004888, 0, 0, 0);
     }
 
     if (this->folderCount != 0) {
@@ -155,11 +154,11 @@ void FolderNode::load(AbstractFile* io)
         }
         func_8004B390();
         if (this->folders == NULL) {
-            func_800079A8(D_80004888, 0, 0, 0);
+            __assert(D_80004888, 0, 0, 0);
         }
         for (u32 i = 0; i < this->folderCount; i++) {
             if (io->readAt(offset, D_800AE780, 0x10, &bytesRead) != 0) {
-                func_800079A8(D_80004888, 0, 0, 0);
+                __assert(D_80004888, 0, 0, 0);
             }
             offset += bytesRead;
             memcpy(this->folders[i].name, D_800AE780, 12);
@@ -325,10 +324,10 @@ void JamArchive::open(AbstractFile* io) {
     this->io = io;
     this->unk4 = 0;
     if (io->readAt(0, D_800AE780, 4, &bytesRead) != 0) {
-        func_800079A8(D_80004888, 0, 0, 0);
+        __assert(D_80004888, 0, 0, 0);
     }
     if (memcmp(D_800AE780, "LJAM", 4) != 0) {
-        func_800079A8(D_80004888, 0, 0, 0);
+        __assert(D_80004888, 0, 0, 0);
     }
 }
 

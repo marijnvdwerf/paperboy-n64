@@ -36,8 +36,7 @@ extern "C" int toupper(int);
 
 extern "C" void func_8004B3BC(s32);
 extern "C" void func_8004B390();
-extern "C" s32 D_800047F0;
-extern "C" void func_800079A8(const void*, s32, s32, s32);
+extern "C" char D_800047F0[];
 
 // reg-alloc diffs: s2 init from s3 vs zero, instruction reordering in loop and search path section
 #ifdef NON_MATCHING
@@ -427,7 +426,7 @@ void AbstractFile::buildPath(const char* dir, const char* filename) {
     D_80076508[0] = '\0';
     u32 nameLen = strlen(filename);
     if (nameLen >= 256) {
-        func_800079A8(&D_800047F0, 0, 0, 0);
+        __assert(D_800047F0, 0, 0, 0);
         dirLen = 0;
     }
     s32 isAbsolute = 0;
@@ -439,7 +438,7 @@ void AbstractFile::buildPath(const char* dir, const char* filename) {
     } else if (dir) {
         dirLen = strlen(dir);
         if (dirLen + nameLen + 1 >= 256) {
-            func_800079A8(&D_800047F0, 0, 0, 0);
+            __assert(D_800047F0, 0, 0, 0);
         }
         char* p = D_80076508;
         strcpy(p, dir);
@@ -460,7 +459,7 @@ void AbstractFile::buildPath(const char* dir, const char* filename) {
             }
         } else {
             if (strlen(cwd) + dirLen + nameLen + 1 >= 256) {
-                func_800079A8(&D_800047F0, 0, 0, 0);
+                __assert(D_800047F0, 0, 0, 0);
             }
             if (D_80076404[0] == '\\') {
                 cwd++;
@@ -665,7 +664,7 @@ void AbstractFile::addSearchPath(const char* path) {
     D_80076608[D_80076400] = copy;
     func_8004B390();
     if (D_80076608[D_80076400] == NULL) {
-        func_800079A8(&D_800047F0, 0, 0, 0);
+        __assert(D_800047F0, 0, 0, 0);
     }
     strcpy(D_80076608[D_80076400], path);
     D_80076400++;

@@ -216,7 +216,7 @@ extern "C" void func_800078DC(s32 errCode, const char* file, s32 line, const cha
     while (1) {}
 }
 
-extern "C" void func_800079A8(const char* msg, const char* file, s32 line, const char* prettyMsg) {
+extern "C" void __assert(const char* msg, const char* file, s32 line, const char* prettyMsg) {
     const char* p = prettyMsg;
     if (p == NULL) {
         p = "<NO PRETTYMSG>";
