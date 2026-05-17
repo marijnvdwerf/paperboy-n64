@@ -22,6 +22,10 @@ Build produces `build/ntsc/paperboy.z64` — checksum must match `checksum.sha1`
 
 Do NOT use `sed`, `perl`, or `awk` to modify project files — use the `Edit` tool instead. They mangle whitespace and bypass review.
 
+## asm-differ output
+
+Always look at the FULL diff output. NEVER pipe asm-differ through `grep`, `sed`, `head`, `tail`, or any filter — the full context is essential for understanding register allocation and instruction scheduling.
+
 ## The `expected/` directory
 
 `expected/build/` is the user's known-good build, used as the TARGET side by `asm-differ`. NEVER write to `expected/` — no `cp` into it, no `mv`, no edits. If you suspect it's stale, ask the user; do not regenerate it.

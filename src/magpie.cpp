@@ -28,9 +28,10 @@ class Magpie : public Parrot {
 
 extern "C" s32 func_8004A00C(MagpieEntry* a, MagpieEntry* b);
 
+// addu operand order in strlen loop (r diff, no source-level lever)
+#ifdef NON_MATCHING
 extern "C" void func_80049DC0(Magpie* self) {
     s32 i;
-    s32 offset;
 
     self->lastMatch = NULL;
 
@@ -39,14 +40,11 @@ extern "C" void func_80049DC0(Magpie* self) {
     }
 
     i = 0;
-    offset = 0;
     qsort(self->entries, (void*)self->count, 0xC, (void*)func_8004A00C);
 
-    while (i < self->count) {
-        MagpieEntry* e = (MagpieEntry*)((u8*)self->entries + offset);
+    for (; i < self->count; i++) {
+        MagpieEntry* e = &self->entries[i];
         e->length = strlen(e->name);
-        offset += 0xC;
-        i++;
     }
 
     for (i = 0; i < 0x1A; i++) {
@@ -71,8 +69,10 @@ extern "C" void func_80049DC0(Magpie* self) {
 
     *self->readyFlag = 1;
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/magpie", func_80049DC0);
+#endif
 
-// entries load ordering and loop structure (top-tested j vs bottom-tested bnez)
 #ifdef NON_MATCHING
 extern "C" s32 func_80049F18(Magpie* self, char* name, s32 len) {
     s32 c = (u8)name[0] - 'A';
@@ -101,14 +101,12 @@ INCLUDE_ASM("asm/nonmatchings/magpie", func_80049F18);
 #endif
 
 extern "C" s32 func_8004A00C(MagpieEntry* a, MagpieEntry* b) {
-    u32 ca = toupper(a->name[0]);
-    u32 cb = toupper(b->name[0]);
-    ca &= 0xFF;
-    cb &= 0xFF;
+    u8 ca = toupper(a->name[0]);
+    u8 cb = toupper(b->name[0]);
     if (ca < cb) {
         return -1;
     }
-    return (ca ^ cb) != 0;
+    return ca != cb;
 }
 
 Magpie::Magpie() {
