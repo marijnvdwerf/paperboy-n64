@@ -10,13 +10,13 @@ struct Cockatoo : public Parrot {
     virtual s32 close();
     virtual void selectDriver(const char* path);
     virtual char* getExtension();
-    virtual void vfunc19(s32 arg1);
-    virtual s32 vfunc20();
-    virtual s32 vfunc21();
+    virtual void parseError(s32 code);
+    virtual s32 nextToken();
+    virtual s32 isStreaming();
 
-    void func_80040AF0();
-    s32 func_80040910(s32 nbytes);
-    void func_800409C8();
+    void resetStream();
+    s32 readBytes(s32 nbytes);
+    void readStructDef();
 };
 
 #endif

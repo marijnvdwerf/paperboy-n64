@@ -36,37 +36,37 @@ void Cockatoo::selectDriver(const char* path) {
     if (dotIdx < 0) {
         ext = self->getExtension();
         pathLen += strlen(ext);
-        self->unk1A4 = pathLen < 0x40 ? self->inlineBuf : new char[pathLen + 1];
-        if (self->unk1A4 == NULL) {
+        self->path = pathLen < 0x40 ? self->inlineBuf : new char[pathLen + 1];
+        if (self->path == NULL) {
             func_800079A8(D_8000432C, 0, 0, 0);
         }
-        strcpy(self->unk1A4, path);
-        strcat(self->unk1A4, ext);
+        strcpy(self->path, path);
+        strcat(self->path, ext);
     } else if (self->extension[0] != 0) {
         ext = self->getExtension();
         pathLen += strlen(ext);
-        self->unk1A4 = pathLen < 0x40 ? self->inlineBuf : new char[pathLen + 1];
-        if (self->unk1A4 == NULL) {
+        self->path = pathLen < 0x40 ? self->inlineBuf : new char[pathLen + 1];
+        if (self->path == NULL) {
             func_800079A8(D_8000432C, 0, 0, 0);
         }
-        strcpy(self->unk1A4, path);
-        strcpy(self->unk1A4 + dotIdx, ext);
+        strcpy(self->path, path);
+        strcpy(self->path + dotIdx, ext);
     } else {
-        self->unk1A4 = pathLen < 0x40 ? self->inlineBuf : new char[pathLen + 1];
-        if (self->unk1A4 == NULL) {
+        self->path = pathLen < 0x40 ? self->inlineBuf : new char[pathLen + 1];
+        if (self->path == NULL) {
             func_800079A8(D_8000432C, 0, 0, 0);
         }
-        strcpy(self->unk1A4, path);
+        strcpy(self->path, path);
     }
-    s32 ret = self->AbstractFile::open(self->unk1A4, 2, 0x1000);
+    s32 ret = self->AbstractFile::open(self->path, 2, 0x1000);
     if (ret != 0) {
-        self->func_80046700(ret);
+        self->ioError(ret);
     }
     self->cursor = 0;
     self->unk650 = NULL;
     self->currentType = 0;
     self->pushedBack = 0;
-    self->Parrot::selectDriver(self->unk1A4);
+    self->Parrot::selectDriver(self->path);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/cockatoo", selectDriver__8CockatooPCc);
@@ -79,7 +79,7 @@ INCLUDE_RODATA("asm/nonmatchings/cockatoo", D_8000432C);
 INCLUDE_RODATA("asm/nonmatchings/cockatoo", D_80004330);
 
 #ifdef NON_MATCHING
-s32 Cockatoo::vfunc20() {
+s32 Cockatoo::nextToken() {
     Cockatoo* self = this;
     if (self->pushedBack != 0) {
         self->pushedBack = 0;
@@ -87,19 +87,19 @@ s32 Cockatoo::vfunc20() {
     }
     s32 token;
     if (self->repeatCount != 0) {
-        token = self->func_800465C4();
+        token = self->nextRepeatedToken();
     } else {
-        if (self->func_80040910(1) == 0) {
+        if (self->readBytes(1) == 0) {
             return 0;
         }
-        token = (u8)self->pathBuf[0];
+        token = self->readBuf[0];
     }
     s32 ret;
     s32 idx;
     switch (token) {
-        case 2: { // string
+        case TOKEN_STRING: {
             s32 actualRead;
-            s32 r = self->readAt(self->cursor, self->pathBuf, 0x3F, &actualRead);
+            s32 r = self->readAt(self->cursor, self->readBuf, 0x3F, &actualRead);
             if (r != 0) {
                 if (r == 0x10) {
                     if (actualRead == 0) {
@@ -107,163 +107,163 @@ s32 Cockatoo::vfunc20() {
                         return 0;
                     }
                 } else {
-                    self->func_80046700(r);
+                    self->ioError(r);
                 }
             }
             u32 i = 0;
             if (actualRead != 0) {
                 while (1) {
-                    if (self->pathBuf[i] == 0) {
+                    if (self->readBuf[i] == 0) {
                         break;
                     }
-                    self->unk44[i] = self->pathBuf[i];
+                    self->stringValue[i] = self->readBuf[i];
                     i++;
                     if (i >= (u32)actualRead) {
                         break;
                     }
                 }
             }
-            self->unk44[i] = 0;
+            self->stringValue[i] = 0;
             self->currentType = token;
             self->cursor += i + 1;
             return token;
         }
-        case 3: { // float
-            if (self->func_80040910(4) == 0) {
+        case TOKEN_FLOAT: {
+            if (self->readBytes(4) == 0) {
                 return 0;
             }
-            u32 raw = (u8)self->pathBuf[0] + ((u8)self->pathBuf[1] << 8) +
-                      ((u8)self->pathBuf[2] << 16) + ((u8)self->pathBuf[3] << 24);
+            u32 raw = self->readBuf[0] + (self->readBuf[1] << 8) +
+                      (self->readBuf[2] << 16) + (self->readBuf[3] << 24);
             self->floatValue = *(f32*)&raw;
             self->currentType = token;
             return token;
         }
-        case 4: { // int
-            if (self->func_80040910(4) == 0) {
+        case TOKEN_INT: {
+            if (self->readBytes(4) == 0) {
                 return self->currentType = 0;
             }
-            self->intValue = (u8)self->pathBuf[0] + ((u8)self->pathBuf[1] << 8) +
-                             ((u8)self->pathBuf[2] << 16) + ((u8)self->pathBuf[3] << 24);
+            self->intValue = self->readBuf[0] + (self->readBuf[1] << 8) +
+                             (self->readBuf[2] << 16) + (self->readBuf[3] << 24);
             self->currentType = token;
             return token;
         }
-        case 11:
-        case 12: { // sbyte / byte
-            if (self->func_80040910(1) == 0) {
+        case TOKEN_SBYTE:
+        case TOKEN_BYTE: {
+            if (self->readBytes(1) == 0) {
                 return self->currentType = 0;
             }
-            self->intValue = (u8)self->pathBuf[0];
-            self->currentType = 4;
-            return 4;
+            self->intValue = self->readBuf[0];
+            self->currentType = TOKEN_INT;
+            return TOKEN_INT;
         }
-        case 13: { // short
-            if (self->func_80040910(2) == 0) {
+        case TOKEN_SHORT: {
+            if (self->readBytes(2) == 0) {
                 return self->currentType = 0;
             }
-            self->intValue = (s16)((u8)self->pathBuf[0] + ((u8)self->pathBuf[1] << 8));
-            self->currentType = 4;
-            return 4;
+            self->intValue = (s16)(self->readBuf[0] + (self->readBuf[1] << 8));
+            self->currentType = TOKEN_INT;
+            return TOKEN_INT;
         }
-        case 14: { // ushort
-            if (self->func_80040910(2) == 0) {
+        case TOKEN_USHORT: {
+            if (self->readBytes(2) == 0) {
                 return self->currentType = 0;
             }
-            self->intValue = (u8)self->pathBuf[0] | ((u8)self->pathBuf[1] << 8); // case 14 uses or
-            self->currentType = 4;
-            return 4;
+            self->intValue = self->readBuf[0] | (self->readBuf[1] << 8); // ushort uses or
+            self->currentType = TOKEN_INT;
+            return TOKEN_INT;
         }
-        case 15: { // fixed-4096
-            if (self->func_80040910(2) == 0) {
+        case TOKEN_FIXED_4096: {
+            if (self->readBytes(2) == 0) {
                 return 0;
             }
             self->floatValue =
-                (f32)(s16)((u8)self->pathBuf[0] + ((u8)self->pathBuf[1] << 8)) * 0.000244140625f;
-            self->currentType = 3;
-            return 3;
+                (f32)(s16)(self->readBuf[0] + (self->readBuf[1] << 8)) * 0.000244140625f;
+            self->currentType = TOKEN_FLOAT;
+            return TOKEN_FLOAT;
         }
-        case 16: { // fixed-32
-            if (self->func_80040910(2) == 0) {
+        case TOKEN_FIXED_32: {
+            if (self->readBytes(2) == 0) {
                 return 0;
             }
             self->floatValue =
-                (f32)(s16)((u8)self->pathBuf[0] + ((u8)self->pathBuf[1] << 8)) * 0.03125f;
-            self->currentType = 3;
-            return 3;
+                (f32)(s16)(self->readBuf[0] + (self->readBuf[1] << 8)) * 0.03125f;
+            self->currentType = TOKEN_FLOAT;
+            return TOKEN_FLOAT;
         }
-        case 17: { // short-as-float
-            if (self->func_80040910(2) == 0) {
+        case TOKEN_SHORT_F: {
+            if (self->readBytes(2) == 0) {
                 return self->currentType = 0;
             }
-            self->floatValue = (f32)(s16)((u8)self->pathBuf[0] + ((u8)self->pathBuf[1] << 8));
-            self->currentType = 3;
-            return 3;
+            self->floatValue = (f32)(s16)(self->readBuf[0] + (self->readBuf[1] << 8));
+            self->currentType = TOKEN_FLOAT;
+            return TOKEN_FLOAT;
         }
-        case 18: { // norm-byte
-            if (self->func_80040910(1) == 0) {
+        case TOKEN_NORM_BYTE: {
+            if (self->readBytes(1) == 0) {
                 return self->currentType = 0;
             }
-            self->floatValue = (f32)(u8)self->pathBuf[0] * 0.007874015719f;
-            self->currentType = 3;
-            return 3;
+            self->floatValue = (f32)self->readBuf[0] * 0.007874015719f;
+            self->currentType = TOKEN_FLOAT;
+            return TOKEN_FLOAT;
         }
-        case 19: {
-            if (self->func_80040910(2) == 0) {
+        case TOKEN_EXT: {
+            if (self->readBytes(2) == 0) {
                 return 0;
             }
-            ret = (u8)self->pathBuf[0] + ((u8)self->pathBuf[1] << 8);
+            ret = self->readBuf[0] + (self->readBuf[1] << 8);
             self->currentType = ret;
             return ret;
         }
-        case 20: { // repeat
-            if (self->func_80040910(2) == 0) {
+        case TOKEN_REPEAT: {
+            if (self->readBytes(2) == 0) {
                 return self->currentType = 0;
             }
-            self->repeatCount = (u8)self->pathBuf[0] + ((u8)self->pathBuf[1] << 8);
-            if (self->func_80040910(1) == 0) {
+            self->repeatCount = self->readBuf[0] + (self->readBuf[1] << 8);
+            if (self->readBytes(1) == 0) {
                 return self->currentType = 0;
             }
-            self->repeatType = (u8)self->pathBuf[0];
-            if (self->repeatType == 0x13) {
-                if (self->func_80040910(2) == 0) {
+            self->repeatType = self->readBuf[0];
+            if (self->repeatType == TOKEN_EXT) {
+                if (self->readBytes(2) == 0) {
                     return 0;
                 }
-                self->repeatType = (u8)self->pathBuf[0] + ((u8)self->pathBuf[1] << 8);
+                self->repeatType = self->readBuf[0] + (self->readBuf[1] << 8);
             }
-            idx = self->repeatType - 0x17;
+            idx = self->repeatType - TOKEN_STRUCT_BASE;
             self->inStruct = 0;
             if ((u32)idx < 0x10) {
                 self->structId = idx;
                 if (&self->structDefs[idx][0] != NULL) {
-                    self->vfunc19(0);
+                    self->parseError(0);
                 }
                 self->structPos = 0;
                 self->inStruct = 1;
-            } else if (self->repeatType == 0x15) {
+            } else if (self->repeatType == TOKEN_ARRAY) {
                 self->inArray = 1;
                 self->structPos = 0;
             }
             goto recurse;
         }
-        case 21: { // array start
+        case TOKEN_ARRAY: {
             self->repeatCount = 1;
             self->inArray = 1;
             self->structPos = 0;
             self->inStruct = 0;
             goto recurse;
         }
-        case 22: { // struct definition
-            self->func_800409C8();
+        case TOKEN_STRUCT_DEF: {
+            self->readStructDef();
             if (self->currentType != 0) {
                 goto recurse;
             }
             return 0;
         }
         default: {
-            idx = token - 0x17;
+            idx = token - TOKEN_STRUCT_BASE;
             if ((u32)idx < 0x10) {
                 self->structId = idx;
                 if (&self->structDefs[idx][0] != NULL) {
-                    self->vfunc19(0);
+                    self->parseError(0);
                 }
                 self->inStruct = 1;
                 self->structPos = 0;
@@ -275,32 +275,32 @@ s32 Cockatoo::vfunc20() {
         }
     }
 recurse:
-    return self->vfunc20();
+    return self->nextToken();
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/cockatoo", vfunc20__8Cockatoo);
+INCLUDE_ASM("asm/nonmatchings/cockatoo", nextToken__8Cockatoo);
 #endif
 
-void Cockatoo::vfunc19(s32 arg1) {
-    if (this->unk1A4 != NULL) {
-        s32 total = strlen(this->unk1A4) + strlen(D_80076160) +
-                    strlen(this->func_800467B8(arg1));
-        this->pathBuf[0] = 0;
+void Cockatoo::parseError(s32 code) {
+    if (this->path != NULL) {
+        s32 total = strlen(this->path) + strlen(D_80076160) +
+                    strlen(this->errorMessage(code));
+        this->readBuf[0] = 0;
         if (total < 0xFF) {
-            sprintf(this->pathBuf, D_80076160, this->unk1A4);
+            sprintf((char*)this->readBuf, D_80076160, this->path);
         }
-        strcat(this->pathBuf, this->func_800467B8(arg1));
+        strcat((char*)this->readBuf, this->errorMessage(code));
     }
     func_800079A8(D_8000432C, 0, 0, 0);
 }
 
-s32 Cockatoo::vfunc21() {
+s32 Cockatoo::isStreaming() {
     return 1;
 }
 
-s32 Cockatoo::func_80040910(s32 nbytes) {
+s32 Cockatoo::readBytes(s32 nbytes) {
     s32 actualRead;
-    s32 ret = this->readAt(this->cursor, this->pathBuf, nbytes, &actualRead);
+    s32 ret = this->readAt(this->cursor, this->readBuf, nbytes, &actualRead);
     if (ret != 0) {
         if (ret == 0x10) {
             if (actualRead == 0) {
@@ -308,45 +308,45 @@ s32 Cockatoo::func_80040910(s32 nbytes) {
                 return 0;
             }
         } else {
-            this->func_80046700(ret);
+            this->ioError(ret);
         }
     }
     if (actualRead != nbytes) {
-        this->vfunc19(0);
+        this->parseError(0);
     }
     this->cursor += nbytes;
     return 1;
 }
 
 #ifdef NON_MATCHING
-void Cockatoo::func_800409C8() {
-    if (this->func_80040910(2) == 0) {
+void Cockatoo::readStructDef() {
+    if (this->readBytes(2) == 0) {
         return;
     }
-    u32 idx = (u8)this->pathBuf[0];
-    u32 count = (u8)this->pathBuf[1];
+    u32 idx = this->readBuf[0];
+    u32 count = this->readBuf[1];
     u32 i = 0;
-    this->structLengths[idx - 0x17] = count;
+    this->structLengths[idx - TOKEN_STRUCT_BASE] = count;
     if (count == 0) {
         return;
     }
     do {
-        if (this->func_80040910(1) == 0) {
+        if (this->readBytes(1) == 0) {
             return;
         }
-        u32 val = (u8)this->pathBuf[0];
-        if (val == 0x13) {
-            if (this->func_80040910(2) == 0) {
+        u32 val = this->readBuf[0];
+        if (val == TOKEN_EXT) {
+            if (this->readBytes(2) == 0) {
                 return;
             }
-            val = (u8)this->pathBuf[0] + ((u8)this->pathBuf[1] << 8);
+            val = this->readBuf[0] + (this->readBuf[1] << 8);
         }
-        this->structDefs[idx - 0x17][i] = val;
+        this->structDefs[idx - TOKEN_STRUCT_BASE][i] = val;
         i++;
     } while (i < count);
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/cockatoo", func_800409C8__8Cockatoo);
+INCLUDE_ASM("asm/nonmatchings/cockatoo", readStructDef__8Cockatoo);
 #endif
 
 char* Cockatoo::getExtension() {
@@ -364,12 +364,12 @@ s32 Cockatoo::close() {
     return ret;
 }
 
-void Cockatoo::func_80040AF0() {
+void Cockatoo::resetStream() {
     this->cursor = 0;
     this->unk650 = NULL;
     this->init();
 }
 
 Cockatoo::Cockatoo() {
-    this->func_80040AF0();
+    this->resetStream();
 }

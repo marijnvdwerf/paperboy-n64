@@ -712,7 +712,7 @@ void AbstractFile::toUpperCase(char* str) {
     }
 }
 
-char* AbstractFile::getDeviceParam(s32 index) {
+char* AbstractFile::errorMessage(s32 index) {
     return D_80076390[index];
 }
 

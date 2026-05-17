@@ -13,23 +13,6 @@ extern const char* D_80076644[];
 extern s32 func_800079A8(const char*, s32, s32, s32);
 }
 
-enum Token {
-    TOKEN_FLOAT = 3,
-    TOKEN_INT = 4,
-    TOKEN_OPEN_BRACE = 5,
-    TOKEN_CLOSE_BRACE = 6,
-    TOKEN_OPEN_BRACKET = 7,
-    TOKEN_CLOSE_BRACKET = 8,
-    TOKEN_SBYTE = 11,
-    TOKEN_BYTE = 12,
-    TOKEN_SHORT = 13,
-    TOKEN_USHORT = 14,
-    TOKEN_FIXED_4096 = 15, // s16 * (1/4096)
-    TOKEN_FIXED_32 = 16, // s16 * (1/32)
-    TOKEN_SHORT_F = 17, // s16 as float
-    TOKEN_NORM_BYTE = 18, // byte * (1/127)
-};
-
 const u32 D_80004D50[] = { TOKEN_OPEN_BRACKET, TOKEN_INT, TOKEN_CLOSE_BRACKET, TOKEN_CLOSE_BRACKET };
 
 INCLUDE_RODATA("asm/nonmatchings/parrot", D_80004A80);
@@ -38,7 +21,7 @@ INCLUDE_RODATA("asm/nonmatchings/parrot", D_80004C10);
 
 INCLUDE_RODATA("asm/nonmatchings/parrot", D_80004C14);
 
-static inline s32 nextRepeatedToken(Parrot* self) {
+static inline s32 nextRepeatedTokenInline(Parrot* self) {
     s32 ret;
     if (self->inStruct) {
         u32 idx = self->structPos;
@@ -69,7 +52,6 @@ static inline s32 nextRepeatedToken(Parrot* self) {
     return ret;
 }
 
-#if 1
 f32 Parrot::readFloat() {
     if (this->pushedBack != 0) {
         this->pushedBack = 0;
@@ -84,7 +66,7 @@ f32 Parrot::readFloat() {
         s32 pos = total - base;
         s32 op;
         if (this->repeatCount != 0) {
-            op = nextRepeatedToken(this);
+            op = nextRepeatedTokenInline(this);
         } else {
             op = this->driver->data[pos];
             pos++;
@@ -130,12 +112,9 @@ f32 Parrot::readFloat() {
         }
         this->cursor = cur1E8;
     }
-    this->vfunc20();
+    this->nextToken();
     return this->floatValue;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/parrot", readFloat__6Parrot);
-#endif
 
 // case 4 accumulator goes to v0 instead of target's a0 (avoids `move v0, a0` at end)
 #ifdef NON_MATCHING
@@ -152,7 +131,7 @@ s32 Parrot::readInt() {
         s32 pos = total - base;
         s32 op;
         if (this->repeatCount != 0) {
-            op = nextRepeatedToken(this);
+            op = nextRepeatedTokenInline(this);
         } else {
             op = this->driver->data[pos];
             pos++;
@@ -192,7 +171,7 @@ s32 Parrot::readInt() {
         }
         this->cursor = cur1E8;
     }
-    this->vfunc20();
+    this->nextToken();
     return this->intValue;
 }
 #else
@@ -208,7 +187,7 @@ void Parrot::expectToken(s32 arg1) {
     ParrotDriver* driver = this->driver;
     u32 total = base + this->fileOffset;
     if (total < driver->dataStart || driver->dataEnd < total + 1) {
-        this->vfunc20();
+        this->nextToken();
         return;
     }
     this->currentType = arg1;
@@ -233,10 +212,10 @@ void Parrot::expectToken(s32 arg1) {
         this->cursor++;
         return;
     }
-    this->vfunc20();
+    this->nextToken();
 }
 
-s32 Parrot::func_80046570() {
+s32 Parrot::beginArray() {
     this->expectToken(TOKEN_OPEN_BRACKET);
     this->readInt();
     this->expectToken(TOKEN_CLOSE_BRACKET);
@@ -244,11 +223,11 @@ s32 Parrot::func_80046570() {
     return this->intValue;
 }
 
-s32 Parrot::vfunc21() {
+s32 Parrot::isStreaming() {
     return 0;
 }
 
-s32 Parrot::func_800465C4() {
+s32 Parrot::nextRepeatedToken() {
     s32 ret;
     if (this->inStruct) {
         u32 idx = this->structPos;
@@ -279,7 +258,7 @@ s32 Parrot::func_800465C4() {
     return ret;
 }
 
-s32 Parrot::vfunc20() {
+s32 Parrot::nextToken() {
     return 0;
 }
 
@@ -300,30 +279,30 @@ void Parrot::selectDriver(const char*) {
     this->driver = ((ParrotDriver**)D_800763F8)[idx];
 }
 
-void Parrot::func_80046700(s32 arg1) {
-    if (this->unk1A4 != NULL) {
-        s32 total = strlen(this->unk1A4) + strlen(D_80076640) + strlen(AbstractFile::getDeviceParam(arg1));
-        this->pathBuf[0] = 0;
+void Parrot::ioError(s32 err) {
+    if (this->path != NULL) {
+        s32 total = strlen(this->path) + strlen(D_80076640) + strlen(AbstractFile::errorMessage(err));
+        this->readBuf[0] = 0;
         if (total < 0xFF) {
-            sprintf(this->pathBuf, D_80076640, this->unk1A4);
+            sprintf((char*)this->readBuf, D_80076640, this->path);
         }
-        strcat(this->pathBuf, AbstractFile::getDeviceParam(arg1));
+        strcat((char*)this->readBuf, AbstractFile::errorMessage(err));
     }
     func_800079A8(D_80004C10, 0, 0, 0);
 }
 
-const char* Parrot::func_800467B8(s32 idx) {
-    if (idx >= 0x14) {
+const char* Parrot::errorMessage(s32 code) {
+    if (code >= 0x14) {
         func_800079A8(D_80004C10, 0, 0, 0);
     }
-    return D_80076644[idx];
+    return D_80076644[code];
 }
 
 s32 Parrot::close() {
     s32 ret = this->AbstractFile::close();
-    if (this->unk1A4 != NULL && this->unk1A4 != this->inlineBuf) {
-        delete[] this->unk1A4;
-        this->unk1A4 = NULL;
+    if (this->path != NULL && this->path != this->inlineBuf) {
+        delete[] this->path;
+        this->path = NULL;
     }
     return ret;
 }
@@ -331,9 +310,9 @@ s32 Parrot::close() {
 void Parrot::init() {
     this->pushedBack = 0;
     this->currentType = 0;
-    this->unk44[0] = 0;
+    this->stringValue[0] = 0;
     this->unk84[0] = 0;
-    this->unk1A4 = NULL;
+    this->path = NULL;
     memset(this->extension, 0, sizeof(this->extension));
     this->repeatCount = 0;
     this->repeatType = 0;
@@ -347,8 +326,8 @@ void Parrot::init() {
 }
 
 Parrot::~Parrot() {
-    if (this->unk1A4 != NULL && this->unk1A4 != this->inlineBuf) {
-        delete[] this->unk1A4;
+    if (this->path != NULL && this->path != this->inlineBuf) {
+        delete[] this->path;
     }
 }
 
@@ -357,7 +336,7 @@ Parrot::Parrot() {
 }
 
 u8* Parrot::func_8004698C() {
-    return this->unk44;
+    return this->stringValue;
 }
 
 s32 Parrot::getInt() {
@@ -381,18 +360,18 @@ s32 Parrot::getCurrentType() {
     return this->currentType;
 }
 
-char* Parrot::func_800469D0() {
-    return this->unk1A4;
+char* Parrot::getPath() {
+    return this->path;
 }
 
 u8* Parrot::func_800469DC() {
-    this->vfunc20();
-    return this->unk44;
+    this->nextToken();
+    return this->stringValue;
 }
 
 u8* Parrot::func_80046A14() {
-    this->vfunc20();
-    return this->unk44;
+    this->nextToken();
+    return this->stringValue;
 }
 
 void Parrot::expectCloseBrace() {

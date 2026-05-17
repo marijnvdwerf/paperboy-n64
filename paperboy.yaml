@@ -325,6 +325,8 @@ segments:
 
       - [0x64F60, data]
       - [0x65070, data]
+      - [0x77240, data, parrot]
+      - [0x772A0, data]
       - [0x79AE0, bss]
 
   - type: code
