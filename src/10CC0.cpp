@@ -302,20 +302,17 @@ extern "C" void func_80010814(s32 n, u16* dst) {
     *dst = 0;
 }
 
-// compiler hoists `v0=0` init before the loop; target keeps it in the second jr ra delay slot
-#ifdef NON_MATCHING
-extern "C" s32 func_8001091C(u16* a, u16* b) {
-    while (*a == *b++) {
-        if (*a == 0) {
-            return 1;
+extern "C" s32 func_8001091C(u16* a0, u16* a1) {
+    do {
+        if (*a0 != *a1) {
+            return 0;
         }
-        a++;
-    }
-    return 0;
+
+        a1++;
+    } while (*(a0++) != 0);
+
+    return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/10CC0", func_8001091C);
-#endif
 
 extern "C" s32 func_80010944(u16* s) {
     s32 n = 0;
