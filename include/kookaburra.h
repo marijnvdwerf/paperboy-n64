@@ -19,14 +19,14 @@ class Kookaburra {
 
     Kookaburra();
 
-    u16 func_80045C18(u16* key);
-    u16* func_80045C9C(u16 index);
-    s32 func_80045CE0(WString* dst, u16 index);
-    s32 func_80045DEC();
-    static void func_80045ED0(s32 value);
-    u16 func_80045EDC();
-    u16 func_80045EE8(u16** key);
-    u8 func_80045F0C();
+    u16 find(u16* key);
+    u16* getEntry(u16 index);
+    s32 copyTo(WString* dst, u16 index);
+    s32 init();
+    static void setHeapId(s32 value);
+    u16 getCount();
+    u16 findIndirect(u16** key);
+    u8 isLoaded();
 };
 
 #endif

@@ -83,7 +83,7 @@ s32 Kookaburra::load(const char* filename) {
     return 1;
 }
 
-u16 Kookaburra::func_80045C18(u16* key) {
+u16 Kookaburra::find(u16* key) {
     for (s32 i = 0; i < count; i++) {
         if (func_8001091C(key, data + indices[i])) {
             return i;
@@ -92,7 +92,7 @@ u16 Kookaburra::func_80045C18(u16* key) {
     return 0xFFFF;
 }
 
-u16* Kookaburra::func_80045C9C(u16 index) {
+u16* Kookaburra::getEntry(u16 index) {
     if (data == NULL) {
         return NULL;
     }
@@ -102,7 +102,7 @@ u16* Kookaburra::func_80045C9C(u16 index) {
     return data + indices[index];
 }
 
-s32 Kookaburra::func_80045CE0(WString* dst, u16 index) {
+s32 Kookaburra::copyTo(WString* dst, u16 index) {
     if (data == NULL) {
         return 0;
     }
@@ -137,7 +137,7 @@ s32 Kookaburra::cleanup() {
     return 1;
 }
 
-s32 Kookaburra::func_80045DEC() {
+s32 Kookaburra::init() {
     if (loaded) {
         cleanup();
     }
@@ -161,18 +161,18 @@ Kookaburra::Kookaburra() {
     count = 0;
 }
 
-void Kookaburra::func_80045ED0(s32 value) {
+void Kookaburra::setHeapId(s32 value) {
     D_80076630 = value;
 }
 
-u16 Kookaburra::func_80045EDC() {
+u16 Kookaburra::getCount() {
     return count;
 }
 
-u16 Kookaburra::func_80045EE8(u16** key) {
-    return func_80045C18(*key);
+u16 Kookaburra::findIndirect(u16** key) {
+    return find(*key);
 }
 
-u8 Kookaburra::func_80045F0C() {
+u8 Kookaburra::isLoaded() {
     return loaded;
 }

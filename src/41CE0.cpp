@@ -6,7 +6,6 @@ extern "C" f32 atanf(f32);
 extern "C" void __builtin_delete(void*);
 extern "C" void func_80042804(void*, s32, void*);
 extern "C" void func_8004278C(void*, s32, void*);
-extern "C" void* func_80045C9C(void*, u16);
 
 extern u16 D_80076180[256];
 extern char D_80004490[];
