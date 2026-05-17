@@ -163,6 +163,52 @@ if (cond) h(y, …);
 
 ---
 
+## Real narrow local type can replace repeated casts without changing codegen
+
+**Symptom**: target computes a value once, keeps it live across calls, then later emits a truncating use such as `andi reg, reg, 0xffff`. Your C matches only when an `s32` local is wrapped in repeated casts like `(u16)count`, even though the source clearly represents a 16-bit quantity.
+
+**Cause**: the compiler is happy to keep a `u16` local in a full-width register across the function and still emit the same truncation at the narrow use site. The narrow declaration records the real storage semantics; it does not necessarily force extra masking at each assignment.
+
+**Fix**: when the value is semantically narrow, try declaring the local with that narrow type first and remove the casts at use sites. In `func_800459A0`, changing `s32 dataCount` plus repeated `(u16)dataCount` casts into a plain `u16 dataCount` preserved the same object output.
+
+```cpp
+// noisy but sometimes used as a temporary matching crutch
+s32 count;
+read(..., ((u16)count) * 2);
+for (i = 0; i < (u16)count; i++) { ... }
+
+// often equivalent codegen, and closer to the real type
+u16 count;
+read(..., count * 2);
+for (i = 0; i < count; i++) { ... }
+```
+
+---
+
+## Reuse one function-scope loop temp when the target keeps one register story
+
+**Symptom**: two separated loops are structurally similar, but your version allocates different temps or shifts saved-register usage between them. The target appears to carry one counter or scratch value through the whole function instead.
+
+**Cause**: separate block-local declarations give the allocator separate lifetimes to work with. A single function-scope declaration encourages the compiler to keep reusing one register identity across both loops, which can stabilize the surrounding saved-register layout and scheduling.
+
+**Fix**: if the target uses the same register role across multiple loops, try one function-scope `i` or scratch temp reused by both loops before inventing aliases or casts. This helped `func_800459A0` line up after two same-shaped byte-swapping loops were made to share one `i` and one `value`.
+
+```cpp
+// distinct locals can produce distinct allocator decisions
+for (s32 i = 0; i < a; i++) { ... }
+...
+for (s32 i = 0; i < b; i++) { ... }
+
+// one visible lifetime can keep the register choice stable
+s32 i;
+u16 value;
+for (i = 0; i < a; i++) { value = ...; }
+...
+for (i = 0; i < b; i++) { value = ...; }
+```
+
+---
+
 ## Mismatched return type produces ghost `move v0, zero` at function end
 
 **Symptom**: body matches but the epilogue has an extra `move v0, zero` (or similar `v0` setup) the target doesn't have. Often appears when porting a method that "looks like it returns" but the target asm just falls through to `jr ra` without touching `v0`.
