@@ -98,4 +98,3 @@ void func_8001005C(void) {
         } while (p < end);
     }
 }
-

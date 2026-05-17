@@ -161,5 +161,4 @@ void func_800BFF50(GameSubContext* self) {
     }
 }
 
-
 } // extern "C"

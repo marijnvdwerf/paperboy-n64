@@ -32,4 +32,3 @@ INCLUDE_ASM("asm/nonmatchings/4C630", func_8004C09C);
 INCLUDE_ASM("asm/nonmatchings/4C630", func_8004C134);
 
 INCLUDE_ASM("asm/nonmatchings/4C630", func_8004C158);
-
