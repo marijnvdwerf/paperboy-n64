@@ -13,7 +13,7 @@ extern char D_8000432C[];
 extern char D_80004330[];
 }
 
-#ifdef NON_MATCHING
+#if 1
 void Cockatoo::selectDriver(const char* path) {
     Cockatoo* self = this;
     if (self->state & 1) {
@@ -23,9 +23,10 @@ void Cockatoo::selectDriver(const char* path) {
     s32 dotIdx = -1;
     s32 pathLen = 0;
     if (*path != 0) {
+        s32 dot = '.';
         const char* p = path;
         do {
-            if (*p == '.') {
+            if (*p == dot) {
                 dotIdx = pathLen;
             }
             p++;
@@ -109,12 +110,15 @@ s32 Cockatoo::vfunc20() {
                     self->func_80046700(r);
                 }
             }
-            s32 i = 0;
+            u32 i = 0;
             if (actualRead != 0) {
-                while (self->pathBuf[i] != 0) {
+                while (1) {
+                    if (self->pathBuf[i] == 0) {
+                        break;
+                    }
                     self->unk44[i] = self->pathBuf[i];
                     i++;
-                    if (i >= actualRead) {
+                    if (i >= (u32)actualRead) {
                         break;
                     }
                 }
@@ -319,10 +323,10 @@ void Cockatoo::func_800409C8() {
     if (this->func_80040910(2) == 0) {
         return;
     }
-    u32 i = 0;
-    s32 idx = (u8)this->pathBuf[0] - 0x17;
+    u32 idx = (u8)this->pathBuf[0];
     u32 count = (u8)this->pathBuf[1];
-    this->structLengths[idx] = count;
+    u32 i = 0;
+    this->structLengths[idx - 0x17] = count;
     if (count == 0) {
         return;
     }
@@ -330,15 +334,14 @@ void Cockatoo::func_800409C8() {
         if (this->func_80040910(1) == 0) {
             return;
         }
-        u32 t = (u8)this->pathBuf[0];
-        u32 val = t;
-        if (t == 0x13) {
+        u32 val = (u8)this->pathBuf[0];
+        if (val == 0x13) {
             if (this->func_80040910(2) == 0) {
                 return;
             }
             val = (u8)this->pathBuf[0] + ((u8)this->pathBuf[1] << 8);
         }
-        this->structDefs[idx][i] = val;
+        this->structDefs[idx - 0x17][i] = val;
         i++;
     } while (i < count);
 }
