@@ -161,6 +161,5 @@ void func_800BFF50(GameSubContext* self) {
     }
 }
 
-GARBAGE_NTSC(0x8012218C);
 
 } // extern "C"

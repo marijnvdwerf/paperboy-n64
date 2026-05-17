@@ -99,5 +99,3 @@ void func_8001005C(void) {
     }
 }
 
-GARBAGE_NTSC(0x8E020000);
-GARBAGE_NTSC(0x10400003);

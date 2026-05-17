@@ -33,12 +33,4 @@ void __assert(const char* msg, const char* file, s32 line, const char* prettyMsg
             "    .set at\n")
 #define DATA_PAD(size) static char pad[size] = { 0 }
 
-#ifndef PAL
-#define GARBAGE_NTSC(value) \
-    __asm__(".section .text\n" \
-            "    .word " #value "\n")
-#else
-#define GARBAGE_NTSC(value)
-#endif
-
 #endif

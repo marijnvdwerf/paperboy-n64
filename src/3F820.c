@@ -52,5 +52,3 @@ INCLUDE_ASM("asm/nonmatchings/3F820", func_8003FB60);
 
 INCLUDE_ASM("asm/nonmatchings/3F820", func_8003FB6C);
 
-GARBAGE_NTSC(0xAFB10014);
-GARBAGE_NTSC(0x00808821);
