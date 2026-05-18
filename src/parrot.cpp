@@ -222,7 +222,7 @@ s32 Parrot::beginArray() {
     return this->intValue;
 }
 
-s32 Parrot::isStreaming() {
+s32 Parrot::vfunc21(char*, s32) {
     return 0;
 }
 

@@ -64,7 +64,7 @@ struct Parrot : public RomFile {
     virtual char* getExtension();
     virtual void parseError(s32 code) = 0;
     virtual s32 nextToken();
-    virtual s32 isStreaming();
+    virtual s32 vfunc21(char* name, s32 len);
 
     void init();
     void expectToken(s32 arg1);

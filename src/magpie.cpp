@@ -8,13 +8,21 @@ s32 strnicmp(char* s1, char* s2, s32 n);
 unsigned int strlen(const char* s);
 }
 
+class OtherBird : public Parrot {
+    public:
+    virtual void selectDriver(const char* path);
+    virtual char* getExtension();
+    virtual void parseError(s32 code);
+    virtual s32 nextToken();
+};
+
 struct MagpieEntry {
     /* 0x0 */ s32 length;
     /* 0x4 */ s32 value;
     /* 0x8 */ char* name;
 };
 
-class Magpie : public Parrot {
+class Magpie : public OtherBird {
   public:
     /* 0x650 */ u8 pad650[8];
     /* 0x658 */ s32 count;
@@ -24,83 +32,83 @@ class Magpie : public Parrot {
     /* 0x668 */ char* lastMatch;
 
     Magpie();
+    virtual s32 vfunc21(char* name, s32 len);
+
+    void prepare();
+    char* getLastMatch();
+    s32 isReady();
 };
 
-extern "C" s32 func_8004A00C(MagpieEntry* a, MagpieEntry* b);
+static s32 compareByFirstLetter(MagpieEntry* a, MagpieEntry* b);
 
-// addu operand order in strlen loop (r diff, no source-level lever)
-#ifdef NON_MATCHING
-extern "C" void func_80049DC0(Magpie* self) {
+void Magpie::prepare() {
     s32 i;
+    s32 entryOffset;
 
-    self->lastMatch = NULL;
+    this->lastMatch = NULL;
 
-    if (*self->readyFlag != 0) {
+    if (*this->readyFlag != 0) {
         return;
     }
 
     i = 0;
-    qsort(self->entries, (void*)self->count, 0xC, (void*)func_8004A00C);
+    entryOffset = 0;
+    qsort(this->entries, (void*)this->count, sizeof(MagpieEntry), (void*)compareByFirstLetter);
 
-    for (; i < self->count; i++) {
-        MagpieEntry* e = &self->entries[i];
+    for (; i < this->count; i++) {
+        MagpieEntry* e = (MagpieEntry*)(entryOffset + (s32)this->entries);
         e->length = strlen(e->name);
+        entryOffset += sizeof(MagpieEntry);
     }
 
     for (i = 0; i < 0x1A; i++) {
-        self->alphaIndex[i] = 0xFFFF;
+        this->alphaIndex[i] = 0xFFFF;
     }
 
-    self->alphaIndex[0x1A] = self->count;
+    this->alphaIndex[0x1A] = this->count;
 
-    for (i = 0; i < self->count; i++) {
-        s32 c = toupper(self->entries[i].name[0]);
+    for (i = 0; i < this->count; i++) {
+        s32 c = toupper(this->entries[i].name[0]);
         s32 idx = c - 'A';
-        if (self->alphaIndex[idx] == 0xFFFF) {
-            self->alphaIndex[idx] = i;
+        if (this->alphaIndex[idx] == 0xFFFF) {
+            this->alphaIndex[idx] = i;
         }
     }
 
     for (i = 0x19; i >= 0; i--) {
-        if (self->alphaIndex[i] == 0xFFFF) {
-            self->alphaIndex[i] = self->alphaIndex[i + 1];
+        if (this->alphaIndex[i] == 0xFFFF) {
+            this->alphaIndex[i] = this->alphaIndex[i + 1];
         }
     }
 
-    *self->readyFlag = 1;
+    *this->readyFlag = 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/magpie", func_80049DC0);
-#endif
 
-#ifdef NON_MATCHING
-extern "C" s32 func_80049F18(Magpie* self, char* name, s32 len) {
+s32 Magpie::vfunc21(char* name, s32 len) {
     s32 c = (u8)name[0] - 'A';
-    u32 start = self->alphaIndex[c];
-    u32 end = self->alphaIndex[c + 1];
-    s32* p = (s32*)((u8*)self->entries + start * 12);
-    s32* vp = p + 1;
+    u32 start = this->alphaIndex[c];
+    u32 end = this->alphaIndex[c + 1];
+    MagpieEntry* p = &this->entries[start];
 
-    while (start < end) {
-        if (len == p[0]) {
-            if (strnicmp(name, (char*)vp[1], len) == 0) {
-                self->lastMatch = (char*)vp[1];
-                return vp[0];
+    while (1) {
+        if (start >= end) {
+            break;
+        }
+        if (len == p->length) {
+            if (strnicmp(name, p->name, len) == 0) {
+                this->lastMatch = p->name;
+                return p->value;
             }
         }
-        vp += 3;
-        p += 3;
+        p++;
         start++;
     }
 
-    self->parseError(0xD);
+    this->parseError(0xD);
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/magpie", func_80049F18);
-#endif
 
-extern "C" s32 func_8004A00C(MagpieEntry* a, MagpieEntry* b) {
+static s32 compareByFirstLetter(MagpieEntry* a, MagpieEntry* b) {
     u8 ca = toupper(a->name[0]);
     u8 cb = toupper(b->name[0]);
     if (ca < cb) {
@@ -115,10 +123,10 @@ Magpie::Magpie() {
     count = 0;
 }
 
-extern "C" char* func_8004A0A4(Magpie* self) {
-    return self->lastMatch;
+char* Magpie::getLastMatch() {
+    return this->lastMatch;
 }
 
-extern "C" s32 func_8004A0B0(Magpie* self) {
-    return *self->readyFlag;
+s32 Magpie::isReady() {
+    return *this->readyFlag;
 }

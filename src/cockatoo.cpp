@@ -293,7 +293,7 @@ void Cockatoo::parseError(s32 code) {
     __assert(D_8000432C, 0, 0, 0);
 }
 
-s32 Cockatoo::isStreaming() {
+s32 Cockatoo::vfunc21(char*, s32) {
     return 1;
 }
 

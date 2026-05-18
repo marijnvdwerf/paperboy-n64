@@ -12,7 +12,7 @@ struct Cockatoo : public Parrot {
     virtual char* getExtension();
     virtual void parseError(s32 code);
     virtual s32 nextToken();
-    virtual s32 isStreaming();
+    virtual s32 vfunc21(char* name, s32 len);
 
     void resetStream();
     s32 readBytes(s32 nbytes);
