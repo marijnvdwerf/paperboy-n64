@@ -140,6 +140,58 @@ Doing this also tends to flip the post-call reload's register choice (`lw v0, â€
 
 ---
 
+## Reference receiver can preserve branch-time `this` coalescing
+
+**Symptom**: target loads a member-call receiver into one arg register, preserves another branch-live value, then uses the branch delay slot to move the receiver into `a0`:
+
+```asm
+lw    a2, 4(v1)
+move  a3, v1
+beqz  v0, .L_else
+move  a0, a2
+```
+
+Your structurally-equivalent C++ with a pointer receiver is two instructions shorter â€” it loads the receiver straight into `a0`, drops the preserving move, and keeps the same behavior.
+
+**Cause**: for C++ member calls, `T* p = ...; p->method(...)` and `T& r = *...; r.method(...)` are not register-allocation equivalent under this compiler. The reference form can keep the object identity live separately from the eventual `this` argument, which gives cc1pln64 a reason to coalesce into `a0` across the branch instead of materializing `a0` immediately.
+
+**Fix**: when two branch arms call methods on the same object and the target has this "extra" pre-branch receiver move pattern, try a reference local for the receiver:
+
+```cpp
+// shorter: compiler may load directly into a0
+N64ControllerSystem* ncs = stone->unk4;
+r = ncs->pfsFindFile(...);
+
+// target form in func_80048E80: preserves a separate receiver identity
+N64ControllerSystem& ncs = *stone->unk4;
+r = ncs.pfsFindFile(...);
+```
+
+This was the key lever in `func_80048E80`: the pointer form kept collapsing away two target instructions; the reference form restored the target's branch coalescing exactly.
+
+---
+
+## Assignment expressions inside call arguments can pin argument setup order
+
+**Symptom**: the right values reach a call, but the target loads register arguments early and in-order while your version sinks one field load until just before the `jal`, or moves stack-argument setup ahead of a field load. Plain named locals still leave a scheduling diff.
+
+**Cause**: with direct member expressions, cc1pln64 has latitude to reorder independent argument trees. A block-local temp assigned *inside the argument list* creates a useful dependency at the exact call site while preserving the original argument position, which can force the compiler back into the target's load order.
+
+**Fix**: as a late-stage scheduling lever, try declaration-only temps plus assignment expressions in the call:
+
+```cpp
+u16 companyCode;
+s32 gameCode;
+r = ncs.pfsAllocateFile(&o->pfs,
+                        (companyCode = stone->companyCode),
+                        (gameCode = stone->gameCode),
+                        ...);
+```
+
+In `func_80048E80`, ordinary direct arguments and ordinary pre-initialized locals both produced the right values with the wrong schedule. The assignment-expression form made the two PFS call setups match exactly.
+
+---
+
 ## Duplicate local for callee-saved value preservation
 
 **Symptom**: target keeps a *duplicate* of the same value in two callee-saved registers across a span of calls (`move s3, s0` in some delay slot, then later uses `s3` instead of `s0` for an arg setup even though both hold the same pointer). Your version uses one register everywhere, the frame is one register smaller, and the diff shows a missing `move` plus a cascade of shifted save offsets.
