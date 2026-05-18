@@ -625,6 +625,7 @@ close__6Parrot = 0x8004680C; // type:func
 init__6Parrot = 0x80046868; // type:func
 _._6Parrot = 0x800468E8; // type:func
 __6Parrot = 0x80046950; // type:func
+lzss_decompress = 0x80046AE0;
 func_80046BC0__19N64ControllerSystem = 0x80046BC0; // type:func
 restart__19N64ControllerSystem = 0x80046D30; // type:func
 findOrDefault__19N64ControllerSysteml = 0x80047378; // type:func

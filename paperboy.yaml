@@ -279,7 +279,7 @@ segments:
       - [0x463C0, cpp, pelican]
       - [0x465A0, cpp, kookaburra]
       - [0x46B40, cpp, parrot]
-      - [0x476E0, asm]
+      - [0x476E0, c, lzss]
       - [0x477C0, cpp, n64_controller_system]
       - [0x48AD0, cpp]
       - [0x49630, cpp]

@@ -18,6 +18,8 @@ void* memset(void*, int, unsigned);
 
 void __assert(const char* msg, const char* file, s32 line, const char* prettyMsg);
 
+s32 lzss_decompress(u8* src, u8* dest);
+
 #ifdef _LANGUAGE_C_PLUS_PLUS
 }
 #endif
