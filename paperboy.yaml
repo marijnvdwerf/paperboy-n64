@@ -289,7 +289,7 @@ segments:
       - [0x4A9C0, cpp, magpie]
       - [0x4ACE0, asm]
       - [0x4B220, c]
-      - [0x4B2F0, c]
+      - [0x4B2F0, cpp, heap]
       - [0x4B7D0, asm]
       - [0x4BF70, asm]
       - [0x4C060, asm]
