@@ -30,4 +30,33 @@ struct Heap {
     void bind(u8* base, u32 size, u32 id, u32 alignShift);
 };
 
+struct FreeRegion {
+    /* 0x00 */ u32 size;
+    /* 0x04 */ FreeRegion* next;
+    /* 0x08 */ FreeRegion* prev;
+};
+
+struct HeapPool {
+    /* 0x000 */ void* base;
+    /* 0x004 */ u32 usableSize;
+    /* 0x008 */ FreeRegion* freeList;
+    /* 0x00C */ Heap heaps[16];
+    /* 0x18C */ u32 idCounter;
+    /* 0x190 */ u32 ids[16];
+    /* 0x1D0 */ u32 used[16];
+
+    HeapPool();
+    s32 alloc(u32 size, u32 alignShift);
+    void free(s32 idx);
+    u32 maxFreeSize();
+    void bumpId(s32 idx);
+    void mergeIds(s32 idxA, s32 idxB);
+    void freePtr(void* ptr);
+    void* allocFrom(s32 idx, u32 size);
+    void initHeap(s32 idx);
+    s32 bind(u8* base, u32 size, u32 alignShift);
+    void reset();
+    void init(u8* base, u32 size, u32 alignShift);
+};
+
 #endif

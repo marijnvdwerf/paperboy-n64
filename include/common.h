@@ -8,6 +8,8 @@
 #define NULL 0
 #endif
 
+#define ALIGN_UP(x, n) (((u32)(x) + ((n) - 1)) & ~((n) - 1))
+
 #ifdef _LANGUAGE_C_PLUS_PLUS
 extern "C" {
 #endif

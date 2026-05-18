@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "file.h"
+#include "heap.h"
 #include "n64_controller_system.h"
 #include "surfaces.h"
 
@@ -378,19 +379,12 @@ class StructYYSubA8 : public StructYYSubA8Base {
     OSMesgQueue* func_80029D08();
 };
 
-class StructYYSub11898 {
-  public:
-    char pad[0x210];
-
-    StructYYSub11898();
-};
-
 class StructYY : public StructYYBase {
   public:
     /* 0x00A0 */ StructYYInner inner;
     /* 0x00A8 */ StructYYSubA8 subA8;
     /* 0x0D0E8 */ N64ControllerSystem subD0E8;
-    /* 0x11898 */ StructYYSub11898 sub11898;
+    /* 0x11898 */ HeapPool sub11898;
     /* 0x11AA8 */ s32 unk11AA8;
     /* 0x11AAC */ s32 unk11AAC;
 

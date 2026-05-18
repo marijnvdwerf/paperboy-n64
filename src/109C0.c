@@ -1,3 +1,4 @@
+// TODO: convert to C++ so HeapPool methods can be called directly
 #include "common.h"
 
 typedef void (*InitFunc)(void);
@@ -10,7 +11,7 @@ void func_80010000();
 void func_8001005C();
 void func_800079F4(s32, void*);
 void func_80048DD4();
-void func_8004B268(void*, void*, s32, s32);
+void init__8HeapPoolPUcUlUl(void*, void*, s32, s32);
 
 // Data
 extern u8 D_800768F0;
@@ -60,7 +61,7 @@ void func_8000FEEC(void* arg) {
 void func_8000FF88(void* arg) {
     func_8001005C();
     D_8006D5F0 = 0x400000 - OS_K0_TO_PHYSICAL(&D_80148370);
-    func_8004B268(&D_800768F0, &D_80148370, D_8006D5F0, 0x40);
+    init__8HeapPoolPUcUlUl(&D_800768F0, &D_80148370, D_8006D5F0, 0x40);
     func_80048DD4();
     func_8000FDC0();
     func_800079F4(D_800865B0, &D_800865C0);

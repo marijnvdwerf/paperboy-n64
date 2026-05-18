@@ -1,5 +1,6 @@
 #include "common.h"
 #include "game.h"
+#include "heap.h"
 
 struct UnkResult;
 
@@ -48,7 +49,6 @@ struct UnkResult {
 extern "C" {
 
 void func_800081A0(s32 arg);
-void func_8004B0D4(void* a, s32 b);
 void* __builtin_new(s32 size);
 SceneNode* func_800BFF2C(void* mem);
 void func_800BFDC0(SceneNode* node);
@@ -67,7 +67,7 @@ extern s32 D_80000300;
 
 extern s32 D_8006AAE4;
 extern UnkStructTop* D_8006AB04;
-extern s32 D_800768F0;
+extern HeapPool D_800768F0;
 extern s32 D_80125894;
 extern SceneNode* D_801295E0;
 
@@ -109,7 +109,7 @@ void func_800BFF50(GameSubContext* self) {
         }
     }
     self->func_80008C58();
-    func_8004B0D4(&D_800768F0, D_8006AAE4);
+    D_800768F0.initHeap(D_8006AAE4);
     child = NULL;
     state = self->func_80008C74();
     switch (state) {
