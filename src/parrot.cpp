@@ -74,23 +74,20 @@ f32 Parrot::readFloat() {
         this->currentType = TOKEN_FLOAT;
         switch (op) {
             case TOKEN_FLOAT: {
-                raw = this->driver->data[pos] + (this->driver->data[pos + 1] << 8) +
-                      (this->driver->data[pos + 2] << 16) + (this->driver->data[pos + 3] << 24);
+                raw = this->driver->data[pos] + (this->driver->data[pos + 1] << 8) + (this->driver->data[pos + 2] << 16) + (this->driver->data[pos + 3] << 24);
                 f32 fval = *(f32*)&raw;
                 this->cursor += 4;
                 this->floatValue = fval;
                 return fval;
             }
             case TOKEN_FIXED_4096: {
-                f32 fval =
-                    (f32)(s16)(this->driver->data[pos] + (this->driver->data[pos + 1] << 8)) * 0.000244140625f;
+                f32 fval = (f32)(s16)(this->driver->data[pos] + (this->driver->data[pos + 1] << 8)) * 0.000244140625f;
                 this->cursor += 2;
                 this->floatValue = fval;
                 return fval;
             }
             case TOKEN_FIXED_32: {
-                f32 fval =
-                    (f32)(s16)(this->driver->data[pos] + (this->driver->data[pos + 1] << 8)) * 0.03125f;
+                f32 fval = (f32)(s16)(this->driver->data[pos] + (this->driver->data[pos + 1] << 8)) * 0.03125f;
                 this->cursor += 2;
                 this->floatValue = fval;
                 return fval;

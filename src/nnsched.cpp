@@ -141,8 +141,7 @@ void nnScExecuteAudio(NNSched* sc) {
         }
         if (nnsc_perf_inptr->autask_cnt < NN_SC_AUTASK_NUM) {
             task_cnt = nnsc_perf_inptr->autask_cnt;
-            nnsc_perf_inptr->autask_stime[task_cnt] =
-                ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
+            nnsc_perf_inptr->autask_stime[task_cnt] = ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
         }
         sc->curAudioTask = task;
         osSpTaskLoad(&task->list);
@@ -150,8 +149,7 @@ void nnScExecuteAudio(NNSched* sc) {
         osRecvMesg(&sc->rspMQ, &msg, OS_MESG_BLOCK);
         sc->curAudioTask = NULL;
         if (nnsc_perf_inptr->autask_cnt < NN_SC_AUTASK_NUM) {
-            nnsc_perf_inptr->autask_etime[task_cnt] =
-                ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
+            nnsc_perf_inptr->autask_etime[task_cnt] = ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
             nnsc_perf_inptr->autask_cnt++;
         }
         if (sc->graphicsTaskSuspended) {
@@ -182,8 +180,7 @@ void nnScExecuteGraphics(NNSched* sc) {
         }
         if (nnsc_perf_inptr->gtask_cnt < NN_SC_GTASK_NUM) {
             task_cnt = nnsc_perf_inptr->gtask_cnt;
-            nnsc_perf_inptr->gtask_stime[task_cnt] =
-                ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
+            nnsc_perf_inptr->gtask_stime[task_cnt] = ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
         }
         sc->curGraphicsTask = task;
         osSpTaskLoad(&task->list);
@@ -191,13 +188,11 @@ void nnScExecuteGraphics(NNSched* sc) {
         osRecvMesg(&sc->rspMQ, &msg, OS_MESG_BLOCK);
         sc->curGraphicsTask = NULL;
         if (nnsc_perf_inptr->gtask_cnt < NN_SC_GTASK_NUM) {
-            nnsc_perf_inptr->rsp_etime[task_cnt] =
-                ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
+            nnsc_perf_inptr->rsp_etime[task_cnt] = ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
         }
         osRecvMesg(&sc->rdpMQ, &msg, OS_MESG_BLOCK);
         if (nnsc_perf_inptr->gtask_cnt < NN_SC_GTASK_NUM) {
-            nnsc_perf_inptr->rdp_etime[task_cnt] =
-                ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
+            nnsc_perf_inptr->rdp_etime[task_cnt] = ((u64)osGetTime() << 6) / 0xBB8ULL - nnsc_perf_inptr->retrace_time;
             nnsc_perf_inptr->gtask_cnt++;
         }
         if (task->flags & OS_SC_SWAPBUFFER) {

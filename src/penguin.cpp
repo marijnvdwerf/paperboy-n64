@@ -1,104 +1,90 @@
-#include "common.h"
-#include "file.h"
-#include "otter.h"
-#include "ultratypes.h"
+#include "penguin.h"
 
-class Pelican : public RomFile {
-  public:
-    virtual ~Pelican();
-};
-
-class Penguin : public Pelican {
-  public:
-    /* 0x30 */ Otter* otter;
-    /* 0x34 */ s32 fileNo;
-
-    Penguin();
-    virtual s32 rawClose();
-    virtual s32 seek(s32 pos);
-};
-
-// vtable slot 14: rawOpen override
-#ifdef NON_MATCHING
-extern "C" s32 func_80048E80(Penguin* this_, Otter* otter, const char* path, s32 length) {
+// vtable slot 17: Pelican::vfunc17 override
+s32 Penguin::vfunc17(Otter* otter, const char* path, s32 length) {
     char ext[4];
     char name[16];
     s32 r;
 
     Otter::func_80049980(path, name, ext);
-    this_->otter = otter;
+    this->unk30 = otter;
 
     if (otter->state != 0) {
         s32 v = otter->vfunc2();
-        if (v != 0) return v;
+        if (v != 0)
+            return v;
     }
 
-    Otter* o = this_->otter;
+    Otter* o = this->unk30;
     OtterStone* stone = o->unkC;
-    N64ControllerSystem* ncs = stone->unk4;
+    OtterStone* findStone = stone;
+    N64ControllerSystem& ncs = *stone->unk4;
 
-    if (this_->openFlags & 1) {
-        r = ncs->pfsAllocateFile(&o->pfs, stone->companyCode, stone->gameCode,
-                                 (u8*)name, (u8*)ext, length, &this_->fileNo);
-        if (r == 7) return 0x17;
-        if (r == 8) return 0x16;
-        if (r == 9) return 0xA;
+    if (this->openFlags & 1) {
+        u16 companyCode;
+        s32 gameCode;
+        r = ncs.pfsAllocateFile(&o->pfs, (companyCode = stone->companyCode), (gameCode = stone->gameCode), (u8*)name, (u8*)ext, length, &this->fileNo);
+        if (r == 7)
+            return 0x17;
+        if (r == 8)
+            return 0x16;
+        if (r == 9)
+            return 0xA;
     } else {
-        r = ncs->pfsFindFile(&o->pfs, stone->companyCode, stone->gameCode,
-                             (u8*)name, (u8*)ext, &this_->fileNo);
-        if (r == 5) return 8;
+        u16 companyCode;
+        s32 gameCode;
+        r = ncs.pfsFindFile(&o->pfs, (companyCode = findStone->companyCode), (gameCode = findStone->gameCode), (u8*)name, (u8*)ext, &this->fileNo);
+        if (r == 5)
+            return 8;
     }
 
-    this_->otter->func_80049B58(r);
-    return this_->otter->state;
+    this->unk30->func_80049B58(r);
+    return this->unk30->state;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/penguin", func_80048E80);
-#endif
 
 // vtable slot 3: seek override
-s32 Penguin::seek(s32 pos) {
+s32 Penguin::seek(u32 pos) {
     this->fileOffset = pos;
     return 0;
 }
 
 // vtable slot 6: sync override
-extern "C" s32 func_80048FD0(Penguin* this_) {
+s32 Penguin::sync() {
     return 0;
 }
 
 // vtable slot 5: rawWrite override
-extern "C" s32 func_80048FD8(Penguin* this_, void* buf, s32 len) {
-    Otter* o = this_->otter;
+s32 Penguin::rawWrite(void* buf, s32 len) {
+    Otter* o = this->unk30;
     N64ControllerSystem* ncs = o->unkC->unk4;
-    s32 r = ncs->pfsReadWriteFile(
-        &o->pfs, this_->fileNo, 1, this_->fileOffset, len, (u8*)buf);
-    if (r == 6) return 0xE;
-    this_->otter->func_80049B58(r);
-    return this_->otter->state;
+    s32 r = ncs->pfsReadWriteFile(&o->pfs, this->fileNo, 1, this->fileOffset, len, (u8*)buf);
+    if (r == 6)
+        return 0xE;
+    this->unk30->func_80049B58(r);
+    return this->unk30->state;
 }
 
 // vtable slot 4: rawRead override
-extern "C" s32 func_80049048(Penguin* this_, void* buf, s32 len, s32* out) {
-    N64ControllerSystem* ncs = this_->otter->unkC->unk4;
+s32 Penguin::rawRead(void* buf, s32 len, s32* out) {
+    N64ControllerSystem* ncs = this->unk30->unkC->unk4;
     *out = 0;
-    s32 r = ncs->pfsReadWriteFile(
-        &this_->otter->pfs, this_->fileNo, 0, this_->fileOffset, len, (u8*)buf);
-    if (r == 6) return 0xD;
-    if (r == 0) *out = len;
-    this_->otter->func_80049B58(r);
-    return this_->otter->state;
+    s32 r = ncs->pfsReadWriteFile(&this->unk30->pfs, this->fileNo, 0, this->fileOffset, len, (u8*)buf);
+    if (r == 6)
+        return 0xD;
+    if (r == 0)
+        *out = len;
+    this->unk30->func_80049B58(r);
+    return this->unk30->state;
 }
 
 // vtable slot 2: rawClose override
 s32 Penguin::rawClose() {
     this->fileNo = -1;
-    this->otter = NULL;
+    this->unk30 = NULL;
     return 0;
 }
 
 Penguin::Penguin() {
     fileNo = -1;
-    otter = NULL;
+    unk30 = NULL;
 }
-

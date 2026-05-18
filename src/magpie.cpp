@@ -9,7 +9,7 @@ unsigned int strlen(const char* s);
 }
 
 class OtherBird : public Parrot {
-    public:
+  public:
     virtual void selectDriver(const char* path);
     virtual char* getExtension();
     virtual void parseError(s32 code);

@@ -131,8 +131,7 @@ s32 Cockatoo::nextToken() {
             if (self->readBytes(4) == 0) {
                 return 0;
             }
-            u32 raw = self->readBuf[0] + (self->readBuf[1] << 8) +
-                      (self->readBuf[2] << 16) + (self->readBuf[3] << 24);
+            u32 raw = self->readBuf[0] + (self->readBuf[1] << 8) + (self->readBuf[2] << 16) + (self->readBuf[3] << 24);
             self->floatValue = *(f32*)&raw;
             self->currentType = token;
             return token;
@@ -141,8 +140,7 @@ s32 Cockatoo::nextToken() {
             if (self->readBytes(4) == 0) {
                 return self->currentType = 0;
             }
-            self->intValue = self->readBuf[0] + (self->readBuf[1] << 8) +
-                             (self->readBuf[2] << 16) + (self->readBuf[3] << 24);
+            self->intValue = self->readBuf[0] + (self->readBuf[1] << 8) + (self->readBuf[2] << 16) + (self->readBuf[3] << 24);
             self->currentType = token;
             return token;
         }
@@ -175,8 +173,7 @@ s32 Cockatoo::nextToken() {
             if (self->readBytes(2) == 0) {
                 return 0;
             }
-            self->floatValue =
-                (f32)(s16)(self->readBuf[0] + (self->readBuf[1] << 8)) * 0.000244140625f;
+            self->floatValue = (f32)(s16)(self->readBuf[0] + (self->readBuf[1] << 8)) * 0.000244140625f;
             self->currentType = TOKEN_FLOAT;
             return TOKEN_FLOAT;
         }
@@ -184,8 +181,7 @@ s32 Cockatoo::nextToken() {
             if (self->readBytes(2) == 0) {
                 return 0;
             }
-            self->floatValue =
-                (f32)(s16)(self->readBuf[0] + (self->readBuf[1] << 8)) * 0.03125f;
+            self->floatValue = (f32)(s16)(self->readBuf[0] + (self->readBuf[1] << 8)) * 0.03125f;
             self->currentType = TOKEN_FLOAT;
             return TOKEN_FLOAT;
         }
@@ -282,8 +278,7 @@ INCLUDE_ASM("asm/nonmatchings/cockatoo", nextToken__8Cockatoo);
 
 void Cockatoo::parseError(s32 code) {
     if (this->path != NULL) {
-        s32 total = strlen(this->path) + strlen(D_80076160) +
-                    strlen(this->errorMessage(code));
+        s32 total = strlen(this->path) + strlen(D_80076160) + strlen(this->errorMessage(code));
         this->readBuf[0] = 0;
         if (total < 0xFF) {
             sprintf((char*)this->readBuf, D_80076160, this->path);
