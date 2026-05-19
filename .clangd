@@ -28,3 +28,4 @@ CompileFlags:
     - -D_MIPSEB
     - -D__CHAR_UNSIGNED__
     - -DINCLUDE_ASM_USE_MACRO_INC=1
+    - -DHAVE_CXX_OVERRIDE=1
