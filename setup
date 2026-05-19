@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+
+# SN64 compiler binaries (run via wibo). Pinned to release 1,0,0,2.
+CC1N64_URL="https://github.com/marijnvdwerf/sn64/releases/download/1%2C0%2C0%2C2/cc1n64.exe"
+CC1PLN64_URL="https://github.com/marijnvdwerf/sn64/releases/download/1%2C0%2C0%2C2/cc1pln64.exe"
+
+mkdir -p tools/bin
+
+echo "Downloading cc1n64.exe..."
+curl -fsSL -o tools/bin/cc1n64.exe "$CC1N64_URL"
+
+echo "Downloading cc1pln64.exe..."
+curl -fsSL -o tools/bin/cc1pln64.exe "$CC1PLN64_URL"
+
+chmod +x tools/bin/cc1n64.exe tools/bin/cc1pln64.exe
+
+echo "Setup complete."

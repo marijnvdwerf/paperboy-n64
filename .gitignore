@@ -22,6 +22,9 @@ build.ninja
 # Auto-generated symbol files
 undefined_syms_auto.txt
 
+# Downloaded by ./setup
+tools/bin/*.exe
+
 # Python
 __pycache__/
 .venv/
