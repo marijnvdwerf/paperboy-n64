@@ -162,7 +162,7 @@ def create_build_script(linker_entries: list[LinkerEntry]):
     ninja.rule(
         "ld",
         description="link $out",
-        command=f"cd $build_dir && {CROSS_LD} $extra_ld_flags -T ../../undefined_syms.txt -T ../../undefined_funcs_auto.txt -T ../../undefined_syms_auto.txt -Map {BASENAME}.map -T ../../{LD_PATH} -o {BASENAME}.elf",
+        command=f"cd $build_dir && {CROSS_LD} $extra_ld_flags -T ../../undefined_syms.txt -T ../../undefined_syms_auto.txt -Map {BASENAME}.map -T ../../{LD_PATH} -o {BASENAME}.elf",
     )
 
     ninja.rule(
@@ -208,7 +208,7 @@ def create_build_script(linker_entries: list[LinkerEntry]):
             built_objects.append(obj)
 
         ninja.build(
-            elf_path, "ld", implicit=built_objects + [LD_PATH, "undefined_funcs_auto.txt", "undefined_syms_auto.txt"],
+            elf_path, "ld", implicit=built_objects + [LD_PATH, "undefined_syms_auto.txt"],
             variables={"build_dir": build_dir, "extra_ld_flags": variant["ld_flags"]},
         )
 
