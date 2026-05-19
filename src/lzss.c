@@ -1,7 +1,6 @@
 #include "common.h"
 
-s32 lzss_decompress(u8* src, u8* dest)
-{
+s32 lzss_decompress(u8* src, u8* dest) {
     s32 repeat;
     s32 size;
     s32 chunkBit;
