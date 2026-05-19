@@ -33,3 +33,7 @@ venv/
 # Editor / LSP
 .cache/
 compile_commands.json
+
+# Claude Code
+.claude/
+!.claude/skills/
