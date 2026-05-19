@@ -70,15 +70,6 @@ def get_line_tokens(line: str) -> List[str]:
 with open(input_filename, mode="r") as input_file:
     input_lines: List[str] = input_file.readlines()
     preprocessed: List[str] = [
-        ".macro glabel label\n"
-        "    .global \\label\n"
-        "    \\label:\n"
-        ".endm\n"
-        ".macro dlabel label\n"
-        "    .global \\label\n"
-        "    \\label:\n"
-        ".endm\n"
-        "\n"
         ".macro move a, b\n"
         "    addu \\a, \\b, $0\n"
         ".endm\n"
@@ -157,10 +148,13 @@ with open(input_filename, mode="r") as input_file:
             elif directive in ["def", "begin", "bend"]:
                 # Modern gas doesn't understand these directives, so get rid of them
                 line = ""
-            elif directive == "word":
-                # SN's cc1 uses $ for label references but . for the actual label names, so fix them up
-                if tokens[1][0] == "$":
-                    line = f"\t.word\t.{tokens[1][1:]}\n"
+            elif directive == "rdata":
+                # Modern gas doesn't understand these directives, so get rid of them
+                line = "\t.section .rdata\n"
+            # elif directive == "word":
+            #     # SN's cc1 uses $ for label references but . for the actual label names, so fix them up
+            #     if tokens[1][0] == "$":
+            #         line = f"\t.word\t.{tokens[1][1:]}\n"
         elif identifier[-1] == ":": # Labels
             # Nothing to do here, but it might be handy to have in the future
             label_name: str = identifier[:-1]
@@ -172,11 +166,11 @@ with open(input_filename, mode="r") as input_file:
                 if is_reorder:
                     line += "\tnop\n" # insert a nop after the instruction
             elif identifier == "li.s":
-                float_sym_name: str = f"RODATA_SYM_{generated_symbol_count}"
+                float_sym_name: str = f"RDATA_SYM_{generated_symbol_count}"
                 operands = [s.strip() for s in tokens[1].split(",")]
                 if operands[0][1] == "f": # Only expand for float register targets
                     line = (
-                        "\t.section .rodata\n"
+                        "\t.section .rdata\n"
                         f"{float_sym_name}:\n"
                         "\t.align 2\n"
                         f"\t.float {operands[1]}\n"
@@ -188,11 +182,11 @@ with open(input_filename, mode="r") as input_file:
                     )
                     generated_symbol_count += 1
             elif identifier == "li.d":
-                double_sym_name: str = f"RODATA_SYM_{generated_symbol_count}"
+                double_sym_name: str = f"RDATA_SYM_{generated_symbol_count}"
                 operands = [s.strip() for s in tokens[1].split(",")]
                 if operands[0][1] == "f": # Only expand for float register targets
                     line = (
-                        "\t.section .rodata\n"
+                        "\t.section .rdata\n"
                         f"{double_sym_name}:\n"
                         "\t.align 3\n"
                         f"\t.double {operands[1]}\n"
