@@ -225,7 +225,7 @@ class StructYYInner : public StructYYInnerBase {
 };
 
 class StructYYSubA8Inner1;
-class StructYYSubA8Inner2;
+class N64RenderContext;
 class StructYYSubA8;
 
 class StructYYSubA8Node {
@@ -345,13 +345,13 @@ class StructYYSubA8Inner1 : public Surface177B0 {
     void func_8002BDA0(u32 color);
 };
 
-class StructYYSubA8Inner2 {
+class N64RenderContext {
   public:
     /* 0x00 */ s32 unk0;
     /* 0x04 */ char pad4[0xCD4C];
 
-    StructYYSubA8Inner2();
-    ~StructYYSubA8Inner2();
+    N64RenderContext();
+    ~N64RenderContext();
 
     s32 func_80036A68();
     s32 func_80031B58(StructYYSubA8*, StructYYSubA8Inner1*, s32, s32);
@@ -361,7 +361,7 @@ class StructYYSubA8 : public StructYYSubA8Base {
   public:
     /* 0x20 */ OSSched scheduler;
     /* 0x2A8 */ StructYYSubA8Inner1 inner1;
-    /* 0x2E8 */ StructYYSubA8Inner2 inner2;
+    /* 0x2E8 */ N64RenderContext inner2;
     /* 0xD038 */ s32 unkD038;
     /* 0xD03C */ s32 unkD03C;
 

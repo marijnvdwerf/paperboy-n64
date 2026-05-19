@@ -102,7 +102,7 @@ void StructYYSubA8::vfunc3() {
 }
 
 s32 StructYYSubA8::vfunc10() {
-    StructYYSubA8Inner2* inner = &this->inner2;
+    N64RenderContext* inner = &this->inner2;
     s32 ret;
     if (inner->unk0 & 1) {
         ret = inner->func_80036A68();
