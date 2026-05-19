@@ -4,7 +4,7 @@
 struct ListNodeBase {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
-    /* 0x08 */ // vptr inserted here by cfront (vptr at end of polymorphic base)
+    /* 0x08 */ // vptr
 
     virtual UNK vfunc1();
     virtual UNK vfunc2();
@@ -21,14 +21,12 @@ struct ListNode : ListNodeBase {
     /* 0x10 */ ListNode* next;
 };
 
-struct InnerBase {
+struct Inner {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
-};
+    /* 0x0C */ // vptr
 
-struct Inner : InnerBase {
-    /* 0x0C */ // vptr here (12 bytes of base, then virtuals)
     virtual UNK vfunc1();
     virtual UNK vfunc2();
     virtual UNK vfunc3();
@@ -55,12 +53,13 @@ struct Renderer {
 };
 
 extern "C" s32 func_80024C80(ListNode*, void*);
-extern "C" void func_80024F30(RenderContext*);
 extern "C" void vec2_normalize(f32*, f32*);
 extern "C" void vec3_normalize(f32*, f32*);
 extern "C" const f32 D_8006C5F0[1024];
 
-struct Vec3 { f32 x, y, z; };
+struct Vec3 {
+    f32 x, y, z;
+};
 
 // Geometry result populated by Mover::vfunc6 (sp10..sp30 in the asm)
 struct MoverGeom {
@@ -121,9 +120,10 @@ struct Mover : MoverBase {
     virtual void vfunc24(s32 idx);
 };
 
-extern "C" void func_80024F30(RenderContext* self) {
+void RenderContext::func_80024F30() {
+    RenderContext* self = this;
     if (self->unk30 != NULL) {
-        delete[] (s32*)self->unk30;
+        delete[] self->unk30;
         self->unk30 = NULL;
     }
     self->unk2C = 0;
@@ -168,9 +168,10 @@ extern "C" void func_80024F30(RenderContext* self) {
     }
 }
 
-extern "C" void func_80025050(RenderContext* self) {
+void RenderContext::vfunc2() {
+    RenderContext* self = this;
     if (self->unk30 != NULL) {
-        delete[] (s32*)self->unk30;
+        delete[] self->unk30;
         self->unk30 = NULL;
     }
     self->unk2C = 0;
@@ -211,7 +212,8 @@ extern "C" void func_80025050(RenderContext* self) {
     self->unk24 = 0;
 }
 
-extern "C" s32 func_8002515C(RenderContext* self) {
+s32 RenderContext::vfunc1() {
+    RenderContext* self = this;
     {
         ListNode* n = self->unk3C;
         while (n != NULL) {
@@ -243,23 +245,280 @@ extern "C" s32 func_8002515C(RenderContext* self) {
     return 0;
 }
 
-// Large pixel-format dispatch (~250 instructions, nested loops with goto-heavy m2c output).
-// Iterates self->unk30 (PixelFormatCache[]) to find a matching entry against arg1 (PixelFormat*)
-// using bitWidthMaskRed/Green/Blue/Alpha/Unk10/PaletteMask helpers. Multi-branch fallback chain.
-// Needs proper PixelFormat/PixelFormatCache types defined before attempting.
-INCLUDE_ASM("asm/nonmatchings/render_context", func_80025238);
+#ifdef NON_MATCHING
+void RenderContext::vfunc4(PixelFormat* req, PixelFormat* out) {
+    RenderContext* self = this;
+    u32 r = req->bitWidthMaskRed();
+    u32 g = req->bitWidthMaskGreen();
+    u32 b = req->bitWidthMaskBlue();
+    u32 a = req->bitWidthMaskAlpha();
+    u32 u = req->bitWidthUnk10();
+    u32 p = req->bitWidthPaletteMask();
+    u32 depth = req->bitDepth;
 
-// Algorithm matches Lego Racers Windows equivalent (entity OrientToCameraBasis vtable@4dbb78 idx 0xE):
-// fetch reference vec3 + idx via Mover::vfunc6, conditionally transform via Mover::vfunc17 or
-// via MoverItem::vfunc7 -> Inner::vfunc9 -> Mover::vfunc14 pair, then compute 2-axis angles via
-// atan2 LUT and dispatch back via RenderContext::vfunc43.
-extern "C" void func_80025E7C(RenderContext* arg0, Mover* arg1) {
+    if (self->unk10 == r && self->unk14 == g && self->unk18 == b && self->unk1C == a && self->unk20 == u && self->unk24 == p) {
+        *out = self->unk30[self->unkC];
+        return;
+    }
+    self->unk10 = r;
+    self->unk14 = g;
+    self->unk18 = b;
+    self->unk1C = a;
+    self->unk20 = u;
+    self->unk24 = p;
+
+    if (a != 0) {
+        if (p != 0) {
+            // (M) exact depth + palette + alpha
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitDepth == depth && e->bitWidthPaletteMask() == p && e->bitWidthMaskAlpha() == a) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        } else if (u != 0) {
+            // (L) exact depth + unk10 + alpha
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitDepth == depth && e->bitWidthUnk10() == u && e->bitWidthMaskAlpha() == a) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        } else {
+            // (K) exact depth + RGB widths + alpha
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitDepth == depth && e->bitWidthMaskRed() == r && e->bitWidthMaskGreen() == g && e->bitWidthMaskBlue() == b && e->bitWidthMaskAlpha() == a) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        }
+    } else {
+        if (p != 0) {
+            // (G) exact depth + palette
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitDepth == depth && e->bitWidthPaletteMask() == p) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        } else if (u != 0) {
+            // (D) exact depth + unk10
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitDepth == depth && e->bitWidthUnk10() == u) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        } else {
+            // (A) exact RGB mask values + depth
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitDepth == depth && e->maskRed == req->maskRed && e->maskGreen == req->maskGreen && e->maskBlue == req->maskBlue) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+            // (B) depth + RGB widths
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitDepth == depth && e->bitWidthMaskRed() == r && e->bitWidthMaskGreen() == g && e->bitWidthMaskBlue() == b) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        }
+    }
+
+    // Fuzzy level (block_67)
+    if (a != 0) {
+        if (p != 0) {
+            // (Q) depth > + palette >= + alpha >=
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (depth < e->bitDepth && e->bitWidthPaletteMask() >= p && e->bitWidthMaskAlpha() >= a) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+            // (R) depth >= 16 + RGB >= 5 + alpha >=
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitDepth >= 0x10 && e->bitWidthMaskRed() >= 5 && e->bitWidthMaskGreen() >= 5 && e->bitWidthMaskBlue() >= 5 && e->bitWidthMaskAlpha() >= a) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        } else if (u != 0) {
+            // (O) depth > + unk10 >= + alpha >=
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (depth < e->bitDepth && e->bitWidthUnk10() >= u && e->bitWidthMaskAlpha() >= a) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+            // (P) depth > + RGB >= u + alpha >=
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (depth < e->bitDepth && e->bitWidthMaskRed() >= u && e->bitWidthMaskGreen() >= u && e->bitWidthMaskBlue() >= u && e->bitWidthMaskAlpha() >= a) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        } else {
+            // (N) depth > + RGB >= + alpha >=
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (depth < e->bitDepth && e->bitWidthMaskRed() >= r && e->bitWidthMaskGreen() >= g && e->bitWidthMaskBlue() >= b && e->bitWidthMaskAlpha() >= a) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        }
+    } else {
+        if (p != 0) {
+            // (H) p<8 special: depth < 16 + palette >=
+            if (p < 8)
+                for (u32 i = 0; i < self->unk2C; i++) {
+                    PixelFormat* e = &self->unk30[i];
+                    if (e->bitDepth < 0x10 && e->bitWidthPaletteMask() >= p) {
+                        *out = self->unk30[i];
+                        self->unkC = i;
+                        return;
+                    }
+                }
+            // (I) depth == 16 + RGB >= 5
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitDepth == 0x10 && e->bitWidthMaskRed() >= 5 && e->bitWidthMaskGreen() >= 5 && e->bitWidthMaskBlue() >= 5) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        } else if (u != 0) {
+            // (E) depth > + unk10 >=
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (depth < e->bitDepth && e->bitWidthUnk10() >= u) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+            // (F) depth > + RGB >= u
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (depth < e->bitDepth && e->bitWidthMaskRed() >= u && e->bitWidthMaskGreen() >= u && e->bitWidthMaskBlue() >= u) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        } else {
+            // (C) depth > + RGB >=
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (depth < e->bitDepth && e->bitWidthMaskRed() >= r && e->bitWidthMaskGreen() >= g && e->bitWidthMaskBlue() >= b) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        }
+    }
+
+    // block_159
+    if (a != 0) {
+        // (S) alpha >= 4
+        if (a >= 4)
+            for (u32 i = 0; i < self->unk2C; i++) {
+                PixelFormat* e = &self->unk30[i];
+                if (e->bitWidthMaskAlpha() >= 4) {
+                    *out = self->unk30[i];
+                    self->unkC = i;
+                    return;
+                }
+            }
+        // (T) alpha != 0
+        for (u32 i = 0; i < self->unk2C; i++) {
+            PixelFormat* e = &self->unk30[i];
+            if (e->bitWidthMaskAlpha() != 0) {
+                *out = self->unk30[i];
+                self->unkC = i;
+                return;
+            }
+        }
+    } else {
+        // (J) depth >= 15 + RGB >= 5
+        for (u32 i = 0; i < self->unk2C; i++) {
+            PixelFormat* e = &self->unk30[i];
+            if (e->bitDepth >= 0xF && e->bitWidthMaskRed() >= 5 && e->bitWidthMaskGreen() >= 5 && e->bitWidthMaskBlue() >= 5) {
+                *out = self->unk30[i];
+                self->unkC = i;
+                return;
+            }
+        }
+    }
+
+    // (U) same depth
+    for (u32 i = 0; i < self->unk2C; i++) {
+        PixelFormat* e = &self->unk30[i];
+        if (e->bitDepth == depth) {
+            *out = self->unk30[i];
+            self->unkC = i;
+            return;
+        }
+    }
+    // (V) larger depth
+    for (u32 i = 0; i < self->unk2C; i++) {
+        PixelFormat* e = &self->unk30[i];
+        if (depth < e->bitDepth) {
+            *out = self->unk30[i];
+            self->unkC = i;
+            return;
+        }
+    }
+
+    // (W) entry[0] + cache reset
+    self->unk10 = 0;
+    self->unk14 = 0;
+    self->unk18 = 0;
+    self->unk1C = 0;
+    self->unk20 = 0;
+    self->unk24 = 0;
+    *out = self->unk30[0];
+    self->unkC = 0;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/render_context", vfunc4__13RenderContextP11PixelFormatT1);
+#endif
+
+void RenderContext::vfunc41(Mover* arg1) {
     f32 fv1, fv0;
     MoverGeom geom;
     f32 sp38[3];
     f32 sp48[3];
 
-    arg1->vfunc6(arg0->unk48, &geom);
+    arg1->vfunc6(this->unk48, &geom);
     if (geom.status != 0) {
         MoverItem* item = arg1->vfunc23(geom.idx);
         if (item == NULL) {
@@ -287,12 +546,10 @@ extern "C" void func_80025E7C(RenderContext* arg0, Mover* arg1) {
             fv1 = 0.0f;
             fv0 = 0.5f;
         }
-        arg0->vfunc43(arg1, fv1, fv0);
+        this->vfunc43(arg1, fv1, fv0);
     }
 }
 
-// score 1035; arg3 dot product hoisted before LUT compute (cfront schedules arg3 loads to fill LUT
-// prep latency, target keeps them after the LUT lookup). Same instructions, scheduling differs.
 #ifdef NON_MATCHING
 extern "C" void func_800260AC(RenderContext* arg0, Mover* arg1, Vec3* arg2, Vec3* arg3, Vec3* arg4) {
     MoverGeom geom;
@@ -302,7 +559,7 @@ extern "C" void func_800260AC(RenderContext* arg0, Mover* arg1, Vec3* arg2, Vec3
     arg1->vfunc6(arg0->unk48, &geom);
     if (geom.status != 0) {
         arg1->vfunc17(geom.vec_a, geom.vec_b);
-        f32 dot = geom.vec_a[0]*arg4->x + geom.vec_a[1]*arg4->y + geom.vec_a[2]*arg4->z;
+        f32 dot = geom.vec_a[0] * arg4->x + geom.vec_a[1] * arg4->y + geom.vec_a[2] * arg4->z;
         sp48.x = arg4->x * dot;
         sp48.y = arg4->y * dot;
         sp48.z = arg4->z * dot;
@@ -312,15 +569,15 @@ extern "C" void func_800260AC(RenderContext* arg0, Mover* arg1, Vec3* arg2, Vec3
         f32 zero = 0.0f;
         if (sp38.x != zero || sp38.y != zero || sp38.z != zero) {
             vec3_normalize((f32*)&sp38, (f32*)&sp38);
-            f32 dot_a2 = sp38.x*arg2->x + sp38.y*arg2->y + sp38.z*arg2->z;
+            f32 dot_a2 = sp38.x * arg2->x + sp38.y * arg2->y + sp38.z * arg2->z;
             s32 idx_a = ((s32)((dot_a2 + 1.0f) * 511.5f)) & 0x3FF;
             f32 lut_a = D_8006C5F0[idx_a] * 0.31830987f;
-            f32 dot_a3 = sp38.x*arg3->x + sp38.y*arg3->y + sp38.z*arg3->z;
+            f32 dot_a3 = sp38.x * arg3->x + sp38.y * arg3->y + sp38.z * arg3->z;
             fv1 = lut_a * 0.5f;
             if (dot_a3 < zero) {
                 fv1 = 1.0f - fv1;
             }
-            f32 dot_b4 = geom.vec_b[0]*arg4->x + geom.vec_b[1]*arg4->y + geom.vec_b[2]*arg4->z;
+            f32 dot_b4 = geom.vec_b[0] * arg4->x + geom.vec_b[1] * arg4->y + geom.vec_b[2] * arg4->z;
             s32 idx_b = ((s32)((dot_b4 + 1.0f) * 511.5f)) & 0x3FF;
             fv0 = D_8006C5F0[idx_b] * 0.31830987f;
         } else {
@@ -331,137 +588,142 @@ extern "C" void func_800260AC(RenderContext* arg0, Mover* arg1, Vec3* arg2, Vec3
     }
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/render_context", func_800260AC);
+INCLUDE_ASM("asm/nonmatchings/render_context", vfunc42__13RenderContextP5MoverP4Vec3N22);
 #endif
 
-extern "C" void func_80026310(RenderContext* self) {
-    self->unk8 = 0;
+void RenderContext::vfunc10() {
+    this->unk8 = 0;
 }
 
-// calls vfunc23
-extern "C" void func_80026318(RenderContext* self, UNK, UNK arg) {
-    self->vfunc23(arg);
+void RenderContext::vfunc22(UNK, UNK arg) {
+    this->vfunc23(arg);
 }
 
-extern "C" void func_80026344(void) {
+void RenderContext::vfunc21() {
 }
 
-// vfunc20
-extern "C" s32 func_8002634C(RenderContext*) {
+s32 RenderContext::vfunc20() {
     return 0;
 }
 
-extern "C" void func_80026354(RenderContext* self) {
-    self->flags &= ~0x40000;
+void RenderContext::vfunc19() {
+    this->flags &= ~0x40000;
 }
 
-extern "C" void func_8002636C(RenderContext* self) {
-    self->flags |= 0x40000;
+void RenderContext::vfunc18() {
+    this->flags |= 0x40000;
 }
 
-extern "C" void func_80026380(void) {
+void RenderContext::vfunc17() {
 }
 
-extern "C" void func_80026388(void) {
+void RenderContext::vfunc16() {
 }
 
-extern "C" void func_80026390(void) {
+void RenderContext::vfunc59() {
 }
 
-extern "C" void func_80026398(void) {
+void RenderContext::vfunc15() {
 }
 
-extern "C" void func_800263A0(void) {
+void RenderContext::vfunc14() {
 }
 
-extern "C" void func_800263A8(void) {
+void RenderContext::vfunc51() {
 }
 
-extern "C" void func_800263B0(void) {
+void RenderContext::vfunc50() {
 }
 
-extern "C" void func_800263B8(void) {
+void RenderContext::vfunc25() {
 }
 
-extern "C" void func_800263C0(RenderContext* self, s32 val) {
-    if (self->unk118 < 3) {
-        self->flags |= 0x8000;
-        self->unk120[self->unk118++] = val;
+void RenderContext::vfunc13(s32 val) {
+    if (this->unk118 < 3) {
+        this->flags |= 0x8000;
+        this->unk120[this->unk118++] = val;
     }
 }
 
-extern "C" void func_80026400(RenderContext* self, s32 val) {
-    self->unk11C = val;
-    self->flags |= 0x8000;
+void RenderContext::vfunc12(s32 val) {
+    this->unk11C = val;
+    this->flags |= 0x8000;
 }
 
-extern "C" void func_80026414(RenderContext* self) {
-    self->unk118 = 0;
-    self->unk11C = 0;
-    self->unk120[0] = 0;
-    self->flags &= ~0x8000;
+void RenderContext::vfunc11() {
+    this->unk118 = 0;
+    this->unk11C = 0;
+    this->unk120[0] = 0;
+    this->flags &= ~0x8000;
 }
 
-extern "C" void func_80026438(RenderContext* self) {
-    self->flags &= ~0x80000;
+void RenderContext::vfunc49() {
+    this->flags &= ~0x80000;
 }
 
-extern "C" void func_80026450(RenderContext* self, const char* src) {
-    memcpy(&self->unk114, src, 4);
-    self->flags |= 0x80000;
+void RenderContext::vfunc48(const char* src) {
+    memcpy(&this->unk114, src, 4);
+    this->flags |= 0x80000;
 }
 
-extern "C" void func_80026474(RenderContext* self) {
-    self->flags &= ~0x4000;
+void RenderContext::vfunc47() {
+    this->flags &= ~0x4000;
 }
 
-extern "C" void func_80026488(RenderContext* self, s16 a, s16 b) {
-    self->unk6 = a;
-    self->unk4 = b;
-    self->flags |= 0x4000;
+void RenderContext::vfunc46(s16 a, s16 b) {
+    this->unk6 = a;
+    this->unk4 = b;
+    this->flags |= 0x4000;
 }
 
-// calls vfunc35
-extern "C" void func_800264A0(RenderContext* self, UNK arg) {
-    self->vfunc35(arg);
+void RenderContext::vfunc43(Mover* arg, f32 f1, f32 f2) {
+    this->vfunc35((UNK)arg);
 }
 
-extern "C" void func_800264CC(void) {
+void RenderContext::vfunc40() {
 }
 
-extern "C" void func_800264D4(void) {
+void RenderContext::vfunc39() {
 }
 
-extern "C" void func_800264DC(void) {
+void RenderContext::vfunc38() {
 }
 
-extern "C" void func_800264E4(void) {
+void RenderContext::vfunc37() {
 }
 
-extern "C" void func_800264EC(void) {
+void RenderContext::vfunc61() {
 }
 
-// vfunc68
-extern "C" s32 func_800264F4(RenderContext*) {
+s32 RenderContext::vfunc68() {
     return 0;
 }
 
-extern "C" s32 func_800264FC(RenderContext* self, void* arg) {
+s32 RenderContext::func_800264FC(void* arg) {
+    RenderContext* self = this;
     ListNode* n = self->unk38;
     s32 result;
     while (1) {
-        if (n == NULL) { result = 0; break; }
-        if (n->unk0 == 0) result = 0;
-        else result = func_80024C80(n, arg);
-        if (result != 0) break;
+        if (n == NULL) {
+            result = 0;
+            break;
+        }
+        if (n->unk0 == 0)
+            result = 0;
+        else
+            result = func_80024C80(n, arg);
+        if (result != 0)
+            break;
         n = n->next;
     }
     return result;
 }
 
-extern "C" void func_80026560(RenderContext* self, ListNode* node) {
+void RenderContext::func_80026560(ListNode* node) {
+    RenderContext* self = this;
     ListNode* head = self->unk38;
-    if (head == NULL) return;
+    if (head == NULL)
+        return;
     if (node == head) {
         self->unk38 = node->next;
         return;
@@ -480,27 +742,36 @@ extern "C" void func_80026560(RenderContext* self, ListNode* node) {
     }
 }
 
-extern "C" void func_800265BC(RenderContext* self, ListNode* node) {
-    node->next = self->unk38;
-    self->unk38 = node;
+void RenderContext::func_800265BC(ListNode* node) {
+    node->next = this->unk38;
+    this->unk38 = node;
 }
 
-extern "C" s32 func_800265CC(RenderContext* self, void* arg) {
+s32 RenderContext::func_800265CC(void* arg) {
+    RenderContext* self = this;
     ListNode* n = self->unk34;
     s32 result;
     while (1) {
-        if (n == NULL) { result = 0; break; }
-        if (n->unk0 == 0) result = 0;
-        else result = func_80024C80(n, arg);
-        if (result != 0) break;
+        if (n == NULL) {
+            result = 0;
+            break;
+        }
+        if (n->unk0 == 0)
+            result = 0;
+        else
+            result = func_80024C80(n, arg);
+        if (result != 0)
+            break;
         n = n->next;
     }
     return result;
 }
 
-extern "C" void func_80026630(RenderContext* self, ListNode* node) {
+void RenderContext::func_80026630(ListNode* node) {
+    RenderContext* self = this;
     ListNode* head = self->unk34;
-    if (head == NULL) return;
+    if (head == NULL)
+        return;
     if (node == head) {
         self->unk34 = node->next;
         return;
@@ -519,27 +790,36 @@ extern "C" void func_80026630(RenderContext* self, ListNode* node) {
     }
 }
 
-extern "C" void func_8002668C(RenderContext* self, ListNode* node) {
-    node->next = self->unk34;
-    self->unk34 = node;
+void RenderContext::func_8002668C(ListNode* node) {
+    node->next = this->unk34;
+    this->unk34 = node;
 }
 
-extern "C" s32 func_8002669C(RenderContext* self, void* arg) {
+s32 RenderContext::func_8002669C(void* arg) {
+    RenderContext* self = this;
     ListNode* n = self->unk3C;
     s32 result;
     while (1) {
-        if (n == NULL) { result = 0; break; }
-        if (n->unk0 == 0) result = 0;
-        else result = func_80024C80(n, arg);
-        if (result != 0) break;
+        if (n == NULL) {
+            result = 0;
+            break;
+        }
+        if (n->unk0 == 0)
+            result = 0;
+        else
+            result = func_80024C80(n, arg);
+        if (result != 0)
+            break;
         n = n->next;
     }
     return result;
 }
 
-extern "C" void func_80026700(RenderContext* self, ListNode* node) {
+void RenderContext::func_80026700(ListNode* node) {
+    RenderContext* self = this;
     ListNode* head = self->unk3C;
-    if (head == NULL) return;
+    if (head == NULL)
+        return;
     if (node == head) {
         self->unk3C = node->next;
         return;
@@ -558,27 +838,36 @@ extern "C" void func_80026700(RenderContext* self, ListNode* node) {
     }
 }
 
-extern "C" void func_8002675C(RenderContext* self, ListNode* node) {
-    node->next = self->unk3C;
-    self->unk3C = node;
+void RenderContext::func_8002675C(ListNode* node) {
+    node->next = this->unk3C;
+    this->unk3C = node;
 }
 
-extern "C" s32 func_8002676C(RenderContext* self, void* arg) {
+s32 RenderContext::func_8002676C(void* arg) {
+    RenderContext* self = this;
     ListNode* n = self->unk40;
     s32 result;
     while (1) {
-        if (n == NULL) { result = 0; break; }
-        if (n->unk0 == 0) result = 0;
-        else result = func_80024C80(n, arg);
-        if (result != 0) break;
+        if (n == NULL) {
+            result = 0;
+            break;
+        }
+        if (n->unk0 == 0)
+            result = 0;
+        else
+            result = func_80024C80(n, arg);
+        if (result != 0)
+            break;
         n = n->next;
     }
     return result;
 }
 
-extern "C" void func_800267D0(RenderContext* self, ListNode* node) {
+void RenderContext::func_800267D0(ListNode* node) {
+    RenderContext* self = this;
     ListNode* head = self->unk40;
-    if (head == NULL) return;
+    if (head == NULL)
+        return;
     if (node == head) {
         self->unk40 = node->next;
         return;
@@ -597,13 +886,13 @@ extern "C" void func_800267D0(RenderContext* self, ListNode* node) {
     }
 }
 
-extern "C" void func_8002682C(RenderContext* self, ListNode* node) {
-    node->next = self->unk40;
-    self->unk40 = node;
+void RenderContext::func_8002682C(ListNode* node) {
+    node->next = this->unk40;
+    this->unk40 = node;
 }
 
 RenderContext::~RenderContext() {
-    func_80024F30(this);
+    this->func_80024F30();
 }
 
 RenderContext::RenderContext() {
@@ -631,72 +920,114 @@ RenderContext::RenderContext() {
     unk120[0] = 0;
 }
 
-extern "C" s32 func_8002692C(RenderContext* self) { return self->flags & 0x80000; }
-
-extern "C" s32 func_8002693C(RenderContext* self) { return self->flags & 0x40000; }
-
-extern "C" s32 func_8002694C(RenderContext* self) { return self->flags & 0x20000; }
-
-extern "C" s32 func_8002695C(RenderContext* self) { return self->flags & 0x10000; }
-
-extern "C" s32 func_8002696C(RenderContext* self) { return self->flags & 0x8000; }
-
-extern "C" u16 func_80026978(RenderContext* self) { return self->unk6; }
-
-extern "C" u16 func_80026984(RenderContext* self) { return self->unk4; }
-
-extern "C" s32 func_80026990(RenderContext* self) { return self->flags & 0x4000; }
-
-extern "C" void func_8002699C(RenderContext* self, UNK arg) {
-    self->unk8->inner->vfunc17(arg);
+s32 RenderContext::func_8002692C() {
+    return this->flags & 0x80000;
 }
 
-extern "C" void func_800269D0(RenderContext* self, u32* dst) {
-    memcpy(dst, self->unk8->data, 60);
+s32 RenderContext::func_8002693C() {
+    return this->flags & 0x40000;
 }
 
-extern "C" void* func_80026A24(RenderContext* self) { return self->unk48; }
-
-extern "C" s32 func_80026A2C(RenderContext* self, s32 i) { return self->unk120[i]; }
-
-extern "C" s32 func_80026A40(RenderContext* self) { return self->unk118; }
-
-extern "C" s32 func_80026A4C(RenderContext* self) { return self->unk11C; }
-
-extern "C" Renderer* func_80026A58(RenderContext* self) { return self->unk8; }
-
-extern "C" void func_80026A64(RenderContext* self, u32* dst) {
-    memcpy(dst, self->unk8->data, 0xCC);
+s32 RenderContext::func_8002694C() {
+    return this->flags & 0x20000;
 }
 
-extern "C" s32 func_80026AB8(RenderContext* self) { return self->flags & 0x1000; }
+s32 RenderContext::func_8002695C() {
+    return this->flags & 0x10000;
+}
 
-extern "C" s32 func_80026AC4(RenderContext* self) { return self->flags & 0x800; }
+s32 RenderContext::func_8002696C() {
+    return this->flags & 0x8000;
+}
 
-extern "C" s32 func_80026AD0(RenderContext* self) { return self->flags & 0x200; }
+u16 RenderContext::func_80026978() {
+    return this->unk6;
+}
 
-extern "C" s32 func_80026ADC(RenderContext* self) { return self->flags & 0x100; }
+u16 RenderContext::func_80026984() {
+    return this->unk4;
+}
 
-extern "C" s32 func_80026AE8(RenderContext* self) { return self->flags & 0x80; }
+s32 RenderContext::func_80026990() {
+    return this->flags & 0x4000;
+}
 
-extern "C" s32 func_80026AF4(RenderContext* self) { return self->flags & 0x180; }
+void RenderContext::func_8002699C(UNK arg) {
+    this->unk8->inner->vfunc17(arg);
+}
 
-extern "C" s32 func_80026B00(RenderContext* self) { return self->flags & 0x40; }
+void RenderContext::func_800269D0(u32* dst) {
+    memcpy(dst, this->unk8->data, 60);
+}
 
-extern "C" s32 func_80026B0C(RenderContext* self) { return self->flags & 0x20; }
+void* RenderContext::func_80026A24() {
+    return this->unk48;
+}
 
-extern "C" s32 func_80026B18(RenderContext* self) { return self->flags & 0x2; }
+s32 RenderContext::func_80026A2C(s32 i) {
+    return this->unk120[i];
+}
 
-extern "C" s32 func_80026B24(RenderContext* self) { return self->flags & 0x1; }
+s32 RenderContext::func_80026A40() {
+    return this->unk118;
+}
 
-extern "C" s32 func_80026B30(RenderContext* self) { return self->unk44; }
+s32 RenderContext::func_80026A4C() {
+    return this->unk11C;
+}
 
-extern "C" void func_80026B3C(RenderContext* self, s32 v) { self->unk44 = v; }
+Renderer* RenderContext::func_80026A58() {
+    return this->unk8;
+}
 
-INCLUDE_RODATA("asm/nonmatchings/render_context", _vt.13RenderContext);
+void RenderContext::func_80026A64(u32* dst) {
+    memcpy(dst, this->unk8->data, 0xCC);
+}
 
-INCLUDE_RODATA("asm/nonmatchings/render_context", func_80001FB4);
+s32 RenderContext::func_80026AB8() {
+    return this->flags & 0x1000;
+}
 
-INCLUDE_RODATA("asm/nonmatchings/render_context", func_80001FC8);
+s32 RenderContext::func_80026AC4() {
+    return this->flags & 0x800;
+}
 
-INCLUDE_RODATA("asm/nonmatchings/render_context", func_80001FD8);
+s32 RenderContext::func_80026AD0() {
+    return this->flags & 0x200;
+}
+
+s32 RenderContext::func_80026ADC() {
+    return this->flags & 0x100;
+}
+
+s32 RenderContext::func_80026AE8() {
+    return this->flags & 0x80;
+}
+
+s32 RenderContext::func_80026AF4() {
+    return this->flags & 0x180;
+}
+
+s32 RenderContext::func_80026B00() {
+    return this->flags & 0x40;
+}
+
+s32 RenderContext::func_80026B0C() {
+    return this->flags & 0x20;
+}
+
+s32 RenderContext::func_80026B18() {
+    return this->flags & 0x2;
+}
+
+s32 RenderContext::func_80026B24() {
+    return this->flags & 0x1;
+}
+
+s32 RenderContext::func_80026B30() {
+    return this->unk44;
+}
+
+void RenderContext::func_80026B3C(s32 v) {
+    this->unk44 = v;
+}
