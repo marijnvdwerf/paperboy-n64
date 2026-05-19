@@ -14,15 +14,45 @@ Each tip names: **symptom** (what asm-differ shows, or what the asm looks like),
 
 ## memcpy / strcpy inlined unexpectedly
 
-**Symptom**: a small copy in the asm is a sequence of `lwl/lwr/swl/swr` (or `lb/sb` for tiny sizes) instead of `jal memcpy`. Or vice versa — your C produces an inlined copy but the target wants a real call.
+**Symptom**: a small copy in the asm is a sequence of `lwl/lwr/swl/swr`, `lw/sw`, or `lb/sb` instead of `jal memcpy`. Or vice versa — your C produces an inlined copy but the target wants a real call.
 
-**Cause**: the compiler decides whether to inline `memcpy(dst, src, N)` based on the static type of `src` at the call site. `const char*` (or any concrete byte-pointer-ish type) → inlined. `const void*` → real `jal memcpy`.
+**Cause**: the compiler decides whether and how to inline `memcpy(dst, src, N)` based on the static type of `src` at the call site:
+- `const void*` → real `jal memcpy`
+- `const char*` (or unknown-alignment byte pointer) → inline `lwl/lwr/swl/swr` (unaligned word ops)
+- `const u32*` (or any aligned word pointer) → inline `lw/sw` (aligned), with a loop-unrolled body for larger sizes
 
 **Fix**: match the type of the source operand to what the asm wants.
 - Asm has `jal memcpy` → declare the source as `const void*` (or cast at the call site)
 - Asm has inline `lwl/lwr/...` → declare the source as `const char*`
+- Asm has inline `lw/sw` (aligned, possibly with a 4-word unrolled loop) → declare the source as `const u32*`
+
+This was the lever in `func_80026450` (`const char*` for a 4-byte unaligned copy), `func_800269D0` and `func_80026A64` (`const u32*` for 60-byte and 204-byte aligned copies with unrolled 4-word loops).
 
 Same pattern likely applies to `strcpy` / `memmove` / `strncpy` — verify when you encounter one.
+
+---
+
+## Thunk function: passing args through without setup
+
+**Symptom**: a small function ends in a virtual call (or another `jal`), and the asm has `nop` in the jalr delay slot — *no* `move a1, ...` or argument setup before the call. Your C, declared with just `self`, produces a similar shape but the compiler aggressively packs the this-adjust into the jalr delay slot instead of leaving `nop`. Sometimes register choices shift too.
+
+**Cause**: the source function is a thunk — it has its own extra arg (or several) that it passes through to the call unchanged. The compiler doesn't emit a `move` because the value is already in the correct argument register from the caller. The "wasted" `nop` in the delay slot is because the compiler has nothing left to schedule there — all the work is already done.
+
+**Fix**: give the function the same arg list as the callee and pass the args through:
+
+```cpp
+// produces aggressive delay-slot packing, score never reaches 0
+extern "C" void func_80026318(RenderContext* self) {
+    self->vfunc23();
+}
+
+// matches: a1 carries through, nop fills the jalr delay slot
+extern "C" void func_80026318(RenderContext* self, UNK, UNK arg) {
+    self->vfunc23(arg);
+}
+```
+
+The "extra" args don't even need to be referenced — leaving them anonymous (just typed) is enough to make cfront reserve the registers and the call schedules cleanly. Used in `func_80026318`, `func_800264A0`, `func_8002699C`.
 
 ---
 
@@ -268,6 +298,119 @@ for (i = 0; i < b; i++) { value = ...; }
 **Cause**: function declared with a non-void return type (e.g. `s32`) but the C body has no explicit `return` statement at every path. The compiler emits an implicit zero-return at the fallthrough. The original source had the function declared `void`, so no `v0` is touched.
 
 **Fix**: change the function's return type to `void` if the target asm doesn't set `v0` before return. For virtual methods, the *base class declaration* must also be `void` — otherwise the override's signature mismatches and the compiler errors. Update the pure-virtual declaration in the base class and any sibling overrides.
+
+---
+
+## Loop back-edge: `j` to top vs `bnez` skipping the top check
+
+**Symptom**: a walking loop (linked list, array iter) matches almost everything except the back-edge instruction. The target emits an unconditional `j` to the loop's null-check at the top; your version emits a conditional `bnez` (or `bne`) that skips the null check entirely, jumping to the body. Diff shows one `|` marker on the back-edge instruction, everything else aligned.
+
+```asm
+; target
+loop_top:
+  beqz  curr, end
+  ; ... body, advance ...
+  lw    curr, next(curr)
+  j     loop_top         ; unconditional back to null check
+  nop
+end:
+
+; your version
+loop_top:
+  beqz  curr, end
+  ; ... body, advance ...
+  lw    curr, next(curr)
+  bnez  curr, body_top   ; skip the null check
+  nop
+end:
+```
+
+**Cause**: when the loop increment is a chain like `curr = curr->next`, the compiler proves the loaded value reaches the null check unchanged and folds the test — `lw curr, ...; bnez curr, body_top` replaces `lw curr, ...; j top; ... beqz curr, end`. Functionally equivalent, one fewer instruction.
+
+**Fix**: break the data-flow chain between the load and the next iteration's null check by introducing an intermediate local for the loaded value:
+
+```cpp
+// folds: compiler combines lw with next iter's beqz, emits bnez back-edge
+while (curr != NULL) {
+    // ... body ...
+    prev = curr;
+    curr = curr->next;
+}
+
+// doesn't fold: lw lands in `next`, then the assignment to curr is a separate move,
+// preventing the combiner from reusing the load — emits j back-edge
+while (curr != NULL) {
+    // ... body ...
+    ListNode* next = curr->next;
+    prev = curr;
+    curr = next;
+}
+```
+
+This was the key lever in `func_80026560` (linked-list unlink). Same pattern likely applies to any chained-pointer walk where the asm shows an unconditional `j` back-edge.
+
+Related: a similar back-edge mismatch in `func_800264FC` (search loop) was fixed by a different lever — giving the null-exit path a side-effect (`result = 0; break;`) so the compiler couldn't merge it with the loop's natural exit. The general principle is the same: prevent the compiler from coalescing the load with the null check by introducing a step it can't see through.
+
+---
+
+## "Defaults" if-else placed inline vs out-of-line
+
+**Symptom**: a small `defaults` branch (e.g. `fv1 = 0.0f; fv0 = 0.5f;`) and a larger compute branch share a single tail (a function call using `fv1`/`fv0`). The target emits the defaults code OUT-OF-LINE (physically after the compute branch) and reaches it via a likely branch with a useful delay slot (e.g. `bc1tl ...; mov.s fv1, fs0`). Your version emits defaults INLINE between the if-test and the compute branch, falling through via a regular branch and an explicit `j` over the inline block to the tail.
+
+**Cause**: cfront's basic-block layout heuristic for `if (X) defaults; else compute;` and `if (X) compute; else defaults;` is not symmetric. When the *first* arm is the smaller "defaults" arm, cfront emits it inline; when it's the larger "compute" arm, cfront emits defaults out-of-line after the compute body and uses likely-branch + delay-slot work to reach it.
+
+**Fix**: write the condition with the inverted polarity so the compute branch is the if-arm and defaults are the else-arm:
+
+```cpp
+// inline defaults (bad)
+if (a == 0.0f && b == 0.0f) {
+    fv1 = 0.0f; fv0 = 0.5f;
+} else {
+    /* compute fv1, fv0 */
+}
+
+// out-of-line defaults (good)
+if (a != 0.0f || b != 0.0f) {
+    /* compute fv1, fv0 */
+} else {
+    fv1 = 0.0f; fv0 = 0.5f;
+}
+```
+
+This was the key lever for `func_80025E7C`: a single inversion dropped the score by an order of magnitude.
+
+---
+
+## Persistent zero across calls → `mtc1 zero, fs0` early vs late
+
+**Symptom**: target loads zero into a callee-saved float reg (`mtc1 zero, fs0`) lazily — right before the first comparison that needs it. Your version loads zero into the same callee-saved reg eagerly — at the top of the function, well before the first user. Diff shows a stray `mtc1 zero, fs0` that's correct in shape but in the wrong position; everything downstream shifts.
+
+**Cause**: declaring an explicit `f32 zero = 0.0f` (or `f32 fv1 = 0.0f`) at the *top* of the function makes cfront emit the load there. cfront then folds all later comparisons with `0.0f` into uses of that saved register.
+
+**Fix**: don't declare a `zero` (or pre-initialized) variable at the top. Use `0.0f` literals at each comparison and assignment site. cfront's liveness analysis spots the multiple uses and still allocates a saved register, but it places the `mtc1 zero, ...` lazily, at the first use.
+
+This worked in tandem with the if-else inversion above to take `func_80025E7C` from 1378 → 10.
+
+---
+
+## Inline indexing expression chooses different register than the named-temp form
+
+**Symptom**: the last reg-alloc diff in an otherwise matching function is a `lui v0, %hi(LUT)` (yours) versus `lui v1, %hi(LUT)` (target) for an array base load. Subsequent uses (`addu v0, v0, v1`) all match — only the lui target register differs.
+
+**Cause**: cfront picks the *first available* int temp when materializing an address. With the array index computed inline inside the subscript, `lui` is scheduled before the `mfc1 v0, fa0` that produces the index, so v0 is still free and gets picked. The compiler then has to `addiu v1, v0, ...` to move the address to v1 (the register downstream code expects).
+
+**Fix**: lift the index into a named `s32` local computed first. That forces v0 to be allocated to the index value, leaving v1 as the natural choice for the address:
+
+```cpp
+// inline: lui v0, ...; addiu v1, v0, ...  (off by one r-marker)
+fv1 = D_8006C5F0[((s32)((x + 1.0f) * 511.5f)) & 0x3FF] * k;
+
+// named idx: lui v1, ...; addiu v1, v1, ...  (matches)
+s32 idx = ((s32)((x + 1.0f) * 511.5f)) & 0x3FF;
+fv1 = D_8006C5F0[idx] * k;
+```
+
+This was the final lever to push `func_80025E7C` from score 10 → 0.
 
 ---
 

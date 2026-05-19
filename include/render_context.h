@@ -10,6 +10,32 @@ class StructYYSubA8Inner1;
 
 class RenderContext {
   public:
+    /* 0x000 */ s32 flags;
+    /* 0x004 */ u16 unk4;
+    /* 0x006 */ u16 unk6;
+    /* 0x008 */ struct Renderer* unk8;
+    /* 0x00C */ s32 unkC;
+    /* 0x010 */ s32 unk10;
+    /* 0x014 */ s32 unk14;
+    /* 0x018 */ s32 unk18;
+    /* 0x01C */ s32 unk1C;
+    /* 0x020 */ s32 unk20;
+    /* 0x024 */ s32 unk24;
+    /* 0x028 */ s32 unk28;
+    /* 0x02C */ u32 unk2C;
+    /* 0x030 */ void* unk30;
+    /* 0x034 */ struct ListNode* unk34;
+    /* 0x038 */ struct ListNode* unk38;
+    /* 0x03C */ struct ListNode* unk3C;
+    /* 0x040 */ struct ListNode* unk40;
+    /* 0x044 */ s32 unk44;
+    /* 0x048 */ u8 unk48[0xCC];
+    /* 0x114 */ s32 unk114;
+    /* 0x118 */ u32 unk118;
+    /* 0x11C */ s32 unk11C;
+    /* 0x120 */ s32 unk120[3];
+    /* vtable at 0x12C */
+
     RenderContext();
     virtual UNK vfunc1(UNK); // func_8002515C
     virtual UNK vfunc2(UNK); // func_80025050
@@ -53,7 +79,7 @@ class RenderContext {
     virtual UNK vfunc40(UNK); // func_800264CC
     virtual UNK vfunc41(UNK); // func_80025E7C
     virtual UNK vfunc42(UNK); // func_800260AC
-    virtual UNK vfunc43(UNK); // func_800264A0
+    virtual UNK vfunc43(void* arg, f32 f1, f32 f2); // func_800264A0
     virtual UNK vfunc44(UNK) = 0;
     virtual UNK vfunc45(UNK) = 0;
     virtual UNK vfunc46(UNK); // func_80026488
@@ -112,7 +138,7 @@ class N64RenderContext : public RenderContext {
     virtual UNK vfunc36(UNK); // func_800316E4
     virtual UNK vfunc37(UNK); // func_80033FD8
     virtual UNK vfunc39(UNK); // func_8003636C
-    virtual UNK vfunc43(UNK); // func_80030E88
+    virtual UNK vfunc43(void* arg, f32 f1, f32 f2); // func_80030E88
     virtual UNK vfunc44(UNK); // func_800373C8
     virtual UNK vfunc45(UNK); // func_80031A0C
     virtual UNK vfunc46(UNK); // func_800362C8
