@@ -2,25 +2,11 @@
 #include "kangaroo.h"
 
 extern "C" {
-extern void* D_80072BB0;
 void mat4_mul(f32 (*a)[4], f32 (*b)[4], f32 (*out)[4]);
 void mat3_to_quat(f32 (*matrix)[3], f32* quaternion);
 void vec3_normalize(void* in, void* out);
 }
 
-struct Bowerbird {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ u32 unkC;
-    /* 0x10 */ u32 unk10;
-    /* 0x14 */ s32* unk14;
-
-    Bowerbird();
-    ~Bowerbird();
-};
-
-// vfunc3
 void Kangaroo::vfunc3(f32* src, f32* dst) {
     dst[0] = src[0] * this->unk10;
     dst[1] = src[0] * this->unk20;
@@ -36,7 +22,6 @@ void Kangaroo::vfunc3(f32* src, f32* dst) {
     dst[2] -= this->unk30 * this->unk40 + this->unk34 * this->unk44 + this->unk38 * this->unk48;
 }
 
-// vfunc19
 void Kangaroo::vfunc19(Joey* arg) {
     Kangaroo* src = (Kangaroo*)arg;
     this->unk10 = src->unk10;
@@ -53,7 +38,6 @@ void Kangaroo::vfunc19(Joey* arg) {
     this->unk48 = src->unk48;
 }
 
-// vfunc6
 void Kangaroo::vfunc6(f32* quat) {
     f32 mat[12];
     mat[0] = this->unk10;
@@ -68,21 +52,18 @@ void Kangaroo::vfunc6(f32* quat) {
     mat3_to_quat((f32(*)[3])mat, quat);
 }
 
-// vfunc18
 void Kangaroo::vfunc18(f32* vec) {
     this->unk40 = vec[0];
     this->unk44 = vec[1];
     this->unk48 = vec[2];
 }
 
-// vfunc17
 void Kangaroo::vfunc17(f32* vec) {
     vec[0] = this->unk40;
     vec[1] = this->unk44;
     vec[2] = this->unk48;
 }
 
-// vfunc16
 f32 Kangaroo::vfunc16(f32* vec) {
     f32 dx = this->unk40 - vec[0];
     f32 dy = this->unk44 - vec[1];
@@ -90,28 +71,31 @@ f32 Kangaroo::vfunc16(f32* vec) {
     return dx * dx + dy * dy + dz * dz;
 }
 
-// vfunc15
 void Kangaroo::vfunc15(f32* vec) {
     vec[0] = this->unk30;
     vec[1] = this->unk34;
     vec[2] = this->unk38;
 }
 
-// vfunc14
 void Kangaroo::vfunc14(f32* vec) {
     vec[0] = this->unk20;
     vec[1] = this->unk24;
     vec[2] = this->unk28;
 }
 
-// vfunc13
 void Kangaroo::vfunc13(f32* vec) {
     vec[0] = this->unk10;
     vec[1] = this->unk14;
     vec[2] = this->unk18;
 }
 
-// vfunc12
+#ifndef NON_MATCHING
+// TODO: pending rodata reordering
+INCLUDE_RODATA("asm/nonmatchings/kangaroo", _vt.8Kangaroo);
+#endif
+
+#ifdef NON_MATCHING
+// TODO: pending rodata reordering
 void Kangaroo::vfunc12(f32* quat) {
     f32 x = quat[0];
     f32 y = quat[1];
@@ -140,6 +124,9 @@ void Kangaroo::vfunc12(f32* quat) {
     this->unk34 = yz + wx;
     this->unk38 = 1.0f - (xx + yy);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/kangaroo", vfunc12__8KangarooPf);
+#endif
 
 void Kangaroo::func_8002B1D0(f32 scale) {
     this->unk50 = this->unk10 * scale;
@@ -156,7 +143,7 @@ void Kangaroo::func_8002B1D0(f32 scale) {
     this->unk88 = this->unk48;
     Kangaroo* child = (Kangaroo*)this->child;
     while (child != NULL) {
-        mat4_mul((f32(*)[4])&child->unk10, (f32(*)[4])&this->unk50, (f32(*)[4])&child->unk50);
+        mat4_mul((f32(*)[4]) & child->unk10, (f32(*)[4]) & this->unk50, (f32(*)[4]) & child->unk50);
         Joey* gc = child->child;
         if (gc != NULL) {
             do {
@@ -168,7 +155,8 @@ void Kangaroo::func_8002B1D0(f32 scale) {
     }
 }
 
-// vfunc1
+#ifdef NON_MATCHING
+// TODO: pending rodata reordering
 void Kangaroo::vfunc1() {
     this->unk50 = this->unk10;
     this->unk54 = this->unk14;
@@ -184,7 +172,7 @@ void Kangaroo::vfunc1() {
     this->unk88 = this->unk48;
     Kangaroo* child = (Kangaroo*)this->child;
     while (child != NULL) {
-        mat4_mul((f32(*)[4])&child->unk10, (f32(*)[4])&this->unk50, (f32(*)[4])&child->unk50);
+        mat4_mul((f32(*)[4]) & child->unk10, (f32(*)[4]) & this->unk50, (f32(*)[4]) & child->unk50);
         Joey* gc = child->child;
         if (gc != NULL) {
             do {
@@ -195,9 +183,12 @@ void Kangaroo::vfunc1() {
         child = (Kangaroo*)child->next;
     }
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/kangaroo", vfunc1__8Kangaroo);
+#endif
 
 void Kangaroo::func_8002B3B0(Kangaroo* parent) {
-    mat4_mul((f32(*)[4])&this->unk10, (f32(*)[4])&parent->unk50, (f32(*)[4])&this->unk50);
+    mat4_mul((f32(*)[4]) & this->unk10, (f32(*)[4]) & parent->unk50, (f32(*)[4]) & this->unk50);
     Joey* child = this->child;
     if (child != NULL) {
         do {
@@ -207,7 +198,6 @@ void Kangaroo::func_8002B3B0(Kangaroo* parent) {
     }
 }
 
-// vfunc5
 void Kangaroo::vfunc5(f32* src, f32* dst) {
     dst[0] = src[0] * this->unk10;
     dst[1] = src[0] * this->unk20;
@@ -220,7 +210,6 @@ void Kangaroo::vfunc5(f32* src, f32* dst) {
     dst[2] += src[2] * this->unk38;
 }
 
-// vfunc4
 void Kangaroo::vfunc4(f32* src, f32* dst) {
     dst[0] = src[0] * this->unk10;
     dst[1] = src[0] * this->unk14;
@@ -233,7 +222,6 @@ void Kangaroo::vfunc4(f32* src, f32* dst) {
     dst[2] += src[2] * this->unk38;
 }
 
-// vfunc2
 void Kangaroo::vfunc2(f32* src, f32* dst) {
     dst[0] = src[0] * this->unk10;
     dst[1] = src[0] * this->unk14;
@@ -249,7 +237,6 @@ void Kangaroo::vfunc2(f32* src, f32* dst) {
     dst[2] += this->unk48;
 }
 
-// vfunc11
 void Kangaroo::vfunc11(f32* a, f32* b) {
     f32 X[3];
     f32 Z[3];
@@ -275,7 +262,6 @@ void Kangaroo::vfunc11(f32* a, f32* b) {
     this->unk38 = Y[2];
 }
 
-// vfunc10
 void Kangaroo::vfunc10(f32* a, f32* b) {
     f32 Z[3];
     f32 Y[3];
@@ -301,7 +287,6 @@ void Kangaroo::vfunc10(f32* a, f32* b) {
     this->unk38 = X[2];
 }
 
-// vfunc9
 void Kangaroo::vfunc9(f32* a, f32* b) {
     a[0] = this->unk10;
     a[1] = this->unk14;
@@ -321,7 +306,6 @@ void Kangaroo::vfunc8(f32* a, f32* b) {
     a[2] = this->unk38;
 }
 
-// vfunc7
 void Kangaroo::vfunc7(f32* a, f32* b, f32* c) {
     c[0] = this->unk10;
     c[1] = this->unk14;
@@ -334,4 +318,51 @@ void Kangaroo::vfunc7(f32* a, f32* b, f32* c) {
     a[2] = this->unk38;
 }
 
+Kangaroo::Kangaroo() {
+    this->unk54 = 0.0f;
+    this->unk58 = 0.0f;
+    this->unk5C = 0.0f;
+    this->unk60 = 0.0f;
+    this->unk68 = 0.0f;
+    this->unk6C = 0.0f;
+    this->unk70 = 0.0f;
+    this->unk74 = 0.0f;
+    this->unk7C = 0.0f;
+    this->unk80 = 0.0f;
+    this->unk84 = 0.0f;
+    this->unk88 = 0.0f;
+    this->unk14 = 0.0f;
+    this->unk18 = 0.0f;
+    this->unk1C = 0;
+    this->unk20 = 0.0f;
+    this->unk28 = 0.0f;
+    this->unk2C = 0;
+    this->unk30 = 0.0f;
+    this->unk34 = 0.0f;
+    this->unk3C = 0;
+    this->unk40 = 0.0f;
+    this->unk44 = 0.0f;
+    this->unk48 = 0.0f;
+    this->unk50 = 1.0f;
+    this->unk64 = 1.0f;
+    this->unk78 = 1.0f;
+    this->unk8C = 1.0f;
+    this->unk10 = 1.0f;
+    this->unk24 = 1.0f;
+    this->unk38 = 1.0f;
+    this->unk4C = 1.0f;
+}
 
+void Kangaroo::func_8002BA6C(f32* vec) {
+    vec[0] = this->unk80;
+    vec[1] = this->unk84;
+    vec[2] = this->unk88;
+}
+
+f32* Kangaroo::func_8002BA88() {
+    return &this->unk50;
+}
+
+f32* Kangaroo::func_8002BA90() {
+    return &this->unk10;
+}
