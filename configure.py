@@ -10,6 +10,8 @@ import ninja_syntax
 import splat.scripts.split as split
 from splat.segtypes.linker_entry import LinkerEntry
 
+from garbage import garbage as GARBAGE_OFFSETS
+
 BASENAME = "paperboy"
 YAML_FILE = Path(f"{BASENAME}.yaml")
 
@@ -119,6 +121,32 @@ def clean():
     shutil.rmtree("build", ignore_errors=True)
     if os.path.exists(".splache"):
         os.remove(".splache")
+
+
+def expand_patches_with_garbage():
+    # Pull the actual linker-junk bytes out of baserom and append them to
+    # PATCHES["ntsc"] so patch_rom.py restores them at build time.
+    rom = Path("baserom.z64").read_bytes()
+    for end_offset, count in GARBAGE_OFFSETS.items():
+        start = end_offset - count
+        PATCHES["ntsc"].append((start, rom[start:end_offset].hex().upper()))
+
+
+def feed_splat_clean_baserom():
+    # Zero out linker-junk bytes before splat sees them, so they don't get
+    # split into spurious data/code. Cleaned ROM is in-memory only.
+    rom = bytearray(Path("baserom.z64").read_bytes())
+
+    for offset, hex_str in PATCHES["ntsc"]:
+        n = len(hex_str) // 2
+        rom[offset : offset + n] = b"\x00" * n
+
+    # garbage.py: count bytes immediately BEFORE each split point.
+    for end_offset, count in GARBAGE_OFFSETS.items():
+        rom[end_offset - count : end_offset] = b"\x00" * count
+
+    clean_bytes = bytes(rom)
+    split.read_target_binary = lambda: clean_bytes
 
 
 def create_build_script(linker_entries: list[LinkerEntry]):
@@ -258,6 +286,11 @@ def create_compile_commands(linker_entries: list[LinkerEntry]):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--clean", action="store_true")
+    parser.add_argument(
+        "--dirty",
+        action="store_true",
+        help="Feed splat the raw baserom (skip zeroing linker garbage)",
+    )
     args = parser.parse_args()
 
     if args.clean:
@@ -267,6 +300,9 @@ if __name__ == "__main__":
         print("baserom.z64 not found!")
         sys.exit(1)
 
+    expand_patches_with_garbage()
+    if not args.dirty:
+        feed_splat_clean_baserom()
     split.main([YAML_FILE], modes=["all"], verbose=False)
     create_build_script(split.linker_writer.entries)
     create_compile_commands(split.linker_writer.entries)
