@@ -1053,7 +1053,4 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4018);
 // Configure D_80128480
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4044);
 
-// Empty stub
-INCLUDE_ASM("asm/nonmatchings/A49A0", func_800E4058);
-
 } // extern "C"

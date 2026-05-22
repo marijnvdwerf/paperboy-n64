@@ -13,7 +13,7 @@ options:
   ld_script_path: paperboy.ld
   ld_dependencies: True
 
-  find_file_boundaries: True
+  find_file_boundaries: False
   header_encoding: ASCII
 
   o_as_suffix: True
@@ -226,6 +226,8 @@ segments:
       - [0x1AA60, asm]
       - [0x1BE30, asm]
       - [0x1F7F0, asm]
+      - [0x21B40, asm]
+      - [0x23450, asm]
       - [0x25690, asm]
       - [0x25B30, cpp, render_context]
       - [0x27750, asm]
@@ -295,6 +297,7 @@ segments:
       - [0x4A000, cpp, otter]
       - [0x4A9C0, cpp, magpie]
       - [0x4ACE0, asm]
+      - [0x4B090, asm]
       - [0x4B220, c]
       - [0x4B2F0, cpp, heap]
       - [0x4B7D0, cpp, heap_pool]
@@ -306,6 +309,7 @@ segments:
       - [0x4D370, asm]
       - [0x4DF80, asm]
       - [0x4E3C0, asm]
+      - [0x4E790, asm]
       - [0x4E9C0, asm]
       - [0x4ECE0, asm]
       - [0x4F0A0, asm]
@@ -484,14 +488,18 @@ segments:
       - [0xAC440, cpp]
       - [0xAEDE0, asm]
       - [0xAFA30, asm]
+      - [0xB00E0, asm]
+      - [0xB1680, asm]
       - [0xB31D0, asm]
       - [0xB3770, asm]
       - [0xB38C0, asm]
+      - [0xB78F0, asm]
       - [0xBCFA0, asm]
       - [0xBFF50, asm]
       - [0xC2E50, asm]
       - [0xC2F00, asm]
       - [0xCA340, asm]
+      - [0xCA860, asm]
       - [0xCFE20, asm]
       - [0xD01A0, asm]
       - [0xD0250, asm]
@@ -514,6 +522,7 @@ segments:
       - [0xD9670, asm]
       - [0xD9920, asm]
       - [0xDB5B0, asm]
+      - [0xDBDA0, asm]
       - [0xDBE20, asm]
       - [0xDDE30, asm]
       - [0xDDF60, asm]
@@ -625,7 +634,7 @@ segments:
       - [0x10B1B0, asm]
       - [0x10B520, asm]
       - [0x10FA40, asm]
-      - [0x1104E0, data]
+      - [0x1104D0, data]
 
   - [0x1106A0, bin]
   - [0xC00000]
