@@ -4,8 +4,6 @@
 #include "common.h"
 #include "pixel_format.h"
 
-typedef s32 UNK;
-
 class StructYYSubA8;
 class StructYYSubA8Inner1;
 

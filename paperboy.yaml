@@ -240,6 +240,7 @@ segments:
       - [0x28F80, cpp, boodie]
       - [0x29290, asm]
       - [0x29B80, cpp, bunyip]
+      - [0x29ED0, cpp]
       - [0x2A120, asm]
       - [0x2A4A0, asm]
       - [0x2A500, cpp]

@@ -14,6 +14,8 @@
 #define CXX_OVERRIDE
 #endif
 
+typedef s32 UNK;
+
 #define ALIGN_UP(x, n) (((u32)(x) + ((n) - 1)) & ~((n) - 1))
 
 #ifdef _LANGUAGE_C_PLUS_PLUS

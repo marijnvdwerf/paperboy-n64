@@ -3,7 +3,8 @@
 
 #include "common.h"
 
-struct PixelFormat {
+class PixelFormat {
+  public:
     /* 0x00 */ u32 maskRed;
     /* 0x04 */ u32 maskGreen;
     /* 0x08 */ u32 maskBlue;
@@ -11,6 +12,11 @@ struct PixelFormat {
     /* 0x10 */ u32 unk10;
     /* 0x14 */ u16 paletteMask;
     /* 0x16 */ u16 bitDepth;
+
+    PixelFormat()
+        : maskRed(0), maskGreen(0), maskBlue(0), maskAlpha(0),
+          unk10(0), paletteMask(0), bitDepth(0) {
+    }
 
     u32 packColor(const u8* rgba);
     void unpackColor(u32 pixel, u8* rgba);

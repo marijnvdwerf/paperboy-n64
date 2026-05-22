@@ -316,13 +316,6 @@ INCLUDE_ASM("asm/nonmatchings/16970", _._12Surface16970);
 #endif
 
 Surface16970::Surface16970() {
-    this->hdr.maskRed = 0;
-    this->hdr.maskGreen = 0;
-    this->hdr.maskBlue = 0;
-    this->hdr.maskAlpha = 0;
-    this->hdr.unk10 = 0;
-    this->hdr.paletteMask = 0;
-    this->hdr.bitDepth = 0;
     this->unk18 = NULL;
     this->unk1C = 0;
     this->unk20 = 0;
