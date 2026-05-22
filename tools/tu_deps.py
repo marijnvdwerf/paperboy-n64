@@ -67,6 +67,7 @@ BUILD_DIR = Path("build/ntsc")
 # ROM offsets (vrom) of TUs considered "decompiled". Edit this list as files
 # get matched. The vrom is the first column you see in the output.
 DECOMPILED_VROMS: set[int] = {
+    0x025B30,
     0x007660,
     0x007FE0,
     0x008260,
@@ -86,7 +87,9 @@ DECOMPILED_VROMS: set[int] = {
     0x016970,
     0x017440,
     0x0177B0,
+    0x017880,
     0x02A500,
+    0x02B9C0,
     0x02C9A0,
     0x03D5E0,
     0x03DE40,
@@ -281,7 +284,7 @@ def blocking_by_owner(tu: dict, sym_to_tu: dict[str, str],
         owner = sym_to_tu.get(sym)
         if owner == tu["file"] or owner in ignored_keys:
             continue
-        if kind is not None and owner in decompiled_keys:
+        if owner in decompiled_keys:
             continue
         name = cls if kind is not None else sym
         if name in own:
