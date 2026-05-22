@@ -43,7 +43,7 @@ struct BunyipScene {
     virtual UNK v3(UNK) = 0;
     virtual UNK v4(UNK) = 0;
     virtual UNK v5(UNK) = 0;
-    virtual void vfunc6(Bunyip* self, s32 flag, BunyipMark* color) = 0;
+    virtual void vfunc6(Bunyip* self, s32 flag, BunyipMark* mark) = 0;
 };
 
 extern "C" const BunyipMark D_80002430 = { { 0, 0, 0, 0 } };
@@ -71,16 +71,16 @@ void Bunyip::vfunc16(BunyipRenderer* ctx, BunyipScene* arg2) {
 
     u16 fl2 = flags;
     if (fl2 & 0x20) {
-        BunyipMark color;
-        color = unk30;
+        BunyipMark mark;
+        mark = unk30;
 
         if (ctx->flags & 0x200) {
             arg2->unk9C = D_80002430;
         } else {
-            arg2->unk9C = color;
+            arg2->unk9C = mark;
         }
 
-        arg2->vfunc6(this, flags & 0x4, &color);
+        arg2->vfunc6(this, flags & 0x4, &mark);
     } else {
         arg2->vfunc6(this, fl2 & 0x4, NULL);
     }
