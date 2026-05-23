@@ -9,12 +9,17 @@
 // (slot 11). Local stubs while we work out the real hierarchy.
 class Surface16970;
 
+// TODO: figure out real class name
+struct DunnartColor {
+    u8 r, g, b, a;
+};
+
 class Surface16970Palette {
   public:
-    virtual void vfunc1() = 0;
-    virtual void vfunc2() = 0;
-    virtual void vfunc3() = 0;
-    virtual void vfunc4(Surface16970Palette*) = 0;
+    virtual void vfunc1(u8* dst, s32 start, u32 num) = 0;
+    virtual void vfunc2(DunnartColor* colors, s32 start, u32 num) = 0;
+    virtual void vfunc3(u8* dst, s32 index) = 0;
+    virtual void vfunc4(Surface16970Palette* src) = 0;
 };
 
 struct Rect16970 {

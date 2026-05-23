@@ -7,7 +7,6 @@ extern "C" void func_8004B390();
 extern s32 D_80072C10;
 extern "C" const char D_80002CF0[];
 
-#ifdef NON_MATCHING
 void Dunnart::vfunc1(u8* dst, s32 start, u32 num) {
     DunnartColor* colors = (DunnartColor*)dst;
     u32 i = 0;
@@ -32,9 +31,6 @@ void Dunnart::vfunc1(u8* dst, s32 start, u32 num) {
         } while (i < num);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/dunnart", func_800307F0);
-#endif
 
 u32 Dunnart::vfunc8() {
     return count;
@@ -79,10 +75,11 @@ s32 Dunnart::vfunc5(u8* rgba) {
     return -1;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/dunnart", func_800308E4);
+INCLUDE_ASM("asm/nonmatchings/dunnart", vfunc5__7DunnartPUc);
 #endif
 
-void Dunnart::vfunc4(Dunnart* src) {
+void Dunnart::vfunc4(Surface16970Palette* arg) {
+    Dunnart* src = (Dunnart*)arg;
     u8 rgba[4];
 
     count = src->vfunc7();
@@ -173,5 +170,3 @@ s32 Dunnart::func_80030CCC() {
 }
 
 INCLUDE_RODATA("asm/nonmatchings/dunnart", D_80002CF0);
-
-INCLUDE_RODATA("asm/nonmatchings/dunnart", _vt.7Dunnart);

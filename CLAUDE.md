@@ -35,3 +35,5 @@ Always look at the FULL diff output. NEVER pipe asm-differ through `grep`, `sed`
 Single list ordered by address. No blank lines, no comment-only separator lines. Entries are `name = 0xADDR; // type:func` (or no comment for non-funcs). Use `uv run tools/format_symbol_addrs.py` to re-sort after edits.
 
 `symbol_addrs.txt` does NOT control asm-differ matching — `expected/build/` was produced at a particular moment with a particular set of symbol names, and asm-differ uses *those* names as anchors. Renaming a symbol in `symbol_addrs.txt` only affects the next build of `expected/` (which the user owns).
+
+asm files for functions only get generated when at configure time an `INCLUDE_ASM()` directive with that functions name is found.

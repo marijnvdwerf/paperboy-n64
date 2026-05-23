@@ -23,7 +23,7 @@ struct Bunyip : public Surface16970 {
 
     Bunyip();
     virtual void vfunc14(BunyipRenderer* ctx, PixelFormat* pf, s32 a, s32 b) = 0;
-    virtual UNK vfunc15(UNK) = 0;
+    virtual void vfunc15() = 0;
     virtual void vfunc16(BunyipRenderer* ctx, BunyipScene* arg2);
 
     void func_80029194(u16 val);

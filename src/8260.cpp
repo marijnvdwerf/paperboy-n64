@@ -1,5 +1,6 @@
 #include "common.h"
 #include "dunnart.h"
+#include "echidna.h"
 #include "os_pi.h"
 #include "os_thread.h"
 #include "structs.h"
@@ -66,7 +67,6 @@ void func_8002E874(s32);
 void func_80037C08(s32);
 void func_80038C90(s32);
 void func_80039A94(s32);
-void func_8003A340(s32);
 void func_8003B1B4(s32);
 void func_8003F97C(s32);
 s32 __builtin_new(s32);
@@ -243,9 +243,9 @@ void GameContext::func_80007A60() {
     osPiStartDma(&this->unk30, 0, 0, (u32)first_ROM_START, first_VRAM, (s32)(first_ROM_END - first_ROM_START), &this->unk14);
     osRecvMesg(&this->unk14, NULL, OS_MESG_BLOCK);
 
-    func_8003A340(D_8006AAE8);
+    Echidna::func_8003A340(D_8006AAE8);
     Dunnart::func_800308D8(D_8006AAE8);
-    func_8003A340(D_8006AAE8);
+    Echidna::func_8003A340(D_8006AAE8);
     Dunnart::func_800308D8(D_8006AAE8);
     func_80038C90(D_8006AAE8);
     func_80024C10(D_8006AAE8);

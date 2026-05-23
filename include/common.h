@@ -17,6 +17,7 @@
 typedef s32 UNK;
 
 #define ALIGN_UP(x, n) (((u32)(x) + ((n) - 1)) & ~((n) - 1))
+#define BITS_TO_BYTES(x) (((u32)(x) + 7) >> 3)
 
 #ifdef _LANGUAGE_C_PLUS_PLUS
 extern "C" {
