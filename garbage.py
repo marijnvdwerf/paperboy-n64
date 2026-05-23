@@ -2,9 +2,11 @@
 # Values are always 4, 8, or 12.
 
 garbage: dict[int, int] = {
+    0x2AA0: 8,
     0x3510: 12,
     0x3950: 8,
     0xC4B0: 12,
+    0x25B30: 4,
     0x3B120: 8,
     0x4E790: 4,
     0x4B090: 8,
