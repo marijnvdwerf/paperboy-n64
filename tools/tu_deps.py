@@ -67,7 +67,6 @@ BUILD_DIR = Path("build/ntsc")
 # ROM offsets (vrom) of TUs considered "decompiled". Edit this list as files
 # get matched. The vrom is the first column you see in the output.
 DECOMPILED_VROMS: set[int] = {
-    0x025B30,
     0x007660,
     0x007FE0,
     0x008260,
@@ -88,8 +87,13 @@ DECOMPILED_VROMS: set[int] = {
     0x017440,
     0x0177B0,
     0x017880,
+    0x025B30,
+    0x028F80,
+    0x029B80,
+    0x029ED0,
     0x02A500,
     0x02B9C0,
+    0x02C6A0,
     0x02C9A0,
     0x03D5E0,
     0x03DE40,
@@ -113,6 +117,7 @@ DECOMPILED_VROMS: set[int] = {
     0x04B2F0,
     0x04B7D0,
     0x088330,
+    0x313F0,
 }
 
 # Hidden from output; their exports are treated as already-decompiled so that
