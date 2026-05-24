@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bandicoot.h"
 #include "dunnart.h"
 #include "echidna.h"
 #include "os_pi.h"
@@ -55,7 +56,6 @@ void func_80019080(s32);
 void func_80020DA4(s32);
 void func_8002151C(s32);
 void func_8002377C(s32);
-void func_80024C10(s32);
 void func_80026B50(s32);
 void func_80026F10(s32);
 void func_800284D8(s32);
@@ -248,7 +248,7 @@ void GameContext::func_80007A60() {
     Echidna::func_8003A340(D_8006AAE8);
     Dunnart::func_800308D8(D_8006AAE8);
     func_80038C90(D_8006AAE8);
-    func_80024C10(D_8006AAE8);
+    Bandicoot::func_80024C10(D_8006AAE8);
     func_8003B1B4(D_8006AAE8);
     func_80037C08(D_8006AAE8);
     func_80020DA4(D_8006AAE8);

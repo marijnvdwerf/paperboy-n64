@@ -107,16 +107,16 @@ class RenderContext {
 
     // non-virtual members
     void func_80024F30();
-    s32 func_800264FC(void* arg);
+    void* func_800264FC(const char* arg);
     void func_80026560(struct ListNode* node);
     void func_800265BC(struct ListNode* node);
-    s32 func_800265CC(void* arg);
+    void* func_800265CC(const char* arg);
     void func_80026630(struct ListNode* node);
     void func_8002668C(struct ListNode* node);
-    s32 func_8002669C(void* arg);
+    void* func_8002669C(const char* arg);
     void func_80026700(struct ListNode* node);
     void func_8002675C(struct ListNode* node);
-    s32 func_8002676C(void* arg);
+    void* func_8002676C(const char* arg);
     void func_800267D0(struct ListNode* node);
     void func_8002682C(struct ListNode* node);
     s32 func_8002692C();

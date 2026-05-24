@@ -1,24 +1,16 @@
 #include "common.h"
+#include "bandicoot.h"
 #include "render_context.h"
 
-struct ListNodeBase {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ // vptr
+// TODO: find proper type for ListNode — extends Bandicoot with extra virtuals and a next pointer
+struct ListNode : Bandicoot {
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ ListNode* next;
 
-    virtual UNK vfunc1();
-    virtual UNK vfunc2();
-    virtual UNK vfunc3();
-    virtual UNK vfunc4();
     virtual UNK vfunc5();
     virtual UNK vfunc6();
     virtual UNK vfunc7();
     virtual UNK vfunc8();
-};
-
-struct ListNode : ListNodeBase {
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ ListNode* next;
 };
 
 struct Inner {
@@ -52,7 +44,6 @@ struct Renderer {
     /* 0x30 */ u32 data[51]; // 0x30..0xFC
 };
 
-extern "C" s32 func_80024C80(ListNode*, void*);
 extern "C" void vec2_normalize(f32*, f32*);
 extern "C" void vec3_normalize(f32*, f32*);
 extern "C" const f32 D_8006C5F0[1024];
@@ -699,20 +690,20 @@ s32 RenderContext::vfunc68() {
     return 0;
 }
 
-s32 RenderContext::func_800264FC(void* arg) {
+void* RenderContext::func_800264FC(const char* arg) {
     RenderContext* self = this;
     ListNode* n = self->unk38;
-    s32 result;
+    void* result;
     while (1) {
         if (n == NULL) {
-            result = 0;
+            result = NULL;
             break;
         }
-        if (n->unk0 == 0)
-            result = 0;
+        if (n->entries == NULL)
+            result = NULL;
         else
-            result = func_80024C80(n, arg);
-        if (result != 0)
+            result = n->findByName(arg);
+        if (result != NULL)
             break;
         n = n->next;
     }
@@ -747,20 +738,20 @@ void RenderContext::func_800265BC(ListNode* node) {
     this->unk38 = node;
 }
 
-s32 RenderContext::func_800265CC(void* arg) {
+void* RenderContext::func_800265CC(const char* arg) {
     RenderContext* self = this;
     ListNode* n = self->unk34;
-    s32 result;
+    void* result;
     while (1) {
         if (n == NULL) {
-            result = 0;
+            result = NULL;
             break;
         }
-        if (n->unk0 == 0)
-            result = 0;
+        if (n->entries == NULL)
+            result = NULL;
         else
-            result = func_80024C80(n, arg);
-        if (result != 0)
+            result = n->findByName(arg);
+        if (result != NULL)
             break;
         n = n->next;
     }
@@ -795,20 +786,20 @@ void RenderContext::func_8002668C(ListNode* node) {
     this->unk34 = node;
 }
 
-s32 RenderContext::func_8002669C(void* arg) {
+void* RenderContext::func_8002669C(const char* arg) {
     RenderContext* self = this;
     ListNode* n = self->unk3C;
-    s32 result;
+    void* result;
     while (1) {
         if (n == NULL) {
-            result = 0;
+            result = NULL;
             break;
         }
-        if (n->unk0 == 0)
-            result = 0;
+        if (n->entries == NULL)
+            result = NULL;
         else
-            result = func_80024C80(n, arg);
-        if (result != 0)
+            result = n->findByName(arg);
+        if (result != NULL)
             break;
         n = n->next;
     }
@@ -843,20 +834,20 @@ void RenderContext::func_8002675C(ListNode* node) {
     this->unk3C = node;
 }
 
-s32 RenderContext::func_8002676C(void* arg) {
+void* RenderContext::func_8002676C(const char* arg) {
     RenderContext* self = this;
     ListNode* n = self->unk40;
-    s32 result;
+    void* result;
     while (1) {
         if (n == NULL) {
-            result = 0;
+            result = NULL;
             break;
         }
-        if (n->unk0 == 0)
-            result = 0;
+        if (n->entries == NULL)
+            result = NULL;
         else
-            result = func_80024C80(n, arg);
-        if (result != 0)
+            result = n->findByName(arg);
+        if (result != NULL)
             break;
         n = n->next;
     }
