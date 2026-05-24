@@ -1,53 +1,134 @@
 #include "common.h"
+#include "potoroo.h"
+#include "parrot.h"
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_80029520);
+extern "C" void func_8004B3BC(s32);
+extern "C" void func_8004B390(void);
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_80029654);
+extern s32 D_80070B90;
+extern "C" const char D_800024C0[];
 
-extern "C" void func_80029660(void) {
+void Potoroo::vfunc2(Parrot* parrot) {
+    if (unk0 != 0) {
+        vfunc4();
+    }
+    unk0 = parrot->beginArray();
+    func_8004B3BC(D_80070B90);
+    unk4 = new Vec3f[unk0];
+    func_8004B390();
+    if (unk4 == NULL) {
+        __assert(D_800024C0, NULL, 0, NULL);
+    }
+    memset(unk4, 0, unk0 * sizeof(Vec3f));
+    for (u32 i = 0; i < unk0; i++) {
+        unk4[i].x = parrot->readFloat();
+        unk4[i].y = parrot->readFloat();
+        unk4[i].z = parrot->readFloat();
+    }
+    parrot->expectToken(TOKEN_CLOSE_BRACE);
 }
 
-extern "C" void func_80029668(void) {
+void Potoroo::func_80029654(s32 arg0) {
+    D_80070B90 = arg0;
 }
 
-extern "C" void func_80029670(void) {
+void Potoroo::vfunc5(void) {
 }
 
-extern "C" void func_80029678(void) {
+void Potoroo::vfunc15(void) {
 }
 
-extern "C" void func_80029680(void) {
+void Potoroo::vfunc14(void) {
 }
 
-extern "C" void func_80029688(void) {
+void Potoroo::vfunc13(void) {
 }
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_80029690);
+void Potoroo::vfunc12(void) {
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_800296D0);
+void Potoroo::vfunc11(void) {
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_800296E4);
+void Potoroo::vfunc10(s32 index, Vec3f* src) {
+    unk4[index].x = src->x;
+    unk4[index].y = src->y;
+    unk4[index].z = src->z;
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_800296F4);
+void Potoroo::vfunc9(UNK, u8* out) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_80029700);
+void Potoroo::vfunc8(UNK, Vec3f* out) {
+    out->x = 0;
+    out->y = 0;
+    out->z = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_80029740);
+void Potoroo::vfunc7(UNK, s32* out) {
+    out[0] = 0;
+    out[1] = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_80029778);
+void Potoroo::vfunc6(s32 index, Vec3f* out) {
+    out->x = unk4[index].x;
+    out->y = unk4[index].y;
+    out->z = unk4[index].z;
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", _._7Potoroo);
+void Potoroo::vfunc4(void) {
+    if (unk4 != NULL) {
+        delete[] unk4;
+        unk4 = NULL;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", __7Potoroo);
+#ifdef NON_MATCHING
+void Potoroo::vfunc3(s32 newCount) {
+    Vec3f* mem;
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_8002986C);
+    if (unk0 != 0) {
+        vfunc4();
+    }
+    unk0 = newCount;
+    mem = new Vec3f[(u16)newCount];
+    unk4 = mem;
+    if (mem == NULL) {
+        __assert(D_800024C0, NULL, 0, NULL);
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/potoroo", vfunc3__7Potorool);
+#endif
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_80029878);
+Potoroo::~Potoroo() {
+    vfunc4();
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_80029884);
+Potoroo::Potoroo() {
+    unk0 = 0;
+    unk2 = 5;
+    unk4 = NULL;
+}
 
-INCLUDE_ASM("asm/nonmatchings/potoroo", func_80029890);
+u16 Potoroo::func_8002986C() {
+    return unk2;
+}
+
+u16 Potoroo::func_80029878() {
+    return unk0;
+}
+
+s32 Potoroo::func_80029884() {
+    return unk0 != 0;
+}
+
+Vec3f* Potoroo::func_80029890() {
+    return unk4;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/potoroo", D_800024C0);
-
-INCLUDE_RODATA("asm/nonmatchings/potoroo", _vt.7Potoroo);

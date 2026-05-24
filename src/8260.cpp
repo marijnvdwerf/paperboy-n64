@@ -6,6 +6,7 @@
 #include "os_thread.h"
 #include "structs.h"
 #include "game.h"
+#include "potoroo.h"
 
 class StructYY;
 class StructWW;
@@ -59,7 +60,6 @@ void func_8002377C(s32);
 void func_80026B50(s32);
 void func_80026F10(s32);
 void func_800284D8(s32);
-void func_80029654(s32);
 void func_8002C2CC(s32);
 void func_8002DBBC(s32);
 void func_8002DFF0(s32);
@@ -266,7 +266,7 @@ void GameContext::func_80007A60() {
     func_8002DBBC(D_8006AAE8);
     func_80019080(D_8006AAE8);
     func_8002377C(D_8006AAE8);
-    func_80029654(D_8006AAE8);
+    Potoroo::func_80029654(D_8006AAE8);
     func_8003F97C(D_8006AAE4);
     D_80076170 = D_8006AAE8;
     D_80076630 = D_8006AAE8;
