@@ -38,7 +38,7 @@ void Potoroo::vfunc5(void) {
 void Potoroo::vfunc15(void) {
 }
 
-void Potoroo::vfunc14(void) {
+void Potoroo::vfunc14(PotorooTruffle* op) {
 }
 
 void Potoroo::vfunc13(void) {

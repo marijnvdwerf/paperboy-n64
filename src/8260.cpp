@@ -7,6 +7,7 @@
 #include "structs.h"
 #include "game.h"
 #include "potoroo.h"
+#include "marsupial.h"
 
 class StructYY;
 class StructWW;
@@ -67,7 +68,6 @@ void func_8002E874(s32);
 void func_80037C08(s32);
 void func_80038C90(s32);
 void func_80039A94(s32);
-void func_8003B1B4(s32);
 void func_8003F97C(s32);
 s32 __builtin_new(s32);
 void func_80007660();
@@ -249,12 +249,12 @@ void GameContext::func_80007A60() {
     Dunnart::func_800308D8(D_8006AAE8);
     func_80038C90(D_8006AAE8);
     Bandicoot::func_80024C10(D_8006AAE8);
-    func_8003B1B4(D_8006AAE8);
+    Marsupial::func_8003B1B4(D_8006AAE8);
     func_80037C08(D_8006AAE8);
     func_80020DA4(D_8006AAE8);
     func_80011500(D_8006AAE8);
     func_800284D8(D_8006AAE8);
-    func_8003B1B4(D_8006AAE8);
+    Marsupial::func_8003B1B4(D_8006AAE8);
     func_8011EC68(D_8006AAE8);
     func_8012016C(D_8006AAE8);
     func_80039A94(D_8006AAE8);

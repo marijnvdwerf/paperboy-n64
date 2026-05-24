@@ -9,6 +9,17 @@ struct Vec3f {
     f32 x, y, z;
 };
 
+struct PotorooTruffle {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+};
+
 class Potoroo {
   public:
     /* 0x00 */ u16 unk0;
@@ -30,7 +41,7 @@ class Potoroo {
     virtual void vfunc11(void);
     virtual void vfunc12(void);
     virtual void vfunc13(void);
-    virtual void vfunc14(void);
+    virtual void vfunc14(PotorooTruffle* op);
     virtual void vfunc15(void);
 
     u16 func_8002986C();
