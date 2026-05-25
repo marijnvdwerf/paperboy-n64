@@ -87,6 +87,7 @@ DECOMPILED_VROMS: set[int] = {
     0x017440,
     0x0177B0,
     0x017880,
+    0x01BE30,
     0x025690,
     0x025B30,
     0x028F80,
