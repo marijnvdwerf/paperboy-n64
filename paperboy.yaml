@@ -351,7 +351,7 @@ segments:
     vram: 0x800B1700
     follows_vram: entry
     bss_size: 0xB0
-    subalign: 4
+    subalign: 0x10
     subsegments:
       - [auto, c, pal_79AE0]
       - [auto, c, pal_F19C0]
@@ -392,8 +392,8 @@ segments:
       - [0x7E4A0, rodata]
       - [0x7E510, rodata]
       - [0x7E570, rodata]
-      - [0x7EBA0, .rdata, A49A0]
-      - [0x7EC08, rodata]
+      - [0x7E910, .rdata, A49A0]
+      - [0x7ED70, rodata]
       - [0x7F180, rodata]
       - [0x7F330, rodata]
       - [0x7F530, .rdata, pal_7F620]
@@ -490,7 +490,9 @@ segments:
       - [0x9F7C0, asm]
       - [0xA1D70, asm]
       - [0xA2C70, asm]
-      - [0xA49A0, cpp] # TODO: random start -> fix
+      - [0xA49A0, cpp]
+      - [0xA80B0, asm]
+      - [0xAC370, asm]
       - [0xAC440, cpp]
       - [0xAEDE0, asm]
       - [0xAFA30, asm]
