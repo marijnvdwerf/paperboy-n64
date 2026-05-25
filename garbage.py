@@ -3,6 +3,7 @@
 
 garbage: dict[int, int] = {
     0x2AA0: 8,
+    0x2D50: 8,
     0x3150: 8,
     0x3510: 12,
     0x3950: 8,
@@ -10,6 +11,7 @@ garbage: dict[int, int] = {
     0xC4B0: 12,
     0x1F7F0: 4,
     0x25B30: 4,
+    0x27B10: 12,
     0x2A4A0: 4,
     0x3B120: 8,
     0x3BEB0: 4,
