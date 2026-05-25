@@ -122,6 +122,7 @@ DECOMPILED_VROMS: set[int] = {
     0x04B7D0,
     0x088330,
     0x313F0,
+    0x0EA5D0,
 }
 
 # Hidden from output; their exports are treated as already-decompiled so that
