@@ -2,11 +2,15 @@
 #define POSSUM_H
 
 #include "common.h"
+#include "pixel_format.h"
 
 struct PossumColor {
     u8 r, g, b, a;
 };
 
+// TODO: PossumBase and Surface16970Palette are the same interface;
+// Possum and Dunnart are parallel implementations. Unify the hierarchy
+// so Possum extends Surface16970Palette (or merge the two base classes).
 struct PossumBase {
     virtual void vfunc1(PossumColor* dst, s32 start, u32 num);
     virtual void vfunc2(PossumColor* src, s32 start, u32 num);
@@ -40,7 +44,7 @@ struct Possum : PossumBase {
     s32 vfunc8() CXX_OVERRIDE;
 
     void func_80026D68();
-    void func_80026DA0(PossumInfo* info);
+    void func_80026DA0(PixelFormat* pf);
     PossumColor* func_80026EEC();
     s32 func_80026EF8();
 

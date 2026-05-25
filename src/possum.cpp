@@ -75,11 +75,11 @@ void Possum::func_80026D68() {
     }
 }
 
-void Possum::func_80026DA0(PossumInfo* info) {
+void Possum::func_80026DA0(PixelFormat* pf) {
     if (data != NULL) {
         func_80026D68();
     }
-    count = 1 << info->bitDepth;
+    count = 1 << pf->bitDepth;
     func_8004B3BC(D_80070B40);
     data = new PossumColor[count];
     func_8004B390();

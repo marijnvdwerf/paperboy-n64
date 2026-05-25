@@ -6,6 +6,7 @@
 #include "os_thread.h"
 #include "structs.h"
 #include "game.h"
+#include "porcupine.h"
 #include "potoroo.h"
 #include "marsupial.h"
 
@@ -58,8 +59,6 @@ void func_80019080(s32);
 void func_80020DA4(s32);
 void func_8002151C(s32);
 void func_8002377C(s32);
-#include "possum.h"
-void func_80026F10(s32);
 void func_800284D8(s32);
 void func_8002C2CC(s32);
 void func_8002DBBC(s32);
@@ -271,7 +270,7 @@ void GameContext::func_80007A60() {
     D_80076170 = D_8006AAE8;
     D_80076630 = D_8006AAE8;
     Possum::func_80026B50(D_8006AAE8);
-    func_80026F10(D_8006AAE8);
+    Porcupine::func_80026F10(D_8006AAE8);
     D_801286D4 = D_8006AAE8;
     func_80007D14();
 
