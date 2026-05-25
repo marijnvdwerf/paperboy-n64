@@ -544,7 +544,7 @@ segments:
       - [0xE2430, asm]
       - [0xE27E0, asm]
       - [0xE3240, asm]
-      - [0xE3380, asm]
+      - [0xE3380, cpp, koala]
       - [0xE33D0, asm]
       - [0xE3450, asm]
       - [0xE4490, asm]
