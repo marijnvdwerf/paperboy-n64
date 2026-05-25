@@ -6,6 +6,7 @@
 
 class StructYYSubA8;
 class StructYYSubA8Inner1;
+class Surface16970;
 
 class RenderContext {
   public:
@@ -41,7 +42,7 @@ class RenderContext {
     virtual ~RenderContext();
     virtual void vfunc4(struct PixelFormat* req, struct PixelFormat* out);
     virtual UNK vfunc5(UNK) = 0;
-    virtual UNK vfunc6(UNK) = 0;
+    virtual Surface16970* vfunc6() = 0;
     virtual UNK vfunc7(UNK) = 0;
     virtual UNK vfunc8(UNK) = 0;
     virtual UNK vfunc9(UNK) = 0;
@@ -159,7 +160,7 @@ class N64RenderContext : public RenderContext {
     virtual void vfunc2() CXX_OVERRIDE; // func_80036AA0
     virtual ~N64RenderContext() CXX_OVERRIDE; // _._16N64RenderContext
     virtual UNK vfunc5(UNK) CXX_OVERRIDE; // func_8003758C
-    virtual UNK vfunc6(UNK) CXX_OVERRIDE; // func_80036A54
+    virtual Surface16970* vfunc6() CXX_OVERRIDE; // func_80036A54
     virtual UNK vfunc7(UNK) CXX_OVERRIDE; // func_80037320
     virtual UNK vfunc8(UNK) CXX_OVERRIDE; // func_80036C00
     virtual UNK vfunc9(UNK) CXX_OVERRIDE; // func_80037540

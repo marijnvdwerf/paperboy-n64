@@ -9,6 +9,7 @@ garbage: dict[int, int] = {
     0x3950: 8,
     0x4600: 8,
     0xC4B0: 12,
+    0x1AA60: 8,
     0x1F7F0: 4,
     0x25B30: 4,
     0x27B10: 12,
