@@ -15,15 +15,6 @@ extern "C" void func_8004B3BC(void*);
 extern "C" void func_8004B390(void);
 extern "C" u8* D_8006F628;
 
-// The active source image/font object (only the bit-depth field is needed here).
-struct SlugImage {
-    char pad0[0x16];
-    /* 0x16 */ u16 depth;
-    char pad18[0x26 - 0x18];
-    /* 0x26 */ u16 unk26;
-};
-extern "C" SlugImage* D_8006F624;
-
 extern "C" s32 func_800178D0(Slug* self, u32* a1, u8* a2, s32 stride, s32 arg4);
 
 
@@ -37,12 +28,68 @@ struct Coords2 {
     /* 0x4 */ s32 y;
 };
 
+// The 0x2C region is accessed two ways: as aligned coords, and as a raw
+// byte blob (an unaligned 8-byte copy / a single flag byte).
+union SlugPos {
+    Coords2 coords;
+    Blob8 raw;
+};
+
 struct Rect {
     /* 0x0 */ s32 x;
     /* 0x4 */ s32 y;
     /* 0x8 */ s32 w;
     /* 0xC */ s32 h;
 };
+
+// The two global render targets at D_8006F630 / D_80070508. Large polymorphic
+// objects; only unk44 and virtual slots 3 & 4 are touched here. SN places the
+// vptr after the data, so it lands at 0x5AC.
+struct RenderTarget {
+    char pad0[0x44];
+    /* 0x44 */ s32 unk44;
+    char pad48[0x5AC - 0x48];
+    /* vptr at 0x5AC */
+    virtual void vf1();
+    virtual void vf2();
+    virtual void vf3(void* a);  // slot 3
+    virtual void vf4();         // slot 4
+};
+extern "C" RenderTarget D_8006F630;
+extern "C" RenderTarget D_80070508;
+
+// The active draw surface base: PixelFormat header at 0x0, vptr at 0x2C, at
+// least 16 virtual slots (slots 15 & 16 are used here).
+struct SurfaceBase {
+    /* 0x00 */ PixelFormat hdr;
+    char pad18[0x2C - 0x18];
+    /* vptr at 0x2C */
+    virtual void vf1();
+    virtual void vf2(u8** outAddr, s32* outPitch, s32 mode);  // slot 2 (lock)
+    virtual void vf3();                  // slot 3 (unlock)
+    virtual void vf4();
+    virtual void vf5();
+    virtual void vf6();
+    virtual void vf7();
+    virtual void vf8();
+    virtual void vf9();
+    virtual void vf10(s32 a, s32 b, SurfaceBase* src, Rect* clip);  // slot 10 (blit)
+    virtual void vf11();
+    virtual void vf12();
+    virtual void vf13();
+    virtual void vf14();
+    virtual void vf15();                 // slot 15
+    virtual void vf16(void* a, void* b);  // slot 16
+};
+
+// Derived surface adding the 0x30/0x36 tail after the base vptr.
+struct DrawSurface : SurfaceBase {
+    /* 0x30 */ Blob4 unk30;
+    char pad34[0x36 - 0x34];
+    /* 0x36 */ u16 unk36;
+};
+extern "C" DrawSurface D_8008CA40;
+extern "C" DrawSurface* D_8006F624;
 
 // One glyph entry in the Slug glyph table (0xC bytes).
 struct GlyphEntry {
@@ -69,14 +116,14 @@ struct Slug {
     /* 0x20 */ u32 unk20;
     /* 0x24 */ GlyphEntry* unk24;
     /* 0x28 */ u32 unk28;
-    /* 0x2C */ Coords2 unk2C;
+    /* 0x2C */ SlugPos unk2C;
     /* 0x34 */ Blob4 unk34;
     /* 0x38 */ Blob4 unk38;
     /* vptr at 0x3C */
 
     Slug();                       // __4Slug
     virtual void vfunc1(void* a, void* b);  // slot 1 = func_80017520
-    virtual void vfunc2() = 0;    // slot 2
+    virtual void vfunc2(void* a, void* b) = 0;  // slot 2
     virtual void vfunc3() = 0;    // slot 3
     virtual void vfunc4() = 0;    // slot 4
     virtual void vfunc5() = 0;    // slot 5
@@ -86,7 +133,51 @@ struct Slug {
     virtual void vfunc9();        // slot 9 = func_800198C4
 };
 
-INCLUDE_ASM("asm/nonmatchings/slug", func_80017520);
+extern "C" void func_800176EC(Slug* self, void* arg1);
+extern "C" void func_800179CC(Slug* self, void* arg2, PixelFormat* fmt);
+extern "C" void func_80017DA8(Slug* self);
+extern "C" s32 func_8001908C(const void* a, const void* b);
+
+extern "C" void func_80017520(Slug* self, void* arg1, void* arg2) {
+    PixelFormat fmt;
+
+    RenderTarget* ctx;
+    if (self->unk28 & 0x10) {
+        ctx = &D_80070508;
+    } else {
+        ctx = &D_8006F630;
+    }
+
+    ctx->vf3(arg1);
+
+    self->unk18 = ctx->unk44;
+
+    D_8008CA40.unk36 = self->unk28;
+    D_8006F624 = &D_8008CA40;
+
+    if (self->unk28 & 0x20) {
+        D_8008CA40.unk30 = self->unk34;
+        D_8008CA40.unk30.b[3] = 0;
+        D_8008CA40.unk36 |= 0x800;
+    }
+
+    D_8006F624->vf16(arg2, ctx);
+
+    fmt = D_8006F624->hdr;
+
+    ctx->vf4();
+
+    func_800176EC(self, arg1);
+    func_800179CC(self, arg2, &fmt);
+
+    self->vfunc2(arg2, &fmt);
+
+    func_80017DA8(self);
+    qsort(self->unk24, self->unk20, 0xC, func_8001908C);
+
+    D_8006F624->unk36 = 0;
+    D_8006F624->vf15();
+}
 
 INCLUDE_RODATA("asm/nonmatchings/slug", D_80001530);
 
@@ -165,28 +256,21 @@ INCLUDE_ASM("asm/nonmatchings/slug", func_800190B8);
 
 INCLUDE_ASM("asm/nonmatchings/slug", func_80019250);
 
-extern "C" s32 func_80019398(Slug* self, s32 ch) {
+extern "C" s32 func_80019398(Slug* self, u16 ch) {
     s32 lo = 0;
     s32 hi = self->unk20 - 1;
-    s32 mid = self->unk20 >> 1;
+    s32 mid;
 
-    if (hi >= 0) {
-        GlyphEntry* glyphs = self->unk24;
-        u32 key = ch & 0xFFFF;
-        do {
-            u16 entry = glyphs[mid].unk0;
-            if (entry == key) {
-                break;
-            }
-            if (key < entry) {
-                hi = mid - 1;
-            } else {
-                lo = mid + 1;
-            }
-            mid = (lo + hi) >> 1;
-        } while (hi >= lo);
+    for (mid = self->unk20 >> 1; lo <= hi; mid = (lo + hi) >> 1) {
+        if (self->unk24[mid].unk0 == ch) {
+            break;
+        }
+        if (ch < self->unk24[mid].unk0) {
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
     }
-
     if (hi < lo) {
         return 0;
     }
@@ -236,12 +320,8 @@ extern "C" void func_80019990(Slug* self, void* a1, void* a2, u8* color, WString
     }
     func_80019924(self, count + 1);
     self->unk24[0].unk0 = 0x20;
-    u32 i = 1;
-    if (i < self->unk20) {
-        do {
-            self->unk24[i].unk0 = *str->func_8001075C(i - 1);
-            i++;
-        } while (i < self->unk20);
+    for (u32 i = 1; i < self->unk20; i++) {
+        self->unk24[i].unk0 = *str->func_8001075C(i - 1);
     }
     self->unk28 = 8;
     if (color != NULL) {
@@ -264,12 +344,8 @@ extern "C" void func_80019ABC(Slug* self, void* a1, void* a2, u8* color, u8* str
     }
     func_80019924(self, count + 1);
     self->unk24[0].unk0 = 0x20;
-    u32 i = 1;
-    if (i < self->unk20) {
-        do {
-            self->unk24[i].unk0 = str[i - 1];
-            i++;
-        } while (i < self->unk20);
+    for (u32 i = 1; i < self->unk20; i++) {
+        self->unk24[i].unk0 = str[i - 1];
     }
     self->unk28 = 8;
     if (color != NULL) {
@@ -293,15 +369,11 @@ extern "C" void func_80019BE8(Slug* self, void* a1, WString* str, s32 count) {
     }
     func_80019924(self, count + 1);
     self->unk24[0].unk0 = 0x20;
-    u32 i = 1;
-    if (i < self->unk20) {
-        do {
-            self->unk24[i].unk0 = *str->func_8001075C(i - 1);
-            i++;
-        } while (i < self->unk20);
+    for (u32 i = 1; i < self->unk20; i++) {
+        self->unk24[i].unk0 = *str->func_8001075C(i - 1);
     }
     SlugDrawPos pos;
-    pos.xy = self->unk2C;
+    pos.xy = self->unk2C.coords;
     pos.flag = 0;
     self->vfunc1(&pos, a1);
 }
@@ -324,7 +396,7 @@ Slug::~Slug() {
 
 Slug::Slug() {
     func_80019CDC(this);
-    *(u8*)&this->unk2C = 0;
+    this->unk2C.raw.b[0] = 0;
     this->unk28 = 0;
     this->unk1C = 0;
 }
@@ -358,7 +430,7 @@ extern "C" s32 func_80019DF4(Slug* self) {
 }
 
 extern "C" void func_80019E00(Slug* self, Blob8* arg1) {
-    *(Blob8*)&self->unk2C = *arg1;
+    self->unk2C.raw = *arg1;
 }
 
 extern "C" void func_80019E28(Slug* self, Blob4* arg1) {
@@ -366,8 +438,8 @@ extern "C" void func_80019E28(Slug* self, Blob4* arg1) {
     self->unk28 |= 0x800;
 }
 
-extern "C" void func_80019E48(Slug* self, u32 arg1) {
-    self->unk28 = arg1 & 0xFFFF;
+extern "C" void func_80019E48(Slug* self, u16 arg1) {
+    self->unk28 = arg1;
 }
 
 INCLUDE_RODATA("asm/nonmatchings/slug", _vt.4Slug);
