@@ -1,15 +1,5 @@
 #include "common.h"
-
-struct Vector2 {
-    f32 x;
-    f32 y;
-};
-
-struct Vector3 {
-    f32 x;
-    f32 y;
-    f32 z;
-};
+#include "vector.h"
 
 extern "C" f32 sqrtf(f32);
 extern "C" f32 __sinf(f32);
@@ -283,7 +273,7 @@ extern "C" void vec3_reflect(f32* arg0, f32* arg1, f32* arg2) {
     arg2[2] = arg1[2] - sp[2];
 }
 
-extern "C" void vec3_reflect_yzswap_neg_w(Vector3* arg0, Vector3* arg1, Vector3* arg2) {
+extern "C" void vec3_reflect_yzswap_neg_w(Vec3f* arg0, Vec3f* arg1, Vec3f* arg2) {
     f32 temp_f2 = 2.0f * ((arg1->x * arg0->x) + (arg1->y * arg0->z) + (arg1->z * arg0->y));
     arg2->x = arg1->x - (arg0->x * temp_f2);
     arg2->y = arg1->y - (arg0->z * temp_f2);
@@ -291,7 +281,7 @@ extern "C" void vec3_reflect_yzswap_neg_w(Vector3* arg0, Vector3* arg1, Vector3*
     ((f32*)arg2)[3] = -((f32*)arg1)[3];
 }
 
-extern "C" void vec3_reflect_yzswap(Vector3* arg0, Vector3* arg1, Vector3* arg2) {
+extern "C" void vec3_reflect_yzswap(Vec3f* arg0, Vec3f* arg1, Vec3f* arg2) {
     f32 temp_f2 = 2.0f * ((arg1->x * arg0->x) + (arg1->y * arg0->z) + (arg1->z * arg0->y));
     arg2->x = arg1->x - (arg0->x * temp_f2);
     arg2->y = arg1->y - (arg0->z * temp_f2);
@@ -309,7 +299,7 @@ extern "C" void plane_reflect_point(f32* arg0, f32* arg1, f32* arg2) {
     arg2[2] = arg1[2] - sp[2];
 }
 
-extern "C" void vec3_mul_mat3(Vector3 v, f32* m, f32* out) {
+extern "C" void vec3_mul_mat3(Vec3f v, f32* m, f32* out) {
     out[0] = (v.x * m[0]) + (v.y * m[1]) + (v.z * m[2]);
     out[1] = (v.x * m[3]) + (v.y * m[4]) + (v.z * m[5]);
     out[2] = (v.x * m[6]) + (v.y * m[7]) + (v.z * m[8]);
@@ -440,7 +430,7 @@ INCLUDE_ASM("asm/nonmatchings/E2C0", mat4_from_axis_angle);
 // TODO: implement
 INCLUDE_ASM("asm/nonmatchings/E2C0", mat4x3_from_axis_angle);
 
-extern "C" void vec3_normalize(Vector3* arg0, Vector3* arg1) {
+extern "C" void vec3_normalize(Vec3f* arg0, Vec3f* arg1) {
     f32 length_sq;
     f32 z;
     f32 y;
