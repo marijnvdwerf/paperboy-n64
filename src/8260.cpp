@@ -1,5 +1,6 @@
 #include "common.h"
 #include "bandicoot.h"
+#include "skink.h"
 #include "dunnart.h"
 #include "echidna.h"
 #include "os_pi.h"
@@ -57,7 +58,6 @@ void func_8000812C();
 void func_80011500(s32);
 void func_80019080(s32);
 void func_80020DA4(s32);
-void func_8002151C(s32);
 void func_8002377C(s32);
 void func_800284D8(s32);
 void func_8002C2CC(s32);
@@ -258,7 +258,7 @@ void GameContext::func_80007A60() {
     func_8012016C(D_8006AAE8);
     func_80039A94(D_8006AAE8);
     func_8002E874(D_8006AAE8);
-    func_8002151C(D_8006AAE8);
+    Skink::func_8002151C(D_8006AAE8);
     func_80124198(D_8006AAE8);
     func_8002DFF0(D_8006AAE8);
     func_8002C2CC(D_8006AAE8);

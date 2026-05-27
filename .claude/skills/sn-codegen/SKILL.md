@@ -466,4 +466,46 @@ In `func_80017DA8`, removing the `gx` temp dropped the score 1986 → 135 (enabl
 
 ---
 
+## Named local can BLOCK unwanted loop rotation (the reverse case)
+
+**Symptom**: a `for` loop with a call-heavy body compiles to a *guard + bottom-test* rotated form (`beqz count` pre-check, `sltu; bnez` at the bottom, `bnez` for continue) instead of the target's *top-test* form (`sltu; beqz` at the top, `bnezl` + delay-slot `i++` for continue, `j` back-edge). The pre-check adds 2 extra instructions, the loop condition moves from top to bottom, and `bnezl` (branch-likely with useful delay slot) degrades to `bnez`. Score ~900–1000.
+
+**Cause**: the compiler rotates the loop into the guarded do-while form when register pressure is low enough. The target was compiled from source where an *extra live local* across the loop body raised pressure enough to prevent rotation. Without that local, the compiler has breathing room and rotates.
+
+This is the **mirror image** of the "spurious intermediate temp blocks rotation" tip above. That tip describes removing a temp to *enable* rotation. This tip describes adding one to *block* it.
+
+**Fix**: introduce a named local for a value that's otherwise used as a store-then-reload pattern. The local claims a register, raising pressure, and the compiler falls back to the top-test form. Crucially, you must still read from memory (not from the local) where the target does, so the store+reload pattern is preserved:
+
+```cpp
+// rotates (pre-check + bottom-test, bnez): pressure too low
+for (i = 0; i < self->count; i++) {
+    self->entries[i] = (Entry*)ctx->lookup(name);
+    if (self->entries[i] != NULL) {  // check from memory
+        continue;
+    }
+    // error path ...
+}
+
+// does NOT rotate (top-test, bnezl with i++ in delay slot): local raises pressure
+for (i = 0; i < self->count; i++) {
+    Entry* entry;                                         // ← extra local
+    entry = (Entry*)ctx->lookup(name);
+    self->entries[i] = entry;                             // store through local
+    if (self->entries[i] != NULL) {                       // check from MEMORY, not local
+        continue;
+    }
+    // error path ...
+}
+```
+
+The local `entry` occupies a register across the function-call boundary (`ctx->lookup`), tipping the allocator past the rotation threshold. But the `if` still reads `self->entries[i]` from memory (not `entry`), so the target's `sw; lw; lw; bnezl` store+reload+check pattern is preserved.
+
+**Why `self->entries[i]` and not `entry`**: if you write `if (entry != NULL)`, the compiler uses the register directly (no reload), which collapses 4 instructions into 1 and the structural diff gets worse even though the score might improve on the rotation axis.
+
+**Interaction with `for` vs `while`**: once rotation is blocked, a `for` loop with `continue` generates `bnezl; addiu i,i,1` (branch-likely with the for-increment folded into the delay slot). A `while` with explicit `i++; continue;` also generates `bnezl` but the while form is independently prone to rotation. If the `while` rotates, `bnezl` survives but the condition moves to the bottom. The `for` + named-local combo was the only formulation that produced both the top-test layout AND the `bnezl` delay-slot trick.
+
+This was the key lever in `func_80021380` (skink.cpp): score went 990 → 0.
+
+---
+
 *Add new tips as they're discovered. Each tip names its symptom, its cause, and its fix.*
