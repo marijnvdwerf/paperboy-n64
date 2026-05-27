@@ -17,10 +17,14 @@ extern "C" u8* D_8006F628;
 
 extern "C" s32 func_800178D0(Slug* self, u32* a1, u8* a2, s32 stride, s32 arg4);
 
-
 // Alignment-1 byte blobs copied to/from the 0x2C region of Slug.
-struct Blob4 { u8 b[4]; };
-struct Blob8 { u8 b[8]; };
+struct Blob4 {
+    u8 b[4];
+};
+
+struct Blob8 {
+    u8 b[8];
+};
 
 // Two aligned words at 0x2C (a draw position).
 struct Coords2 {
@@ -52,9 +56,10 @@ struct RenderTarget {
     /* vptr at 0x5AC */
     virtual void vf1();
     virtual void vf2();
-    virtual void vf3(void* a);  // slot 3
-    virtual void vf4();         // slot 4
+    virtual void vf3(void* a); // slot 3
+    virtual void vf4(); // slot 4
 };
+
 extern "C" RenderTarget D_8006F630;
 extern "C" RenderTarget D_80070508;
 
@@ -65,21 +70,21 @@ struct SurfaceBase {
     char pad18[0x2C - 0x18];
     /* vptr at 0x2C */
     virtual void vf1();
-    virtual void vf2(u8** outAddr, s32* outPitch, s32 mode);  // slot 2 (lock)
-    virtual void vf3();                  // slot 3 (unlock)
+    virtual void vf2(u8** outAddr, s32* outPitch, s32 mode); // slot 2 (lock)
+    virtual void vf3(); // slot 3 (unlock)
     virtual void vf4();
     virtual void vf5();
     virtual void vf6();
     virtual void vf7();
     virtual void vf8();
     virtual void vf9();
-    virtual void vf10(s32 a, s32 b, SurfaceBase* src, Rect* clip);  // slot 10 (blit)
+    virtual void vf10(s32 a, s32 b, SurfaceBase* src, Rect* clip); // slot 10 (blit)
     virtual void vf11();
     virtual void vf12();
     virtual void vf13();
     virtual void vf14();
-    virtual void vf15();                 // slot 15
-    virtual void vf16(void* a, void* b);  // slot 16
+    virtual void vf15(); // slot 15
+    virtual void vf16(void* a, void* b); // slot 16
 };
 
 // Derived surface adding the 0x30/0x36 tail after the base vptr.
@@ -88,17 +93,18 @@ struct DrawSurface : SurfaceBase {
     char pad34[0x36 - 0x34];
     /* 0x36 */ u16 unk36;
 };
+
 extern "C" DrawSurface D_8008CA40;
 extern "C" DrawSurface* D_8006F624;
 
 // One glyph entry in the Slug glyph table (0xC bytes).
 struct GlyphEntry {
-    /* 0x0 */ u16 unk0;  // character code
-    /* 0x2 */ s16 unk2;
+    /* 0x0 */ u16 unk0; // character code
+    /* 0x2 */ u16 unk2;
     /* 0x4 */ u16 unk4;
-    /* 0x6 */ s16 unk6;
-    /* 0x8 */ s16 unk8;
-    /* 0xA */ u16 unkA;  // glyph width
+    /* 0x6 */ u16 unk6;
+    /* 0x8 */ u16 unk8;
+    /* 0xA */ u16 unkA; // glyph width
 };
 
 // Slug has a 9-entry vtable (vptr placed at 0x3C, after the data, per SN).
@@ -121,21 +127,26 @@ struct Slug {
     /* 0x38 */ Blob4 unk38;
     /* vptr at 0x3C */
 
-    Slug();                       // __4Slug
-    virtual void vfunc1(void* a, void* b);  // slot 1 = func_80017520
-    virtual void vfunc2(void* a, void* b) = 0;  // slot 2
-    virtual void vfunc3() = 0;    // slot 3
-    virtual void vfunc4() = 0;    // slot 4
-    virtual void vfunc5() = 0;    // slot 5
-    virtual void vfunc6() = 0;    // slot 6
-    virtual void vfunc7() = 0;    // slot 7
-    virtual ~Slug();              // slot 8 = _._4Slug
-    virtual void vfunc9();        // slot 9 = func_800198C4
+    Slug(); // __4Slug
+    virtual void vfunc1(void* a, void* b); // slot 1 = func_80017520
+    virtual void vfunc2(void* a, void* b) = 0; // slot 2
+    virtual SurfaceBase* vfunc3(s32 ch) = 0; // slot 3
+    virtual void vfunc4() = 0; // slot 4
+    virtual void vfunc5() = 0; // slot 5
+    virtual void vfunc6() = 0; // slot 6
+    virtual void vfunc7() = 0; // slot 7
+    virtual ~Slug(); // slot 8 = _._4Slug
+    virtual void vfunc9(); // slot 9 = func_800198C4
 };
+
+extern "C" int sprintf(char* dst, const char* fmt, ...);
 
 extern "C" void func_800176EC(Slug* self, void* arg1);
 extern "C" void func_800179CC(Slug* self, void* arg2, PixelFormat* fmt);
 extern "C" void func_80017DA8(Slug* self);
+extern "C" void func_80019800(Slug* self, s32* buf, u8* addr, s32 pitch);
+extern "C" s32 func_80019648(Slug* self, s32* buf, u8* addr, s32 pitch, s32 x);
+extern "C" s32 func_80019724(Slug* self, s32* buf, u8* addr, s32 pitch, s32 x);
 extern "C" s32 func_8001908C(const void* a, const void* b);
 
 extern "C" void func_80017520(Slug* self, void* arg1, void* arg2) {
@@ -181,13 +192,81 @@ extern "C" void func_80017520(Slug* self, void* arg1, void* arg2) {
 
 INCLUDE_RODATA("asm/nonmatchings/slug", D_80001530);
 
+// Glyph-table layout builder. Structurally complete (score ~1904, all `r`/shift
+// markers). Blocked on one interlocked codegen decision: the target materializes
+// the constant 1 once (the vf2 lock mode) and shares that register for `i` and the
+// `i != 1` compare, leaving LICM no free register so the format string is recomputed
+// in the cold branch and the loop stays top-test. Our build allocates the compare
+// constant late, frees a register, LICM hoists the format string (8th callee-saved
+// reg), and the loop rotates to a guarded do-while. No source lever found to force
+// the early/shared const-1 allocation.
+#ifdef NON_MATCHING
+extern "C" void func_800176EC(Slug* self, void* arg1) {
+    char buf[256];
+    u8* addr;
+    s32 pitch;
+    u32 i = 1;
+
+    s32* glyphBuf = new s32[self->unk18];
+    if (glyphBuf == NULL) {
+        __assert(D_80001530, NULL, 0, NULL);
+    }
+    D_8006F624->vf2(&addr, &pitch, 1);
+    func_80019800(self, glyphBuf, addr, pitch);
+    s32 r = func_80019648(self, glyphBuf, addr, pitch, 0);
+    self->unk14 = r;
+    self->unk24[0].unk2 = 0;
+    self->unk24[0].unkA = self->unk14;
+    s32 x = r + 1;
+    for (; i < self->unk20; i++) {
+        if (i != 1) {
+            x += func_80019648(self, glyphBuf, addr, pitch, x);
+        }
+        self->unk24[i].unk2 = x;
+        self->unk24[i].unkA = func_80019724(self, glyphBuf, addr, pitch, x);
+        if (self->unk24[i].unkA == 0) {
+            sprintf(buf, "Incomplete font image: %s\nmissing character %x\n", arg1, self->unk24[i].unk0);
+            __assert(D_80001530, NULL, 0, NULL);
+        }
+        x += self->unk24[i].unkA;
+    }
+    D_8006F624->vf3();
+    delete[] glyphBuf;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/slug", func_800176EC);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/slug", func_800178D0);
 
 INCLUDE_ASM("asm/nonmatchings/slug", func_800179CC);
 
-INCLUDE_ASM("asm/nonmatchings/slug", func_80017DA8);
+extern "C" void func_80017DA8(Slug* self) {
+    Rect rect;
+    u8* addr;
+    s32 pitch;
+    s32 ch = 0;
+
+    SurfaceBase* src = self->vfunc3(ch);
+    rect.y = 0;
+    rect.h = self->unk18;
+    D_8006F624->vf2(&addr, &pitch, 1);
+    src->vf2(&addr, &pitch, 2);
+
+    for (u32 i = 0; i < self->unk20; i++) {
+        if (self->unk24[i].unk4 != ch) {
+            src->vf3();
+            ch = self->unk24[i].unk4;
+            src = self->vfunc3(ch);
+            src->vf2(&addr, &pitch, 2);
+        }
+        rect.x = self->unk24[i].unk2;
+        rect.w = rect.x + self->unk24[i].unkA;
+        src->vf10(self->unk24[i].unk6, self->unk24[i].unk8, &D_8008CA40, &rect);
+    }
+    src->vf3();
+    D_8006F624->vf3();
+}
 
 INCLUDE_ASM("asm/nonmatchings/slug", func_80017F80);
 
@@ -285,7 +364,21 @@ INCLUDE_ASM("asm/nonmatchings/slug", func_80019648);
 
 INCLUDE_ASM("asm/nonmatchings/slug", func_80019724);
 
-INCLUDE_ASM("asm/nonmatchings/slug", func_80019800);
+extern "C" void func_80019800(Slug* self, s32* buf, u8* addr, s32 pitch) {
+    u16 depth = D_8006F624->hdr.bitDepth;
+    u32 i;
+
+    if (depth == 4) {
+        for (i = 0; i < self->unk18; i++, addr += pitch) {
+            buf[i] = *addr >> 4;
+        }
+    } else {
+        u32 mask = (1 << depth) - 1;
+        for (i = 0; i < self->unk18; i++, addr += pitch) {
+            buf[i] = (addr[0] | (addr[1] << 8) | (addr[2] << 16) | (addr[3] << 24)) & mask;
+        }
+    }
+}
 
 // Slug vtable slot 9 (last entry).
 extern "C" void func_800198C4(Slug* self) {

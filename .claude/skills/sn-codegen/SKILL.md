@@ -414,4 +414,56 @@ This was the final lever to push `func_80025E7C` from score 10 → 0.
 
 ---
 
+## Zero-initialized tracking variable: narrow type folds to `$zero`, `int` stays in a register
+
+**Symptom**: a variable initialized to `0` and reused later (loop counter, "previous" tracker, first-call argument) — the target sources *every* nearby zero from one callee-saved register (`move a1, s4` / `move s1, s4` / `move s0, s4`, where `s4` holds the zero-initialized variable). Your version emits `move a1, zero` / `move s1, zero` and chains the others off `$zero` instead. Pure `r` markers, often 2–3 of them, on `move`s that materialize `0`.
+
+**Cause**: a *narrow* zero-initialized local (`u16 ch = 0;`) is constant-folded at its first use — reaching-definition analysis proves it's `0` there, so the compiler uses the free `$zero` register and doesn't bother sourcing from the variable's register. Widening the same local to `s32` (`int`) makes the compiler keep the materialized `0` live in its allocated register and reuse *that* register for other adjacent zero-initializations (the loop counter's `i = 0`, the strength-reduced index offset's `= 0`, the first call's argument). One register becomes the canonical zero source, exactly as the target does.
+
+**Fix**: when a zero-init variable is also used as a `vfunc`/call argument or compared in a loop, and the target sources its neighbouring zeros from one register, try declaring it `s32` instead of `u16`/`u8` — even if the value it later holds is semantically a `u16` (e.g. a glyph/page code loaded via `lhu`). The wider type changes nothing about the loads/compares but flips the constant-0 sourcing.
+
+```cpp
+// u16: first use folds to $zero; i=0 and offset=0 chain off $zero → 3 r-markers
+u16 ch = 0;
+SurfaceBase* src = self->vfunc3(ch);       // move a1, zero
+for (u32 i = 0; i < self->unk20; i++) {     // move i, zero
+    if (self->unk24[i].unk4 != ch) { ch = self->unk24[i].unk4; src = self->vfunc3(ch); }
+    ...
+}
+
+// s32: 0 stays live in s4, reused for the arg and both loop inits → score 0
+s32 ch = 0;
+SurfaceBase* src = self->vfunc3(ch);       // move a1, s4
+for (u32 i = 0; i < self->unk20; i++) {     // move i, s4 ; move off, s4
+    ...
+}
+```
+
+This was the final lever in `func_80017DA8` (15 → 0). Note the matching virtual's base-class declaration must accept the wider type too (`vfunc3(s32)` not `vfunc3(u16)`), or the override signature mismatches.
+
+---
+
+## A spurious intermediate temp can block `for`-loop rotation
+
+**Symptom**: a counted `for` loop with a call-heavy body compiles to a *top-tested* `while` (`sltu i,n; beqz` at the top, unconditional `j` back-edge at the bottom) instead of the target's *guard + bottom-test* `do-while` (`beqz n` guard, then `sltu i,n; bnez` at the loop end). The whole frame inflates — extra callee-saved registers, loop-invariant addresses hoisted that the target recomputes — and the score is huge (thousands) despite the body matching instruction-for-instruction.
+
+**Cause**: SN/cfront only rotates a `for` loop into the guarded `do-while` form when register pressure is low enough. An *extra local that a human wouldn't have written* — e.g. a temp `u16 gx = glyph->unk2;` introduced to "help" CSE a repeated field load — raises pressure just enough that the rotation pass bails, and the compiler falls back to the top-test shape. The simpler, more faithful source rotates; the cluttered one doesn't.
+
+**Fix**: remove invented temps and write the loop body the way a human would. In particular, don't manually CSE a repeated field access into a temp — the compiler does it. Reuse an already-stored value through its destination instead of re-reading the field:
+
+```cpp
+// blocks rotation (gx is not in the original), AND re-reads unk2
+u16 gx = self->unk24[i].unk2;
+rect.x = gx;
+rect.w = gx + self->unk24[i].unkA;
+
+// rotates correctly; rect.x's value is reused, unk2 loaded once
+rect.x = self->unk24[i].unk2;
+rect.w = rect.x + self->unk24[i].unkA;   // right = left + width
+```
+
+In `func_80017DA8`, removing the `gx` temp dropped the score 1986 → 135 (enabling rotation) and switching `rect.w` to reuse `rect.x` took it 135 → 15. General rule for this codebase: prefer the `for` loop a human would write over an explicit `if (n) do {} while (i<n)`; the compiler reaches the guarded `do-while` itself **once the body is clean**. If your `for` is top-testing, suspect an extra local before suspecting the loop form.
+
+---
+
 *Add new tips as they're discovered. Each tip names its symptom, its cause, and its fix.*
