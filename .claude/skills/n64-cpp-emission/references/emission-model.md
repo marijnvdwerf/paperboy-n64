@@ -126,6 +126,36 @@ Rank matching candidates by:
 3. consistency with external call sites
 4. consistency with nearby codebase conventions
 
+## Pademelon case study
+
+The Pademelon TU confirmed and extended the Otter findings with a larger class (31 functions, 10 virtual overrides). A Windows build of the same library provided plausible source ordering.
+
+### Key observations
+
+1. **Float-constant placement reveals the vtable seam.** The original `.rdata` had the vtable before any float literals. Since ordinary definitions emit their float constants at their own `.rdata` position (before the vtable), every float-using function had to be deferred. This was the primary constraint.
+
+2. **Windows build order is a plausible proxy for source order.** The Windows port of the same library compiled functions in an order that, when used as the source order hypothesis, produced an exact N64 `.text` + `.rdata` match. This doesn't prove it's the true source order, but it's a useful starting point when available.
+
+3. **The "reversed N64 order" illusion.** The N64 `.text` order looked roughly reversed compared to the Windows order. This wasn't because the SN compiler reverses things — it's because most functions were `inline`/deferred, and deferred functions emit in reverse source order. A small set of ordinary definitions at the top emitted forward; the large deferred tail emitted backward.
+
+4. **Three placement classes in one TU.** The matching arrangement used:
+   - 6 **ordinary** out-of-line definitions (heavy functions: lookAt variants, matrix product, mirror)
+   - 11 **`inline`** definitions in the `.cpp` (virtual overrides + some helpers, written in Windows source order)
+   - 14 **in-class** definitions (constructor, reset, and small accessor helpers not present in the Windows build)
+
+5. **In-class and `inline`-in-cpp defer identically.** Both emit after the vtable in reverse order. The choice between them is about plausibility: trivial accessors and constructors feel natural in-class; larger methods with clear signatures feel natural as `inline` in the `.cpp`.
+
+6. **Deferred float constants cluster together.** All four float literals (three `-1.0f`, one `1.0f`) landed contiguously after the vtable, each at the emission point of their respective deferred function. Matching the constant count and order was a useful secondary check beyond just `.text` order.
+
+### Pademelon harness
+
+The Pademelon generator lives at `tools/gen_padmelon.py`:
+
+```bash
+python3 tools/gen_padmelon.py --preset win_split    # matching arrangement
+python3 tools/gen_padmelon.py --list-presets         # see alternatives
+```
+
 ## Commands
 
 ```bash
