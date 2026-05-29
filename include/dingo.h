@@ -9,6 +9,8 @@ struct DingoFrustumResult {
     s32 pad;
 };
 
+struct SceneRenderer;
+
 struct Dingo {
     /* 0x00 */ Vec3f pos;
     /* 0x0C */ f32 halfExtent;
@@ -24,11 +26,11 @@ struct Dingo {
     virtual void vfunc3(Vec3f* v);
     virtual void vfunc4(s32 steps);
     virtual void vfunc5(f32 dt);
-    virtual void vfunc6(void* frustum, DingoFrustumResult* out);
+    virtual void vfunc6(Vec3f* point, DingoFrustumResult* out);
     virtual s32 vfunc7(Dingo* other);
-    virtual void vfunc8();
+    virtual void vfunc8(SceneRenderer* scene);
     virtual s32 vfunc9();
-    virtual void vfunc10();
+    virtual void vfunc10(void* arg);
     virtual void vfunc11();
     virtual void vfunc12(Vec3f* a, Vec3f* out);
     virtual void vfunc13(Vec3f* a, Vec3f* out);

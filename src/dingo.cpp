@@ -14,7 +14,7 @@ s32 Dingo::vfunc9() {
 void Dingo::vfunc11() {
 }
 
-void Dingo::vfunc10() {
+void Dingo::vfunc10(void*) {
 }
 
 void Dingo::vfunc19(Mat3f* mat) {
@@ -64,7 +64,7 @@ void Dingo::vfunc12(Vec3f* a, Vec3f* out) {
     out->z = a->z + pos.z;
 }
 
-void Dingo::vfunc8() {
+void Dingo::vfunc8(SceneRenderer*) {
 }
 
 void Dingo::func_80122314(Vec3f* v) {
@@ -163,7 +163,7 @@ f32 Dingo::func_801225B0(Vec3f* point) {
     return dx * dx + dy * dy + dz * dz;
 }
 
-void Dingo::vfunc6(void* frustum, DingoFrustumResult* out) {
+void Dingo::vfunc6(Vec3f* frustum, DingoFrustumResult* out) {
     if (halfExtent < 0.0f) {
         vfunc1();
     }
