@@ -8,6 +8,7 @@
 #include "structs.h"
 #include "game.h"
 #include "porcupine.h"
+#include "goanna.h"
 #include "potoroo.h"
 #include "marsupial.h"
 
@@ -57,7 +58,6 @@ void strncpy(u8*, u8*, s32);
 void func_8000812C();
 void func_80011500(s32);
 void func_80019080(s32);
-void func_80020DA4(s32);
 void func_8002377C(s32);
 void func_800284D8(s32);
 void func_8002C2CC(s32);
@@ -250,7 +250,7 @@ void GameContext::func_80007A60() {
     Bandicoot::func_80024C10(D_8006AAE8);
     Marsupial::func_8003B1B4(D_8006AAE8);
     func_80037C08(D_8006AAE8);
-    func_80020DA4(D_8006AAE8);
+    Goanna::func_80020DA4(D_8006AAE8);
     func_80011500(D_8006AAE8);
     func_800284D8(D_8006AAE8);
     Marsupial::func_8003B1B4(D_8006AAE8);

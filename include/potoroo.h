@@ -2,12 +2,9 @@
 #define POTOROO_H
 
 #include "common.h"
+#include "vector.h"
 
 class Parrot;
-
-struct Vec3f {
-    f32 x, y, z;
-};
 
 struct PotorooTruffle {
     /* 0x00 */ s32 unk0;

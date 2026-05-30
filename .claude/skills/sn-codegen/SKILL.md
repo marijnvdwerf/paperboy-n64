@@ -412,6 +412,8 @@ fv1 = D_8006C5F0[idx] * k;
 
 This was the final lever to push `func_80025E7C` from score 10 → 0.
 
+**Situational, not universal**: this lever is specific to address materialization racing an `mfc1`-produced index. It does *not* flip every inline-vs-named reg-alloc diff. In `func_80020860`, lifting a struct-copy's subscript (`this->offsets[track->offsetStart]` → `s32 start = track->offsetStart; ... [start]`) produced byte-identical asm — the register choice there was driven by the return structure (see "Shared trailing `return`" below), not the index expression. Try it, but if the asm doesn't move, the lever is elsewhere.
+
 ---
 
 ## Zero-initialized tracking variable: narrow type folds to `$zero`, `int` stays in a register
@@ -505,6 +507,87 @@ The local `entry` occupies a register across the function-call boundary (`ctx->l
 **Interaction with `for` vs `while`**: once rotation is blocked, a `for` loop with `continue` generates `bnezl; addiu i,i,1` (branch-likely with the for-increment folded into the delay slot). A `while` with explicit `i++; continue;` also generates `bnezl` but the while form is independently prone to rotation. If the `while` rotates, `bnezl` survives but the condition moves to the bottom. The `for` + named-local combo was the only formulation that produced both the top-test layout AND the `bnezl` delay-slot trick.
 
 This was the key lever in `func_80021380` (skink.cpp): score went 990 → 0.
+
+---
+
+## Shared trailing `return <const>` vs per-path `return` — dying-register reuse + epilogue sharing
+
+**Symptom**: a small early-out block (e.g. a `count == 1` special case) precedes a larger compute block, and both ultimately return the *same* constant. The target reuses the **dying compare registers** inside the early-out block — e.g. the `li v0, 1` that tested `== 1` becomes the address accumulator (`sllv v0, v1, v0`, destroying the `1`), with the just-tested value reused as data — and then reaches a **shared** `li v0, 1; jr` at the function tail. Your structurally-equivalent C, with an explicit `return 1` *inside* the early-out block, instead **preserves** the constant in `v0` (allocates the block's scratch onto a fresh register like `a0` to avoid clobbering `v0`) and jumps *past* the shared `li`, straight to `jr`. Diff shows a cluster of `r` markers in the early-out block plus a misplaced/duplicated `li v0, 1` at the tail.
+
+**Cause** (inferred, but the lever is solid): when the early-out block has its own `return <const>`, the compiler notices the return register already holds that constant (left over from the preceding `if (x == 1)` compare) and keeps it live, allocating the block's arithmetic *around* `v0` — so it can bypass the epilogue. When the early-out block instead **falls through** to a single trailing `return <const>` shared with the compute block, it has no reason to preserve `v0`, so it freely reuses the just-tested/dying registers (`v0`, `v1`) for its own address math and re-materialises the constant once at the shared tail.
+
+**Fix**: give the special case and the main body **one shared trailing `return`** via `if/else` + fall-through, instead of a per-path `return`. A different constant (e.g. the `count == 0 → return 0` path) can stay a separate early return; only the paths that return the *same* constant need to merge.
+
+```cpp
+// per-path return: count==1 preserves v0=1, allocates scratch to a0, bypasses the shared li
+// (cluster of r-markers in the body)
+if (track->offsetCount == 1) {
+    *out = this->offsets[track->offsetStart];
+    return 1;
+}
+/* main body ... */
+return 1;
+
+// shared trailing return: count==1 reuses v0/v1 and shares the epilogue li (matches)
+if (track->offsetCount == 1) {
+    *out = this->offsets[track->offsetStart];
+} else {
+    /* main body ... */
+}
+return 1;
+```
+
+**Corollary — don't express the shared return with a `result` accumulator.** A named `s32 result = 0; ... result = 1; return result;` lands in `a0` (named locals tend to here), costs a `move v0, a0` at the tail, *and* its liveness across the loop raises pressure enough to block loop rotation (an extra `sltu` guard appears). A bare trailing `return 1` / `return 0` puts the value straight in `v0`. This was the final lever in `func_80020860` (140 → 0).
+
+---
+
+## Cache-in-local suppresses a field reload the target wants; `for`-bound hoists, mid-body break re-reads
+
+**Symptom**: a counted loop over a struct-field bound (`track->offsetCount`). The target loads the bound **fresh** into a register in the loop preheader (`lhu a0, 0x12(a2)` right before the loop, reused by both the entry `beqz` guard and the bottom `sltu`), *separately* from an earlier load of the same field used by preceding `== 0` / `== 1` checks. Your version is one instruction short (no preheader reload) and/or puts the early-check value in the wrong register — or, if you wrote the bound as a mid-body break, re-reads the field *every iteration*.
+
+**Cause**: two interacting behaviours.
+- A **named local** holding a struct field is kept live and reused across basic blocks (and tends to land in `a0`); the loop reuses that register instead of reloading. **Direct member reads** in separate blocks each get their own load — so the early-check read and the loop's read become two independent loads in two registers, matching a target that reloads. (In `func_80020860`, caching `u32 count` put it in `a0` and reused it for the bound — no reload; reading `track->offsetCount` directly put the early checks in `v1` and produced the target's separate preheader reload in `a0`.)
+- A **`for (j = 0; j < obj->field; j++)`** condition gets the invariant field hoisted into a single preheader load (reused top and bottom). A **mid-body `if (j >= obj->field) break;`** is an ordinary per-iteration conditional and reloads the field each pass.
+
+**Fix**: to match a target that reloads the bound fresh for the loop, *don't* cache the count in a local — read the member directly in the early checks, and write the loop as a `for` over the member (not a `>=` break):
+
+```cpp
+// caches count: reused for the bound (no preheader reload), early value forced to a0
+u32 count = track->offsetCount;
+if (count == 0) return 0;
+if (count == 1) { ... }
+for (j = 0; j < count; j++) { ... }
+
+// direct member reads: early checks in v1, fresh preheader reload (a0) for the bound
+if (track->offsetCount == 0) return 0;
+if (track->offsetCount == 1) { ... }
+for (j = 0; j < track->offsetCount; j++) { ... }   // NOT `if (j >= track->offsetCount) break;`
+```
+
+(Historical note: the missing reload here is **not** a cross-block CSE that needs a memory-store "kill" to defeat — there is no aliasing store involved. It's purely named-local-keeps-alive vs direct-member-reloads. Don't go hunting for phantom stores.)
+
+---
+
+## Inline an invariant member access to push its hoisted load *after* the loop guard
+
+**Symptom**: an invariant value used in the loop body (`track->offsetTimeBase`) is loaded once, but on the wrong side of the loop's entry guard. The target loads it in the preheader, *after* the `beqz` guard; your version, with `s32 timeBase = track->offsetTimeBase;` declared *before* the loop, loads it *before* the guard — everything shifts by one slot.
+
+**Cause**: a local assigned before the loop is emitted before the loop's entry test. An invariant member access written *inside* the loop body is hoisted by the compiler into the preheader — which is *after* the entry guard. Same field, same single load, different placement.
+
+**Fix**: when the target's invariant load sits after the loop guard, inline the member access into the loop body rather than pre-loading it into a local:
+
+```cpp
+// loads timeBase before the for-guard
+s32 timeBase = track->offsetTimeBase;
+for (j = 0; j < track->offsetCount; j++)
+    if (time < (f32)this->times[timeBase + j]) break;
+
+// hoists the timeBase load into the preheader, after the guard (matches)
+for (j = 0; j < track->offsetCount; j++)
+    if (time < (f32)this->times[track->offsetTimeBase + j]) break;
+```
+
+The array base (`this->times`) hoists the same way; in `func_80020860` both landed in the preheader after the guard once `offsetTimeBase` was inlined.
 
 ---
 
