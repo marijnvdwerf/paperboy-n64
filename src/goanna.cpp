@@ -1,5 +1,6 @@
 #include "common.h"
 #include "cockatoo.h"
+#pragma implementation "goanna.h"
 #include "goanna.h"
 
 extern "C" s32 func_8004B3BC(s32);
@@ -266,32 +267,20 @@ s32 Goanna::func_80020B00(f32* out, GoannaTrack* track, f32 time, s32 totalFrame
     return 1;
 }
 
-void Goanna::func_80020D24(s32 index, f32* out) {
-    f32 scale = 1.0f / 127.0f;
-    out[0] = this->rotations[index].x * scale;
-    out[1] = this->rotations[index].y * scale;
-    out[2] = this->rotations[index].z * scale;
-    out[3] = this->rotations[index].w * scale;
+inline Goanna::Goanna() {
+    numOffsets = 0;
+    offsets = NULL;
+    numRotations = 0;
+    rotations = NULL;
+    numTimes = 0;
+    times = NULL;
 }
 
-void Goanna::func_80020DA4(s32 value) {
-    D_80070B00 = value;
+inline Goanna::~Goanna() {
+    this->func_80020E40();
 }
 
-void Goanna::func_80020DB0() {
-    u32 i;
-
-    for (i = 0; i < this->numOffsets; i++) {
-        this->offsets[i].y = -this->offsets[i].y;
-    }
-
-    for (i = 0; i < this->numRotations; i++) {
-        this->rotations[i].y = -this->rotations[i].y;
-        this->rotations[i].w = -this->rotations[i].w;
-    }
-}
-
-void Goanna::func_80020E40() {
+inline void Goanna::func_80020E40() {
     if (this->offsets) {
         delete[] this->offsets;
         this->offsets = NULL;
@@ -309,15 +298,27 @@ void Goanna::func_80020E40() {
     this->numTimes = 0;
 }
 
-Goanna::~Goanna() {
-    this->func_80020E40();
+inline void Goanna::func_80020DB0() {
+    u32 i;
+
+    for (i = 0; i < this->numOffsets; i++) {
+        this->offsets[i].y = -this->offsets[i].y;
+    }
+
+    for (i = 0; i < this->numRotations; i++) {
+        this->rotations[i].y = -this->rotations[i].y;
+        this->rotations[i].w = -this->rotations[i].w;
+    }
 }
 
-Goanna::Goanna() {
-    numOffsets = 0;
-    offsets = NULL;
-    numRotations = 0;
-    rotations = NULL;
-    numTimes = 0;
-    times = NULL;
+inline void Goanna::func_80020DA4(s32 value) {
+    D_80070B00 = value;
+}
+
+inline void Goanna::func_80020D24(s32 index, f32* out) {
+    f32 scale = 1.0f / 127.0f;
+    out[0] = this->rotations[index].x * scale;
+    out[1] = this->rotations[index].y * scale;
+    out[2] = this->rotations[index].z * scale;
+    out[3] = this->rotations[index].w * scale;
 }

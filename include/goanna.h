@@ -1,6 +1,8 @@
 #ifndef GOANNA_H
 #define GOANNA_H
 
+#pragma interface
+
 #include "common.h"
 #include "vector.h"
 
