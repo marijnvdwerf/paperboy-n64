@@ -118,7 +118,6 @@ void Goanna::func_80020548(Parrot* file) {
     }
 }
 
-#if 0
 s32 Goanna::func_80020860(Vec3f* out, GoannaTrack* track, f32 time, s32 totalFrames) {
     if (track->offsetCount == 0) {
         return 0;
@@ -126,81 +125,73 @@ s32 Goanna::func_80020860(Vec3f* out, GoannaTrack* track, f32 time, s32 totalFra
 
     if (track->offsetCount == 1) {
         *out = this->offsets[track->offsetStart];
-        goto success;
-    }
-
-    u32 j;
-    for (j = 0; j < track->offsetCount; j++) {
-        if (time < (f32)this->times[track->offsetTimeBase + j]) {
-            break;
+    } else {
+        u32 j;
+        for (j = 0; j < track->offsetCount; j++) {
+            if (time < (f32)this->times[track->offsetTimeBase + j]) {
+                break;
+            }
         }
+
+        Vec3f* prev;
+        Vec3f* next;
+        s32 gap;
+        f32 fracNum;
+        s32 idx;
+
+        if (j == 0) {
+            u32 cnt = track->offsetCount;
+            s32 timeBase = track->offsetTimeBase;
+            s32 start = track->offsetStart;
+            idx = timeBase + cnt - 1;
+            u16 lastKeyTime = this->times[idx];
+            u16 firstKeyTime = this->times[timeBase];
+            gap = totalFrames - (lastKeyTime - firstKeyTime);
+            fracNum = (f32)(gap - firstKeyTime) + time;
+            prev = &this->offsets[start + cnt - 1];
+            next = &this->offsets[start];
+        } else if (j == track->offsetCount) {
+            s32 timeBase = track->offsetTimeBase;
+            s32 start = track->offsetStart;
+            idx = timeBase + j - 1;
+            u16 lastKeyTime = this->times[idx];
+            u16 firstKeyTime = this->times[timeBase];
+            gap = totalFrames - (lastKeyTime - firstKeyTime);
+            fracNum = time - (f32)lastKeyTime;
+            prev = &this->offsets[start + j - 1];
+            next = &this->offsets[start];
+        } else {
+            idx = track->offsetTimeBase + j;
+            u16 nextKeyTime = this->times[idx];
+            u16 prevKeyTime = this->times[idx - 1];
+            gap = nextKeyTime - prevKeyTime;
+            fracNum = time - (f32)prevKeyTime;
+            idx = track->offsetStart + j;
+            prev = &this->offsets[idx - 1];
+            next = &this->offsets[idx];
+        }
+
+        if (gap == 0) {
+            fracNum = 0.0f;
+        } else {
+            fracNum = fracNum / (f32)gap;
+        }
+
+        f32 temp[3];
+        out->x = next->x - prev->x;
+        out->y = next->y - prev->y;
+        out->z = next->z - prev->z;
+        temp[0] = out->x * fracNum;
+        temp[1] = out->y * fracNum;
+        temp[2] = out->z * fracNum;
+        out->x = prev->x + temp[0];
+        out->y = prev->y + temp[1];
+        out->z = prev->z + temp[2];
     }
 
-    Vec3f* prev;
-    Vec3f* next;
-    s32 gap;
-    f32 t;
-
-    if (j == 0) {
-        u32 cnt = track->offsetCount;
-        s32 timeBase = track->offsetTimeBase;
-        s32 start = track->offsetStart;
-        Vec3f* positions = this->offsets;
-        u32 lastTimeIdx = timeBase + cnt - 1;
-        prev = &positions[start + cnt - 1];
-        u16 lastKeyTime = this->times[lastTimeIdx];
-        u16 firstKeyTime = this->times[timeBase];
-        next = &positions[start];
-        gap = totalFrames - (lastKeyTime - firstKeyTime);
-        t = (f32)(gap - firstKeyTime) + time;
-    } else if (j == track->offsetCount) {
-        s32 timeBase = track->offsetTimeBase;
-        s32 start = track->offsetStart;
-        Vec3f* positions = this->offsets;
-        u32 lastTimeIdx = timeBase + j - 1;
-        prev = &positions[start + j - 1];
-        u16 lastKeyTime = this->times[lastTimeIdx];
-        u16 firstKeyTime = this->times[timeBase];
-        next = &positions[start];
-        gap = totalFrames - (lastKeyTime - firstKeyTime);
-        t = time - (f32)lastKeyTime;
-    } else {
-        s32 timeIdx = track->offsetTimeBase + j;
-        s32 posIdx = track->offsetStart + j;
-        Vec3f* positions = this->offsets;
-        prev = &positions[posIdx - 1];
-        u16 nextKeyTime = this->times[timeIdx];
-        u16 prevKeyTime = this->times[timeIdx - 1];
-        next = &positions[posIdx];
-        gap = nextKeyTime - prevKeyTime;
-        t = time - (f32)prevKeyTime;
-    }
-
-    if (gap == 0) {
-        t = 0.0f;
-    } else {
-        t = t / (f32)gap;
-    }
-
-    f32 temp[3];
-    out->x = next->x - prev->x;
-    out->y = next->y - prev->y;
-    out->z = next->z - prev->z;
-    temp[0] = out->x * t;
-    temp[1] = out->y * t;
-    temp[2] = out->z * t;
-    out->x = prev->x + temp[0];
-    out->y = prev->y + temp[1];
-    out->z = prev->z + temp[2];
-
-success:
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/goanna", func_80020860__6GoannaP5Vec3fP11GoannaTrackfl);
-#endif
 
-#if 1
 s32 Goanna::func_80020B00(f32* out, GoannaTrack* track, f32 time, s32 totalFrames) {
     u32 count = track->rotCount;
 
@@ -231,13 +222,14 @@ s32 Goanna::func_80020B00(f32* out, GoannaTrack* track, f32 time, s32 totalFrame
     f32 q1[4];
     s32 gap;
     f32 fracNum;
+    s32 idx;
 
     if (j == 0) {
         u32 cnt = track->rotCount;
         s32 timeBase = track->rotTimeBase;
         s32 start = track->rotStart;
-        u32 lastTimeIdx = timeBase + cnt - 1;
-        u16 lastKeyTime = this->times[lastTimeIdx];
+        idx = timeBase + cnt - 1;
+        u16 lastKeyTime = this->times[idx];
         u16 firstKeyTime = this->times[timeBase];
         gap = totalFrames - (lastKeyTime - firstKeyTime);
         fracNum = (f32)(gap - firstKeyTime) + time;
@@ -246,22 +238,22 @@ s32 Goanna::func_80020B00(f32* out, GoannaTrack* track, f32 time, s32 totalFrame
     } else if (j == track->rotCount) {
         s32 timeBase = track->rotTimeBase;
         s32 start = track->rotStart;
-        u32 lastTimeIdx = timeBase + j - 1;
-        u16 lastKeyTime = this->times[lastTimeIdx];
+        idx = timeBase + j - 1;
+        u16 lastKeyTime = this->times[idx];
         u16 firstKeyTime = this->times[timeBase];
         gap = totalFrames - (lastKeyTime - firstKeyTime);
         fracNum = time - (f32)lastKeyTime;
         this->func_80020D24(start + j - 1, q0);
         this->func_80020D24(track->rotStart, q1);
     } else {
-        s32 posIdx = track->rotStart + j;
-        s32 timeIdx = track->rotTimeBase + j;
-        u16 nextKeyTime = this->times[timeIdx];
-        u16 prevKeyTime = this->times[timeIdx - 1];
+        idx = track->rotTimeBase + j;
+        u16 nextKeyTime = this->times[idx];
+        u16 prevKeyTime = this->times[idx - 1];
         gap = nextKeyTime - prevKeyTime;
         fracNum = time - (f32)prevKeyTime;
-        this->func_80020D24(posIdx - 1, q0);
-        this->func_80020D24(posIdx, q1);
+        idx = track->rotStart + j;
+        this->func_80020D24(idx - 1, q0);
+        this->func_80020D24(idx, q1);
     }
 
     if (gap == 0) {
@@ -273,9 +265,6 @@ s32 Goanna::func_80020B00(f32* out, GoannaTrack* track, f32 time, s32 totalFrame
     quat_nlerp(q0, q1, fracNum, out);
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/goanna", func_80020B00__6GoannaPfP11GoannaTrackfl);
-#endif
 
 void Goanna::func_80020D24(s32 index, f32* out) {
     f32 scale = 1.0f / 127.0f;
