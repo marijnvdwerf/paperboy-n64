@@ -7,6 +7,7 @@ _vt.17StructYYSubA8Base = 0x80000DA0;
 _vt.5Galah = 0x80000EF0;
 _vt.6Numbat = 0x80000FA0;
 _vt.9Albatross = 0x80001068;
+_vt.6Camera = 0x800010C8;
 _vt.4Joey = 0x80001140;
 _vt.12Surface16970 = 0x80001258;
 _vt.22StructYYSubA8GrandBase = 0x800012D0;
