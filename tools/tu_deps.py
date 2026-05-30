@@ -101,6 +101,7 @@ DECOMPILED_VROMS: set[int] = {
     0x029B80,
     0x029ED0,
     0x02A120,
+    0x02A4A0,
     0x02A500,
     0x02B9C0,
     0x03AF40,
@@ -171,6 +172,8 @@ IGNORED_VROMS: set[int] = {
     0x0558D0,
     0x060270,
     0x063A60,
+    0x02F700,
+    0x04F0A0,
     # cpp runtime
     0x064F20,
     0x064F40,
