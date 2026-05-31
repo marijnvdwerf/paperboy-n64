@@ -429,30 +429,26 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     f32 nd;
 
     f32* plane = self->frustum.planes[1];
-    {
-        f32 denom = dir[0] * plane[0] + dir[1] * plane[1];
-        denom += dir[2] * plane[2];
-        nd = -denom;
-        f32 t = dist / nd;
-        hitDir[0] = dir[0] * t;
-        hitDir[1] = dir[1] * t;
-        hitDir[2] = dir[2] * t;
-    }
+    f32 denom0 = dir[0] * plane[0] + dir[1] * plane[1];
+    denom0 += dir[2] * plane[2];
+    nd = -denom0;
+    f32 t0 = dist / nd;
+    hitDir[0] = dir[0] * t0;
+    hitDir[1] = dir[1] * t0;
+    hitDir[2] = dir[2] * t0;
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
     self->vfunc9(hp, slot0);
 
     plane = self->frustum.planes[0];
-    {
-        f32 denom = dir[0] * plane[0] + dir[1] * plane[1];
-        denom += dir[2] * plane[2];
-        nd = dist / denom;
-        f32 t = -nd;
-        hitDir[0] = dir[0] * t;
-        hitDir[1] = dir[1] * t;
-        hitDir[2] = dir[2] * t;
-    }
+    f32 denom1 = dir[0] * plane[0] + dir[1] * plane[1];
+    denom1 += dir[2] * plane[2];
+    nd = dist / denom1;
+    f32 t1 = -nd;
+    hitDir[0] = dir[0] * t1;
+    hitDir[1] = dir[1] * t1;
+    hitDir[2] = dir[2] * t1;
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
@@ -461,30 +457,26 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     self->node->vfunc14(upDir);
 
     plane = self->frustum.planes[3];
-    {
-        f32 denom = upDir[0] * plane[0] + upDir[1] * plane[1];
-        denom += upDir[2] * plane[2];
-        nd = dist / denom;
-        f32 t = -nd;
-        hitDir[0] = upDir[0] * t;
-        hitDir[1] = upDir[1] * t;
-        hitDir[2] = upDir[2] * t;
-    }
+    f32 denom2 = upDir[0] * plane[0] + upDir[1] * plane[1];
+    denom2 += upDir[2] * plane[2];
+    nd = dist / denom2;
+    f32 t2 = -nd;
+    hitDir[0] = upDir[0] * t2;
+    hitDir[1] = upDir[1] * t2;
+    hitDir[2] = upDir[2] * t2;
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
     self->vfunc9(hp, slot2);
 
     plane = self->frustum.planes[2];
-    {
-        f32 denom = upDir[0] * plane[0] + upDir[1] * plane[1];
-        denom += upDir[2] * plane[2];
-        nd = -denom;
-        f32 t = dist / nd;
-        hitDir[0] = upDir[0] * t;
-        hitDir[1] = upDir[1] * t;
-        hitDir[2] = upDir[2] * t;
-    }
+    f32 denom3 = upDir[0] * plane[0] + upDir[1] * plane[1];
+    denom3 += upDir[2] * plane[2];
+    nd = -denom3;
+    f32 t3 = dist / nd;
+    hitDir[0] = upDir[0] * t3;
+    hitDir[1] = upDir[1] * t3;
+    hitDir[2] = upDir[2] * t3;
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
