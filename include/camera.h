@@ -2,34 +2,7 @@
 #define CAMERA_H
 
 #include "common.h"
-
-// Local node type compatible with Joey layout but with correct signatures
-// for Camera's usage. Some vcalls pass different arg counts than scene.h declares.
-struct CameraNode {
-    /* 0x0 */ CameraNode* parent;
-    /* 0x4 */ CameraNode* next;
-    /* 0x8 */ CameraNode* child;
-    // vptr at 0xC
-    virtual UNK vfunc1(UNK) = 0;
-    virtual void vfunc2(f32* src, f32* dst) = 0;
-    virtual UNK vfunc3(UNK) = 0;
-    virtual void vfunc4(f32* src, f32* dst) = 0;
-    virtual UNK vfunc5(UNK) = 0;
-    virtual UNK vfunc6(UNK) = 0;
-    virtual UNK vfunc7(UNK) = 0;
-    virtual void vfunc8(f32* a, f32* b) = 0;
-    virtual void vfunc9(f32* a, f32* b) = 0;
-    virtual void vfunc10(f32* dir, f32* up) = 0;
-    virtual UNK vfunc11(UNK) = 0;
-    virtual UNK vfunc12(UNK) = 0;
-    virtual void vfunc13(f32* vec) = 0;
-    virtual void vfunc14(f32* vec) = 0;
-    virtual void vfunc15(f32* vec) = 0;
-    virtual UNK vfunc16(UNK) = 0;
-    virtual void vfunc17(f32* vec) = 0;
-    virtual void vfunc18(f32* pos) = 0;
-    virtual void vfunc19(CameraNode* src) = 0;
-};
+#include "scene.h"
 
 // Object returned by SceneTarget::vfunc23(), vptr at 0x8
 struct WorldNode {
@@ -42,7 +15,7 @@ struct WorldNode {
     virtual UNK vfunc4(UNK) = 0;
     virtual UNK vfunc5(UNK) = 0;
     virtual UNK vfunc6(UNK) = 0;
-    virtual CameraNode* vfunc7(s32 index) = 0;
+    virtual Joey* vfunc7(s32 index) = 0;
 };
 
 // Scene target for camera tracking, vptr at 0x30
@@ -93,7 +66,7 @@ struct FrustumData {
 extern "C" s32 func_80029480(FrustumData* frustum, f32* point, f32 radius);
 
 struct Camera {
-    /* 0x000 */ CameraNode* node;
+    /* 0x000 */ Joey* node;
     /* 0x004 */ f32 fov;
     /* 0x008 */ f32 aspect;
     /* 0x00C */ f32 nearClip;
@@ -154,7 +127,7 @@ struct Camera {
     f32 func_80015160();
     void func_8001516C(f32 value);
     void func_80015180(f32* pos);
-    void func_800151C8(CameraNode** arg);
+    void func_800151C8(Joey** arg);
     void func_80015210(f32* dir, f32* up);
     void func_80015258(f32* a, f32* b);
     void func_80015288(f32* vec);

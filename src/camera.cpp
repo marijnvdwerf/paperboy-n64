@@ -377,7 +377,7 @@ void Camera::func_80014BF0() {
     scene = this->sceneTarget;
     WorldNode* world = scene->vfunc23(0);
 
-    CameraNode* child = world->vfunc7(this->field_28);
+    Joey* child = world->vfunc7(this->field_28);
 
     Vec3f pos;
     Vec3f newPos;
@@ -529,7 +529,7 @@ inline void Camera::func_80015210(f32* dir, f32* up) {
     this->flags |= 1;
 }
 
-inline void Camera::func_800151C8(CameraNode** arg) {
+inline void Camera::func_800151C8(Joey** arg) {
     this->node->vfunc19(*arg);
     this->flags |= 1;
 }
