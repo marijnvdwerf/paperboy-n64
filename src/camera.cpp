@@ -126,10 +126,9 @@ struct Camera {
     virtual UNK vfunc7(UNK) = 0;
     virtual UNK vfunc8(UNK) = 0;
     virtual void vfunc9(f32* point, f32* out) = 0; // func_80014E58
-    virtual void vfunc10(f32*) = 0;  // func_800148C4
+    virtual void vfunc10(f32*) = 0; // func_800148C4
     virtual UNK vfunc11(UNK) = 0;
 };
-
 
 extern "C" void func_80013AD0(Camera* self, f32* out) {
     f32 dir[3];
@@ -271,7 +270,6 @@ extern "C" void func_80013AD0(Camera* self, f32* out) {
     out[45] = -norm[2];
     out[46] = norm[0] * c9[0] + norm[1] * c9[1] + norm[2] * c9[2];
 }
-
 
 extern "C" void func_800141D8(Camera* self, f32* out) {
     f32 dir[3];
@@ -427,44 +425,34 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
 
     self->node->vfunc13(dir);
 
-    f32* plane = self->frustum.planes[1];
-    f32 t;
-    f32 denom;
-    {
-        register f32 a asm("$f2");
-        register f32 b;
-        a = dir[0] * plane[0];
-        b = dir[1] * plane[1];
-        denom = a + b;
-    }
-    denom = denom + dir[2] * plane[2];
-    {
-        register f32 negDenom asm("$f0");
-        negDenom = -denom;
-        t = dist / negDenom;
-    }
-    hitDir[0] = dir[0] * t;
-    hitDir[1] = dir[1] * t;
-    hitDir[2] = dir[2] * t;
-    hitPoint[0] = pos[0] + hitDir[0];
     f32* hp = hitPoint;
+    f32 nd;
+
+    f32* plane = self->frustum.planes[1];
+    {
+        f32 denom = dir[0] * plane[0] + dir[1] * plane[1];
+        denom += dir[2] * plane[2];
+        nd = -denom;
+        f32 t = dist / nd;
+        hitDir[0] = dir[0] * t;
+        hitDir[1] = dir[1] * t;
+        hitDir[2] = dir[2] * t;
+    }
+    hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
     self->vfunc9(hp, slot0);
 
     plane = self->frustum.planes[0];
     {
-        register f32 a asm("$f2");
-        register f32 b;
-        a = dir[0] * plane[0];
-        b = dir[1] * plane[1];
-        denom = a + b;
+        f32 denom = dir[0] * plane[0] + dir[1] * plane[1];
+        denom += dir[2] * plane[2];
+        nd = dist / denom;
+        f32 t = -nd;
+        hitDir[0] = dir[0] * t;
+        hitDir[1] = dir[1] * t;
+        hitDir[2] = dir[2] * t;
     }
-    denom = denom + dir[2] * plane[2];
-    t = -(dist / denom);
-    hitDir[0] = dir[0] * t;
-    hitDir[1] = dir[1] * t;
-    hitDir[2] = dir[2] * t;
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
@@ -474,17 +462,14 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
 
     plane = self->frustum.planes[3];
     {
-        register f32 a asm("$f2");
-        register f32 b;
-        a = upDir[0] * plane[0];
-        b = upDir[1] * plane[1];
-        denom = a + b;
+        f32 denom = upDir[0] * plane[0] + upDir[1] * plane[1];
+        denom += upDir[2] * plane[2];
+        nd = dist / denom;
+        f32 t = -nd;
+        hitDir[0] = upDir[0] * t;
+        hitDir[1] = upDir[1] * t;
+        hitDir[2] = upDir[2] * t;
     }
-    denom = denom + upDir[2] * plane[2];
-    t = -(dist / denom);
-    hitDir[0] = upDir[0] * t;
-    hitDir[1] = upDir[1] * t;
-    hitDir[2] = upDir[2] * t;
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
@@ -492,21 +477,14 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
 
     plane = self->frustum.planes[2];
     {
-        register f32 a asm("$f2");
-        register f32 b;
-        a = upDir[0] * plane[0];
-        b = upDir[1] * plane[1];
-        denom = a + b;
+        f32 denom = upDir[0] * plane[0] + upDir[1] * plane[1];
+        denom += upDir[2] * plane[2];
+        nd = -denom;
+        f32 t = dist / nd;
+        hitDir[0] = upDir[0] * t;
+        hitDir[1] = upDir[1] * t;
+        hitDir[2] = upDir[2] * t;
     }
-    denom = denom + upDir[2] * plane[2];
-    {
-        register f32 negDenom asm("$f0");
-        negDenom = -denom;
-        t = dist / negDenom;
-    }
-    hitDir[0] = upDir[0] * t;
-    hitDir[1] = upDir[1] * t;
-    hitDir[2] = upDir[2] * t;
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
