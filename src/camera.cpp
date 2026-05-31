@@ -128,62 +128,106 @@ struct Camera {
     virtual void vfunc9(f32* point, f32* out) = 0; // func_80014E58
     virtual void vfunc10(f32*) = 0; // func_800148C4
     virtual UNK vfunc11(UNK) = 0;
+
+    void func_80013AD0(f32* out);
+    void func_800141D8(f32* out);
+    s32 func_800148C4(f32* pos, f32 dist, f32* outHit);
+    void func_80014BF0();
+    void func_80014E40();
+    void func_80014E4C(SceneTarget* a, s32 b);
+    void func_80014E58();
+    void func_80014E60(f32 value);
+    void func_80014EA4(f32 fov, f32 nearClip, f32 farClip, f32 aspect);
+    void func_80014ED0(f32* eye, f32* target, f32* up);
+    s32 func_80015038();
+    SceneTarget* func_80015044();
+    s32 func_80015050();
+    void func_8001505C(Viewport* out);
+    s32 func_80015084();
+    s32 func_80015090();
+    s32 func_800150A4();
+    f32 func_800150B4();
+    f32 func_800150C0();
+    f32 func_800150CC();
+    f32 func_800150D8();
+    void func_800150E4(f32* out);
+    void func_80015114(f32 value);
+    f32 func_80015128();
+    void func_80015134(f32 value);
+    f32 func_80015148();
+    f32 func_80015154();
+    f32 func_80015160();
+    void func_8001516C(f32 value);
+    void func_80015180(f32* pos);
+    void func_800151C8(CameraNode** arg);
+    void func_80015210(f32* dir, f32* up);
+    void func_80015258(f32* a, f32* b);
+    void func_80015288(f32* vec);
+    void func_800152B8(f32* out);
+    void func_80015314(f32* vec);
+    void func_80015344(f32* out);
+    void func_800153A0(f32* vec);
+    void func_800153D0(f32* out);
+    void func_8001542C(FrustumNearData* out);
+    FrustumData* func_8001547C();
+    void func_80015484(FrustumData* out);
+    void func_800154D4(f32* src, f32* dst);
 };
 
-extern "C" void func_80013AD0(Camera* self, f32* out) {
+void Camera::func_80013AD0(f32* out) {
     f32 dir[3];
     f32 e0[3];
     f32 e1[3];
     f32 norm[3];
 
-    self->node->vfunc17(out);
+    this->node->vfunc17(out);
 
-    f32 angle = self->fov * 0.008726646f;
+    f32 angle = this->fov * 0.008726646f;
     f32 tanA = __sinf(angle) / __cosf(angle);
 
-    f32 farH = tanA * self->farClip;
-    f32 farW = self->aspect * farH;
-    self->field_20 = farH;
-    self->field_1C = farW;
+    f32 farH = tanA * this->farClip;
+    f32 farW = this->aspect * farH;
+    this->field_20 = farH;
+    this->field_1C = farW;
 
     dir[0] = -farW;
-    dir[1] = -self->field_20;
-    dir[2] = self->farClip;
-    self->node->vfunc2(dir, out + 3);
+    dir[1] = -this->field_20;
+    dir[2] = this->farClip;
+    this->node->vfunc2(dir, out + 3);
 
-    dir[1] = self->field_20;
+    dir[1] = this->field_20;
     f32* c9 = out + 9;
-    self->node->vfunc2(dir, c9);
+    this->node->vfunc2(dir, c9);
 
-    dir[0] = self->field_1C;
-    dir[1] = -self->field_20;
-    self->node->vfunc2(dir, out + 6);
+    dir[0] = this->field_1C;
+    dir[1] = -this->field_20;
+    this->node->vfunc2(dir, out + 6);
 
-    dir[1] = self->field_20;
-    self->node->vfunc2(dir, out + 12);
+    dir[1] = this->field_20;
+    this->node->vfunc2(dir, out + 12);
 
-    f32 nearH = tanA * self->nearClip;
-    f32 nearW = self->aspect * nearH;
-    self->field_18 = nearH;
-    self->field_14 = nearW;
+    f32 nearH = tanA * this->nearClip;
+    f32 nearW = this->aspect * nearH;
+    this->field_18 = nearH;
+    this->field_14 = nearW;
 
     dir[0] = -nearW;
-    dir[1] = -self->field_18;
-    dir[2] = self->nearClip;
+    dir[1] = -this->field_18;
+    dir[2] = this->nearClip;
     f32* c15 = out + 15;
-    self->node->vfunc2(dir, c15);
+    this->node->vfunc2(dir, c15);
 
-    dir[1] = self->field_18;
+    dir[1] = this->field_18;
     f32* c21 = out + 21;
-    self->node->vfunc2(dir, c21);
+    this->node->vfunc2(dir, c21);
 
-    dir[0] = self->field_14;
-    dir[1] = -self->field_18;
+    dir[0] = this->field_14;
+    dir[1] = -this->field_18;
     f32* c18 = out + 18;
-    self->node->vfunc2(dir, c18);
+    this->node->vfunc2(dir, c18);
 
-    dir[1] = self->field_18;
-    self->node->vfunc2(dir, out + 24);
+    dir[1] = this->field_18;
+    this->node->vfunc2(dir, out + 24);
 
     e0[0] = out[3] - out[15];
     e0[1] = out[4] - out[16];
@@ -257,7 +301,7 @@ extern "C" void func_80013AD0(Camera* self, f32* out) {
         out[42] = -(p[0] * c15[0] + p[1] * c15[1] + p[2] * c15[2]);
     }
 
-    self->node->vfunc15(norm);
+    this->node->vfunc15(norm);
     out[47] = norm[0];
     out[48] = norm[1];
     out[49] = norm[2];
@@ -271,56 +315,56 @@ extern "C" void func_80013AD0(Camera* self, f32* out) {
     out[46] = norm[0] * c9[0] + norm[1] * c9[1] + norm[2] * c9[2];
 }
 
-extern "C" void func_800141D8(Camera* self, f32* out) {
+void Camera::func_800141D8(f32* out) {
     f32 dir[3];
     f32 e0[3];
     f32 e1[3];
     f32 norm[3];
     f32 farExt[4];
 
-    self->node->vfunc17(out);
+    this->node->vfunc17(out);
 
-    f32 ratio = self->farClip / self->nearClip;
-    farExt[0] = self->field_FC * ratio;
-    farExt[2] = self->field_104 * ratio;
-    farExt[1] = self->field_100 * ratio;
-    farExt[3] = self->field_108 * ratio;
-    self->field_20 = farExt[3] - farExt[1];
-    self->field_1C = farExt[2] - farExt[0];
+    f32 ratio = this->farClip / this->nearClip;
+    farExt[0] = this->field_FC * ratio;
+    farExt[2] = this->field_104 * ratio;
+    farExt[1] = this->field_100 * ratio;
+    farExt[3] = this->field_108 * ratio;
+    this->field_20 = farExt[3] - farExt[1];
+    this->field_1C = farExt[2] - farExt[0];
 
     dir[0] = farExt[0];
     dir[1] = farExt[1];
-    dir[2] = self->farClip;
-    self->node->vfunc2(dir, out + 3);
+    dir[2] = this->farClip;
+    this->node->vfunc2(dir, out + 3);
 
     dir[1] = farExt[3];
     f32* c9 = out + 9;
-    self->node->vfunc2(dir, c9);
+    this->node->vfunc2(dir, c9);
 
     dir[0] = farExt[2];
     dir[1] = farExt[1];
-    self->node->vfunc2(dir, out + 6);
+    this->node->vfunc2(dir, out + 6);
 
     dir[1] = farExt[3];
-    self->node->vfunc2(dir, out + 12);
+    this->node->vfunc2(dir, out + 12);
 
-    dir[0] = self->field_FC;
-    dir[1] = self->field_100;
-    dir[2] = self->nearClip;
+    dir[0] = this->field_FC;
+    dir[1] = this->field_100;
+    dir[2] = this->nearClip;
     f32* c15 = out + 15;
-    self->node->vfunc2(dir, c15);
+    this->node->vfunc2(dir, c15);
 
-    dir[1] = self->field_108;
+    dir[1] = this->field_108;
     f32* c21 = out + 21;
-    self->node->vfunc2(dir, c21);
+    this->node->vfunc2(dir, c21);
 
-    dir[0] = self->field_104;
-    dir[1] = self->field_100;
+    dir[0] = this->field_104;
+    dir[1] = this->field_100;
     f32* c18 = out + 18;
-    self->node->vfunc2(dir, c18);
+    this->node->vfunc2(dir, c18);
 
-    dir[1] = self->field_108;
-    self->node->vfunc2(dir, out + 24);
+    dir[1] = this->field_108;
+    this->node->vfunc2(dir, out + 24);
 
     e0[0] = out[3] - out[15];
     e0[1] = out[4] - out[16];
@@ -394,7 +438,7 @@ extern "C" void func_800141D8(Camera* self, f32* out) {
         out[42] = -(p[0] * c15[0] + p[1] * c15[1] + p[2] * c15[2]);
     }
 
-    self->node->vfunc15(norm);
+    this->node->vfunc15(norm);
     out[47] = norm[0];
     out[48] = norm[1];
     out[49] = norm[2];
@@ -408,7 +452,7 @@ extern "C" void func_800141D8(Camera* self, f32* out) {
     out[46] = norm[0] * c9[0] + norm[1] * c9[1] + norm[2] * c9[2];
 }
 
-extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
+s32 Camera::func_800148C4(f32* pos, f32 dist, f32* outHit) {
     f32 hitPoint[3];
     f32 slot1[4];
     f32 slot2[4];
@@ -418,17 +462,17 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     f32 upDir[3];
     f32 hitDir[3];
 
-    s32 result = func_80029480(&self->frustum, pos, dist);
+    s32 result = func_80029480(&this->frustum, pos, dist);
     if (result == 0) {
         return 0;
     }
 
-    self->node->vfunc13(dir);
+    this->node->vfunc13(dir);
 
     f32* hp = hitPoint;
     f32 nd;
 
-    f32* plane = self->frustum.planes[1];
+    f32* plane = this->frustum.planes[1];
     f32 denom0 = dir[0] * plane[0] + dir[1] * plane[1];
     denom0 += dir[2] * plane[2];
     nd = -denom0;
@@ -439,9 +483,9 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
-    self->vfunc9(hp, slot0);
+    this->vfunc9(hp, slot0);
 
-    plane = self->frustum.planes[0];
+    plane = this->frustum.planes[0];
     f32 denom1 = dir[0] * plane[0] + dir[1] * plane[1];
     denom1 += dir[2] * plane[2];
     nd = dist / denom1;
@@ -452,11 +496,11 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
-    self->vfunc9(hp, slot1);
+    this->vfunc9(hp, slot1);
 
-    self->node->vfunc14(upDir);
+    this->node->vfunc14(upDir);
 
-    plane = self->frustum.planes[3];
+    plane = this->frustum.planes[3];
     f32 denom2 = upDir[0] * plane[0] + upDir[1] * plane[1];
     denom2 += upDir[2] * plane[2];
     nd = dist / denom2;
@@ -467,9 +511,9 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
-    self->vfunc9(hp, slot2);
+    this->vfunc9(hp, slot2);
 
-    plane = self->frustum.planes[2];
+    plane = this->frustum.planes[2];
     f32 denom3 = upDir[0] * plane[0] + upDir[1] * plane[1];
     denom3 += upDir[2] * plane[2];
     nd = -denom3;
@@ -480,7 +524,7 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     hitPoint[0] = pos[0] + hitDir[0];
     hp[1] = pos[1] + hitDir[1];
     hp[2] = pos[2] + hitDir[2];
-    self->vfunc9(hp, slot3);
+    this->vfunc9(hp, slot3);
 
     outHit[0] = slot1[0];
     outHit[2] = slot0[0];
@@ -490,18 +534,18 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     return result;
 }
 
-extern "C" void func_80014BF0(Camera* self) {
-    SceneTarget* scene = self->sceneTarget;
+void Camera::func_80014BF0() {
+    SceneTarget* scene = this->sceneTarget;
     if (scene == NULL) {
         return;
     }
 
     scene->vfunc24(0);
 
-    scene = self->sceneTarget;
+    scene = this->sceneTarget;
     WorldNode* world = scene->vfunc23(0);
 
-    CameraNode* child = world->vfunc7(self->field_28);
+    CameraNode* child = world->vfunc7(this->field_28);
 
     Vec3f pos;
     Vec3f newPos;
@@ -526,57 +570,57 @@ extern "C" void func_80014BF0(Camera* self) {
         dir2 = newDir2;
     }
 
-    scene = self->sceneTarget;
+    scene = this->sceneTarget;
     scene->vfunc12(&pos.x, &newPos.x);
 
-    scene = self->sceneTarget;
+    scene = this->sceneTarget;
     scene->vfunc14(&dir1.x, &newDir1.x);
 
-    scene = self->sceneTarget;
+    scene = this->sceneTarget;
     scene->vfunc14(&dir2.x, &newDir2.x);
 
-    self->node->vfunc18(&newPos.x);
-    self->flags |= 1;
+    this->node->vfunc18(&newPos.x);
+    this->flags |= 1;
 
     newDir2.x = -newDir2.x;
     newDir2.y = -newDir2.y;
     newDir2.z = -newDir2.z;
 
-    self->node->vfunc10(&newDir1.x, &newDir2.x);
-    self->flags |= 1;
+    this->node->vfunc10(&newDir1.x, &newDir2.x);
+    this->flags |= 1;
 }
 
-extern "C" void func_80014E40(Camera* self) {
-    self->sceneTarget = NULL;
-    self->field_28 = 0;
+void Camera::func_80014E40() {
+    this->sceneTarget = NULL;
+    this->field_28 = 0;
 }
 
-extern "C" void func_80014E4C(Camera* self, SceneTarget* a, s32 b) {
-    self->sceneTarget = a;
-    self->field_28 = b;
+void Camera::func_80014E4C(SceneTarget* a, s32 b) {
+    this->sceneTarget = a;
+    this->field_28 = b;
 }
 
-extern "C" void func_80014E58(void) {
+void Camera::func_80014E58() {
 }
 
-extern "C" void func_80014E60(Camera* self, f32 value) {
+void Camera::func_80014E60(f32 value) {
     if (value > 0.0f) {
-        self->aspect = value;
-        self->flags |= 8;
+        this->aspect = value;
+        this->flags |= 8;
     } else {
-        self->flags &= ~8;
+        this->flags &= ~8;
     }
-    self->flags |= 3;
+    this->flags |= 3;
 }
 
-extern "C" void func_80014EA4(Camera* self, f32 fov, f32 nearClip, f32 farClip, f32 aspect) {
-    self->fov = fov;
-    self->nearClip = nearClip;
-    self->farClip = farClip;
-    func_80014E60(self, aspect);
+void Camera::func_80014EA4(f32 fov, f32 nearClip, f32 farClip, f32 aspect) {
+    this->fov = fov;
+    this->nearClip = nearClip;
+    this->farClip = farClip;
+    func_80014E60(aspect);
 }
 
-extern "C" void func_80014ED0(Camera* self, f32* eye, f32* target, f32* up) {
+void Camera::func_80014ED0(f32* eye, f32* target, f32* up) {
     f32 dir[3];
     f32 negUp[3];
 
@@ -588,8 +632,8 @@ extern "C" void func_80014ED0(Camera* self, f32* eye, f32* target, f32* up) {
     negUp[1] = -up[1];
     negUp[2] = -up[2];
 
-    self->node->vfunc10(dir, negUp);
-    self->node->vfunc18(eye);
+    this->node->vfunc10(dir, negUp);
+    this->node->vfunc18(eye);
 }
 
 INCLUDE_ASM("asm/nonmatchings/camera", _._6Camera);
@@ -616,149 +660,149 @@ Camera::Camera() {
     field_1C = z;
 }
 
-extern "C" s32 func_80015038(Camera* self) {
-    return self->field_28;
+s32 Camera::func_80015038() {
+    return this->field_28;
 }
 
-extern "C" SceneTarget* func_80015044(Camera* self) {
-    return self->sceneTarget;
+SceneTarget* Camera::func_80015044() {
+    return this->sceneTarget;
 }
 
-extern "C" s32 func_80015050(Camera* self) {
-    return self->sceneTarget != NULL;
+s32 Camera::func_80015050() {
+    return this->sceneTarget != NULL;
 }
 
-extern "C" void func_8001505C(Camera* self, Viewport* out) {
-    *out = self->viewport;
+void Camera::func_8001505C(Viewport* out) {
+    *out = this->viewport;
 }
 
-extern "C" s32 func_80015084(Camera* self) {
-    return self->flags & 4;
+s32 Camera::func_80015084() {
+    return this->flags & 4;
 }
 
-extern "C" s32 func_80015090(Camera* self) {
-    return ((self->flags >> 1) ^ 1) & 1;
+s32 Camera::func_80015090() {
+    return ((this->flags >> 1) ^ 1) & 1;
 }
 
-extern "C" s32 func_800150A4(Camera* self) {
-    return (self->flags ^ 1) & 1;
+s32 Camera::func_800150A4() {
+    return (this->flags ^ 1) & 1;
 }
 
-extern "C" f32 func_800150B4(Camera* self) {
-    return self->field_20;
+f32 Camera::func_800150B4() {
+    return this->field_20;
 }
 
-extern "C" f32 func_800150C0(Camera* self) {
-    return self->field_1C;
+f32 Camera::func_800150C0() {
+    return this->field_1C;
 }
 
-extern "C" f32 func_800150CC(Camera* self) {
-    return self->field_18;
+f32 Camera::func_800150CC() {
+    return this->field_18;
 }
 
-extern "C" f32 func_800150D8(Camera* self) {
-    return self->field_14;
+f32 Camera::func_800150D8() {
+    return this->field_14;
 }
 
-extern "C" void func_800150E4(Camera* self, f32* out) {
-    self->node->vfunc17(out);
+void Camera::func_800150E4(f32* out) {
+    this->node->vfunc17(out);
 }
 
-extern "C" void func_80015114(Camera* self, f32 value) {
-    self->farClip = value;
-    self->flags |= 2;
+void Camera::func_80015114(f32 value) {
+    this->farClip = value;
+    this->flags |= 2;
 }
 
-extern "C" f32 func_80015128(Camera* self) {
-    return self->farClip;
+f32 Camera::func_80015128() {
+    return this->farClip;
 }
 
-extern "C" void func_80015134(Camera* self, f32 value) {
-    self->nearClip = value;
-    self->flags |= 2;
+void Camera::func_80015134(f32 value) {
+    this->nearClip = value;
+    this->flags |= 2;
 }
 
-extern "C" f32 func_80015148(Camera* self) {
-    return self->nearClip;
+f32 Camera::func_80015148() {
+    return this->nearClip;
 }
 
-extern "C" f32 func_80015154(Camera* self) {
-    return self->aspect;
+f32 Camera::func_80015154() {
+    return this->aspect;
 }
 
-extern "C" f32 func_80015160(Camera* self) {
-    return self->fov;
+f32 Camera::func_80015160() {
+    return this->fov;
 }
 
-extern "C" void func_8001516C(Camera* self, f32 value) {
-    self->fov = value;
-    self->flags |= 2;
+void Camera::func_8001516C(f32 value) {
+    this->fov = value;
+    this->flags |= 2;
 }
 
-extern "C" void func_80015180(Camera* self, f32* pos) {
-    self->node->vfunc18(pos);
-    self->flags |= 1;
+void Camera::func_80015180(f32* pos) {
+    this->node->vfunc18(pos);
+    this->flags |= 1;
 }
 
-extern "C" void func_800151C8(Camera* self, CameraNode** arg) {
-    self->node->vfunc19(*arg);
-    self->flags |= 1;
+void Camera::func_800151C8(CameraNode** arg) {
+    this->node->vfunc19(*arg);
+    this->flags |= 1;
 }
 
-extern "C" void func_80015210(Camera* self, f32* dir, f32* up) {
-    self->node->vfunc10(dir, up);
-    self->flags |= 1;
+void Camera::func_80015210(f32* dir, f32* up) {
+    this->node->vfunc10(dir, up);
+    this->flags |= 1;
 }
 
-extern "C" void func_80015258(Camera* self, f32* a, f32* b) {
-    self->node->vfunc8(a, b);
+void Camera::func_80015258(f32* a, f32* b) {
+    this->node->vfunc8(a, b);
 }
 
-extern "C" void func_80015288(Camera* self, f32* vec) {
-    self->node->vfunc13(vec);
+void Camera::func_80015288(f32* vec) {
+    this->node->vfunc13(vec);
 }
 
-extern "C" void func_800152B8(Camera* self, f32* out) {
-    self->node->vfunc13(out);
+void Camera::func_800152B8(f32* out) {
+    this->node->vfunc13(out);
     out[0] = -out[0];
     out[1] = -out[1];
     out[2] = -out[2];
 }
 
-extern "C" void func_80015314(Camera* self, f32* vec) {
-    self->node->vfunc15(vec);
+void Camera::func_80015314(f32* vec) {
+    this->node->vfunc15(vec);
 }
 
-extern "C" void func_80015344(Camera* self, f32* out) {
-    self->node->vfunc15(out);
+void Camera::func_80015344(f32* out) {
+    this->node->vfunc15(out);
     out[0] = -out[0];
     out[1] = -out[1];
     out[2] = -out[2];
 }
 
-extern "C" void func_800153A0(Camera* self, f32* vec) {
-    self->node->vfunc14(vec);
+void Camera::func_800153A0(f32* vec) {
+    this->node->vfunc14(vec);
 }
 
-extern "C" void func_800153D0(Camera* self, f32* out) {
-    self->node->vfunc14(out);
+void Camera::func_800153D0(f32* out) {
+    this->node->vfunc14(out);
     out[0] = -out[0];
     out[1] = -out[1];
     out[2] = -out[2];
 }
 
-extern "C" void func_8001542C(Camera* self, FrustumNearData* out) {
-    *out = self->frustum.near;
+void Camera::func_8001542C(FrustumNearData* out) {
+    *out = this->frustum.near;
 }
 
-extern "C" FrustumData* func_8001547C(Camera* self) {
-    return &self->frustum;
+FrustumData* Camera::func_8001547C() {
+    return &this->frustum;
 }
 
-extern "C" void func_80015484(Camera* self, FrustumData* out) {
-    *out = self->frustum;
+void Camera::func_80015484(FrustumData* out) {
+    *out = this->frustum;
 }
 
-extern "C" void func_800154D4(Camera* self, f32* src, f32* dst) {
-    self->node->vfunc2(src, dst);
+void Camera::func_800154D4(f32* src, f32* dst) {
+    this->node->vfunc2(src, dst);
 }
