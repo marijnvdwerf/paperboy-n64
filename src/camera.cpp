@@ -410,7 +410,6 @@ extern "C" void func_800141D8(Camera* self, f32* out) {
     out[46] = norm[0] * c9[0] + norm[1] * c9[1] + norm[2] * c9[2];
 }
 
-#ifdef NON_MATCHING
 extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     f32 hitPoint[3];
     f32 slot1[4];
@@ -429,7 +428,21 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     self->node->vfunc13(dir);
 
     f32* plane = self->frustum.planes[1];
-    f32 t = dist / -(dir[0] * plane[0] + dir[1] * plane[1] + dir[2] * plane[2]);
+    f32 t;
+    f32 denom;
+    {
+        register f32 a asm("$f2");
+        register f32 b;
+        a = dir[0] * plane[0];
+        b = dir[1] * plane[1];
+        denom = a + b;
+    }
+    denom = denom + dir[2] * plane[2];
+    {
+        register f32 negDenom asm("$f0");
+        negDenom = -denom;
+        t = dist / negDenom;
+    }
     hitDir[0] = dir[0] * t;
     hitDir[1] = dir[1] * t;
     hitDir[2] = dir[2] * t;
@@ -440,7 +453,15 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     self->vfunc9(hp, slot0);
 
     plane = self->frustum.planes[0];
-    t = -(dist / (dir[0] * plane[0] + dir[1] * plane[1] + dir[2] * plane[2]));
+    {
+        register f32 a asm("$f2");
+        register f32 b;
+        a = dir[0] * plane[0];
+        b = dir[1] * plane[1];
+        denom = a + b;
+    }
+    denom = denom + dir[2] * plane[2];
+    t = -(dist / denom);
     hitDir[0] = dir[0] * t;
     hitDir[1] = dir[1] * t;
     hitDir[2] = dir[2] * t;
@@ -452,7 +473,15 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     self->node->vfunc14(upDir);
 
     plane = self->frustum.planes[3];
-    t = -(dist / (upDir[0] * plane[0] + upDir[1] * plane[1] + upDir[2] * plane[2]));
+    {
+        register f32 a asm("$f2");
+        register f32 b;
+        a = upDir[0] * plane[0];
+        b = upDir[1] * plane[1];
+        denom = a + b;
+    }
+    denom = denom + upDir[2] * plane[2];
+    t = -(dist / denom);
     hitDir[0] = upDir[0] * t;
     hitDir[1] = upDir[1] * t;
     hitDir[2] = upDir[2] * t;
@@ -462,7 +491,19 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
     self->vfunc9(hp, slot2);
 
     plane = self->frustum.planes[2];
-    t = dist / -(upDir[0] * plane[0] + upDir[1] * plane[1] + upDir[2] * plane[2]);
+    {
+        register f32 a asm("$f2");
+        register f32 b;
+        a = upDir[0] * plane[0];
+        b = upDir[1] * plane[1];
+        denom = a + b;
+    }
+    denom = denom + upDir[2] * plane[2];
+    {
+        register f32 negDenom asm("$f0");
+        negDenom = -denom;
+        t = dist / negDenom;
+    }
     hitDir[0] = upDir[0] * t;
     hitDir[1] = upDir[1] * t;
     hitDir[2] = upDir[2] * t;
@@ -478,9 +519,6 @@ extern "C" s32 func_800148C4(Camera* self, f32* pos, f32 dist, f32* outHit) {
 
     return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/camera", func_800148C4);
-#endif
 
 extern "C" void func_80014BF0(Camera* self) {
     SceneTarget* scene = self->sceneTarget;
