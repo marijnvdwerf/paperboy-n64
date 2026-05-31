@@ -638,6 +638,10 @@ void Camera::func_80014ED0(f32* eye, f32* target, f32* up) {
 
 INCLUDE_ASM("asm/nonmatchings/camera", _._6Camera);
 
+// The vtable is 8-byte aligned. The compiler-emitted float constant from
+// func_80013AD0 sits first in .rdata and would otherwise leave the vtable at a
+// 4-byte boundary, so force the alignment (the gap is the 0.0f pad at 0x800010C4).
+__asm__(".section .rdata\n.align 3\n.section .text\n");
 INCLUDE_RODATA("asm/nonmatchings/camera", _vt.6Camera);
 
 Camera::Camera() {
