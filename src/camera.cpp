@@ -125,17 +125,15 @@ struct Camera {
     virtual UNK vfunc6(UNK) = 0;
     virtual UNK vfunc7(UNK) = 0;
     virtual UNK vfunc8(UNK) = 0;
-    virtual void vfunc9(f32* point, f32* out) = 0; // func_80014E58
-    virtual void vfunc10(f32*) = 0; // func_800148C4
+    virtual void vfunc9(f32* point, f32* out); // func_80014E58
+    virtual s32 vfunc10(f32* pos, f32 dist, f32* outHit); // func_800148C4
     virtual UNK vfunc11(UNK) = 0;
 
     void func_80013AD0(f32* out);
     void func_800141D8(f32* out);
-    s32 func_800148C4(f32* pos, f32 dist, f32* outHit);
     void func_80014BF0();
     void func_80014E40();
     void func_80014E4C(SceneTarget* a, s32 b);
-    void func_80014E58();
     void func_80014E60(f32 value);
     void func_80014EA4(f32 fov, f32 nearClip, f32 farClip, f32 aspect);
     void func_80014ED0(f32* eye, f32* target, f32* up);
@@ -452,7 +450,7 @@ void Camera::func_800141D8(f32* out) {
     out[46] = norm[0] * c9[0] + norm[1] * c9[1] + norm[2] * c9[2];
 }
 
-s32 Camera::func_800148C4(f32* pos, f32 dist, f32* outHit) {
+s32 Camera::vfunc10(f32* pos, f32 dist, f32* outHit) {
     f32 hitPoint[3];
     f32 slot1[4];
     f32 slot2[4];
@@ -600,7 +598,7 @@ void Camera::func_80014E4C(SceneTarget* a, s32 b) {
     this->field_28 = b;
 }
 
-void Camera::func_80014E58() {
+void Camera::vfunc9(f32* point, f32* out) {
 }
 
 void Camera::func_80014E60(f32 value) {
@@ -636,15 +634,157 @@ void Camera::func_80014ED0(f32* eye, f32* target, f32* up) {
     this->node->vfunc18(eye);
 }
 
-INCLUDE_ASM("asm/nonmatchings/camera", _._6Camera);
+Camera::~Camera() {
+}
 
-// The vtable is 8-byte aligned. The compiler-emitted float constant from
-// func_80013AD0 sits first in .rdata and would otherwise leave the vtable at a
-// 4-byte boundary, so force the alignment (the gap is the 0.0f pad at 0x800010C4).
-__asm__(".section .rdata\n.align 3\n.section .text\n");
-INCLUDE_RODATA("asm/nonmatchings/camera", _vt.6Camera);
+inline void Camera::func_800154D4(f32* src, f32* dst) {
+    this->node->vfunc2(src, dst);
+}
 
-Camera::Camera() {
+inline void Camera::func_80015484(FrustumData* out) {
+    *out = this->frustum;
+}
+
+inline FrustumData* Camera::func_8001547C() {
+    return &this->frustum;
+}
+
+inline void Camera::func_8001542C(FrustumNearData* out) {
+    *out = this->frustum.near;
+}
+
+inline void Camera::func_800153D0(f32* out) {
+    this->node->vfunc14(out);
+    out[0] = -out[0];
+    out[1] = -out[1];
+    out[2] = -out[2];
+}
+
+inline void Camera::func_800153A0(f32* vec) {
+    this->node->vfunc14(vec);
+}
+
+inline void Camera::func_80015344(f32* out) {
+    this->node->vfunc15(out);
+    out[0] = -out[0];
+    out[1] = -out[1];
+    out[2] = -out[2];
+}
+
+inline void Camera::func_80015314(f32* vec) {
+    this->node->vfunc15(vec);
+}
+
+inline void Camera::func_800152B8(f32* out) {
+    this->node->vfunc13(out);
+    out[0] = -out[0];
+    out[1] = -out[1];
+    out[2] = -out[2];
+}
+
+inline void Camera::func_80015288(f32* vec) {
+    this->node->vfunc13(vec);
+}
+
+inline void Camera::func_80015258(f32* a, f32* b) {
+    this->node->vfunc8(a, b);
+}
+
+inline void Camera::func_80015210(f32* dir, f32* up) {
+    this->node->vfunc10(dir, up);
+    this->flags |= 1;
+}
+
+inline void Camera::func_800151C8(CameraNode** arg) {
+    this->node->vfunc19(*arg);
+    this->flags |= 1;
+}
+
+inline void Camera::func_80015180(f32* pos) {
+    this->node->vfunc18(pos);
+    this->flags |= 1;
+}
+
+inline void Camera::func_8001516C(f32 value) {
+    this->fov = value;
+    this->flags |= 2;
+}
+
+inline f32 Camera::func_80015160() {
+    return this->fov;
+}
+
+inline f32 Camera::func_80015154() {
+    return this->aspect;
+}
+
+inline f32 Camera::func_80015148() {
+    return this->nearClip;
+}
+
+inline void Camera::func_80015134(f32 value) {
+    this->nearClip = value;
+    this->flags |= 2;
+}
+
+inline f32 Camera::func_80015128() {
+    return this->farClip;
+}
+
+inline void Camera::func_80015114(f32 value) {
+    this->farClip = value;
+    this->flags |= 2;
+}
+
+inline void Camera::func_800150E4(f32* out) {
+    this->node->vfunc17(out);
+}
+
+inline f32 Camera::func_800150D8() {
+    return this->field_14;
+}
+
+inline f32 Camera::func_800150CC() {
+    return this->field_18;
+}
+
+inline f32 Camera::func_800150C0() {
+    return this->field_1C;
+}
+
+inline f32 Camera::func_800150B4() {
+    return this->field_20;
+}
+
+inline s32 Camera::func_800150A4() {
+    return (this->flags ^ 1) & 1;
+}
+
+inline s32 Camera::func_80015090() {
+    return ((this->flags >> 1) ^ 1) & 1;
+}
+
+inline s32 Camera::func_80015084() {
+    return this->flags & 4;
+}
+
+inline void Camera::func_8001505C(Viewport* out) {
+    *out = this->viewport;
+}
+
+inline s32 Camera::func_80015050() {
+    return this->sceneTarget != NULL;
+}
+
+inline SceneTarget* Camera::func_80015044() {
+    return this->sceneTarget;
+}
+
+inline s32 Camera::func_80015038() {
+    return this->field_28;
+}
+
+inline Camera::Camera() {
     node = NULL;
     flags = 3;
     viewport.x = 0;
@@ -662,151 +802,4 @@ Camera::Camera() {
     field_18 = z;
     field_20 = z;
     field_1C = z;
-}
-
-s32 Camera::func_80015038() {
-    return this->field_28;
-}
-
-SceneTarget* Camera::func_80015044() {
-    return this->sceneTarget;
-}
-
-s32 Camera::func_80015050() {
-    return this->sceneTarget != NULL;
-}
-
-void Camera::func_8001505C(Viewport* out) {
-    *out = this->viewport;
-}
-
-s32 Camera::func_80015084() {
-    return this->flags & 4;
-}
-
-s32 Camera::func_80015090() {
-    return ((this->flags >> 1) ^ 1) & 1;
-}
-
-s32 Camera::func_800150A4() {
-    return (this->flags ^ 1) & 1;
-}
-
-f32 Camera::func_800150B4() {
-    return this->field_20;
-}
-
-f32 Camera::func_800150C0() {
-    return this->field_1C;
-}
-
-f32 Camera::func_800150CC() {
-    return this->field_18;
-}
-
-f32 Camera::func_800150D8() {
-    return this->field_14;
-}
-
-void Camera::func_800150E4(f32* out) {
-    this->node->vfunc17(out);
-}
-
-void Camera::func_80015114(f32 value) {
-    this->farClip = value;
-    this->flags |= 2;
-}
-
-f32 Camera::func_80015128() {
-    return this->farClip;
-}
-
-void Camera::func_80015134(f32 value) {
-    this->nearClip = value;
-    this->flags |= 2;
-}
-
-f32 Camera::func_80015148() {
-    return this->nearClip;
-}
-
-f32 Camera::func_80015154() {
-    return this->aspect;
-}
-
-f32 Camera::func_80015160() {
-    return this->fov;
-}
-
-void Camera::func_8001516C(f32 value) {
-    this->fov = value;
-    this->flags |= 2;
-}
-
-void Camera::func_80015180(f32* pos) {
-    this->node->vfunc18(pos);
-    this->flags |= 1;
-}
-
-void Camera::func_800151C8(CameraNode** arg) {
-    this->node->vfunc19(*arg);
-    this->flags |= 1;
-}
-
-void Camera::func_80015210(f32* dir, f32* up) {
-    this->node->vfunc10(dir, up);
-    this->flags |= 1;
-}
-
-void Camera::func_80015258(f32* a, f32* b) {
-    this->node->vfunc8(a, b);
-}
-
-void Camera::func_80015288(f32* vec) {
-    this->node->vfunc13(vec);
-}
-
-void Camera::func_800152B8(f32* out) {
-    this->node->vfunc13(out);
-    out[0] = -out[0];
-    out[1] = -out[1];
-    out[2] = -out[2];
-}
-
-void Camera::func_80015314(f32* vec) {
-    this->node->vfunc15(vec);
-}
-
-void Camera::func_80015344(f32* out) {
-    this->node->vfunc15(out);
-    out[0] = -out[0];
-    out[1] = -out[1];
-    out[2] = -out[2];
-}
-
-void Camera::func_800153A0(f32* vec) {
-    this->node->vfunc14(vec);
-}
-
-void Camera::func_800153D0(f32* out) {
-    this->node->vfunc14(out);
-    out[0] = -out[0];
-    out[1] = -out[1];
-    out[2] = -out[2];
-}
-
-void Camera::func_8001542C(FrustumNearData* out) {
-    *out = this->frustum.near;
-}
-
-FrustumData* Camera::func_8001547C() {
-    return &this->frustum;
-}
-
-void Camera::func_80015484(FrustumData* out) {
-    *out = this->frustum;
-}
-
-void Camera::func_800154D4(f32* src, f32* dst) {
-    this->node->vfunc2(src, dst);
 }
