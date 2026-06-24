@@ -16,7 +16,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq binutils-mips-linux-gnu gcc-mips-linux-gnu ninja-build
+          sudo apt-get install -y -qq binutils-mips-linux-gnu gcc-mips-linux-gnu g++-mips-linux-gnu ninja-build
 
       - name: Install wibo
         run: |
