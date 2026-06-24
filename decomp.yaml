@@ -1,0 +1,35 @@
+name: Paperboy
+repo: https://github.com/marijnvdwerf/paperboy-n64
+platform: n64
+build_system: ninja
+versions:
+  - name: ntsc
+    fullname: NTSC (US)
+    paths:
+      target: "paperboy.z64"
+      build_dir: "build/ntsc"
+      map: "build/ntsc/paperboy.map"
+      compiled_target: "build/ntsc/paperboy.z64"
+      elf: "build/ntsc/paperboy.elf"
+      asm: "asm"
+      nonmatchings: "asm/nonmatchings"
+tools:
+  mapfile_parser:
+    progress_report:
+      output: report.json
+      check_asm_paths: false
+      report_data: true
+      prefixes_to_trim:
+        - build/ntsc/src/
+        - build/ntsc/asm/data/
+        - build/ntsc/asm/
+        - build/ntsc/
+      categories:
+        - id: game
+          name: Game
+          paths:
+            - src/
+        - id: asm
+          name: Undecompiled
+          paths:
+            - asm/

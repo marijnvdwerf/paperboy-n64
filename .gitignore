@@ -34,6 +34,9 @@ venv/
 .cache/
 compile_commands.json
 
+# Progress report
+report.json
+
 # Claude Code
 .claude/*
 !.claude/skills/

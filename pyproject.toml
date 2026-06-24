@@ -5,6 +5,7 @@ requires-python = ">=3.11"
 dependencies = [
     "asm-differ",
     "m2c",
+    "mapfile-parser>=2.12.1",
     "ninja-syntax>=1.7.2",
     "splat64[mips]>=0.40.0",
 ]
