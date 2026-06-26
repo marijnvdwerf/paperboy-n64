@@ -6,11 +6,11 @@
 #include "common.h"
 #include "surfaces.h"
 
-class Hedgehog : Surface16970 {
+class Hedgehog : public Surface16970 {
   public:
-    /* 0x30 */ u32 unk30;
+    /* 0x30 */ void* unk30;
 
-    Hedgehog() : unk30(0) {};
+    Hedgehog();
 };
 
 #endif
