@@ -13,6 +13,16 @@ versions:
       elf: "build/ntsc/paperboy.elf"
       asm: "asm"
       nonmatchings: "asm/nonmatchings"
+  - name: pal
+    fullname: PAL (EU)
+    paths:
+      target: "paperboy_pal.z64"
+      build_dir: "build/pal"
+      map: "build/pal/paperboy.map"
+      compiled_target: "build/pal/paperboy.z64"
+      elf: "build/pal/paperboy.elf"
+      asm: "asm"
+      nonmatchings: "asm/nonmatchings"
 tools:
   mapfile_parser:
     progress_report:
