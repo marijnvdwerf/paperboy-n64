@@ -449,6 +449,7 @@ segments:
       - [0x85640, rodata]
       - [0x85740, rodata]
       - [0x85870, rodata]
+      - [0x85930, rodata]
       - [0x85940, rodata]
       - [0x85BB0, dtors]
       - [0x85BC0, ctors]
