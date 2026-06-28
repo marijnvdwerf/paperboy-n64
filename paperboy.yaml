@@ -72,7 +72,7 @@ segments:
       - [0x19A0, .rdata, 11570]
       - [0x1AB0, .rdata, sandpiper]
       - [0x1AE0, rodata]
-      - [0x1BE0, rodata]
+      - [0x1BE0, .rdata, albatross]
       - [0x1CC0, .rdata, camera]
       - [0x1D40, .rdata, joey]
       - [0x1DE0, rodata] # 16970
@@ -217,7 +217,7 @@ segments:
       - [0x11570, cpp]
       - [0x11890, cpp, sandpiper]
       - [0x11B40, asm]
-      - [0x12480, asm]
+      - [0x12480, cpp, albatross]
       - [0x146D0, cpp, camera]
       - [0x16110, cpp, pixel_format]
       - [0x168C0, cpp, joey]

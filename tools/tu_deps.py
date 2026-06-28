@@ -106,11 +106,15 @@ DECOMPILED_VROMS: set[int] = {
     0x02A4A0,
     0x02A500,
     0x02B9C0,
+    0x03A0B0,
     0x03AF40,
+    0x03B130,
+    0x03B720,
     0x03BBA0,
     0x03BEB0,
     0x02C6A0,
     0x02C9A0,
+    0x02EEA0,
     0x03D5E0,
     0x03DE40,
     0x03E8E0,
@@ -136,6 +140,8 @@ DECOMPILED_VROMS: set[int] = {
     0x313F0,
     0x0EA5D0,
     0x0E3380,
+    0x0ED560,
+    0x0ED9F0,
 }
 
 # Hidden from output; their exports are treated as already-decompiled so that
