@@ -41,7 +41,7 @@ void Potoroo::vfunc15(void) {
 void Potoroo::vfunc14(PotorooTruffle* op) {
 }
 
-void Potoroo::vfunc13(void) {
+void Potoroo::vfunc13(s32, u8*) {
 }
 
 void Potoroo::vfunc12(s32, Vec3f*) {

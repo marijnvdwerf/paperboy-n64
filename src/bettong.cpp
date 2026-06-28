@@ -1,4 +1,4 @@
-#include "wallaby.h"
+#include "bettong.h"
 #include "parrot.h"
 
 extern "C" void func_8004B3BC(s32);
@@ -6,9 +6,7 @@ extern "C" void func_8004B390(void);
 
 extern "C" s32 D_800740B0;
 
-// INCLUDE_RODATA("asm/nonmatchings/wallaby", D_80003830);
-
-void Wallaby::vfunc2(Parrot* parrot) {
+void Bettong::vfunc2(Parrot* parrot) {
     if (unk0 != 0) {
         vfunc4();
     }
@@ -22,94 +20,98 @@ void Wallaby::vfunc2(Parrot* parrot) {
     func_8004B3BC(D_800740B0);
     unkC = new MarsupialVertex[unk0];
     func_8004B390();
-    if (unkC == NULL) {
-        __assert("", 0, 0, 0);
+    if (!unkC) {
+        __assert("", NULL, 0, NULL);
     }
     memset(unkC, 0, unk0 * sizeof(MarsupialVertex));
+
     for (u32 i = 0; i < unk0; i++) {
         unkC[i].unk0 = (s16)parrot->readFloat();
         unkC[i].unk2 = (s16)parrot->readFloat();
         unkC[i].unk4 = (s16)parrot->readFloat();
-        unkC[i].unk6 = 0;
         unkC[i].unk8 = (s16)(parrot->readFloat() * 127.0f * 32.0f);
         unkC[i].unkA = (s16)(parrot->readFloat() * 127.0f * 32.0f);
-        unkC[i].unkC = (s8)(parrot->readFloat() * 127.0f);
-        unkC[i].unkD = (s8)(parrot->readFloat() * 127.0f);
-        unkC[i].unkE = (s8)(parrot->readFloat() * 127.0f);
-        unkC[i].unkF = 0xFF;
+        unkC[i].unk6 = 0;
+        unkC[i].unkC = parrot->readInt();
+        unkC[i].unkD = parrot->readInt();
+        unkC[i].unkE = parrot->readInt();
+        unkC[i].unkF = parrot->readInt();
     }
     parrot->expectToken(TOKEN_CLOSE_BRACE);
 }
 
-void Wallaby::vfunc13(s32, u8*) {
+void Bettong::vfunc13(s32 index, u8* src) {
+    unkC[index].unkC = src[0];
+    unkC[index].unkD = src[1];
+    unkC[index].unkE = src[2];
+    unkC[index].unkF = src[3];
 }
 
-__asm__(".section .rdata\n"
-        "    .word 0\n");
-INCLUDE_RODATA("asm/nonmatchings/wallaby", _vt.7Wallaby);
+__asm__(".section .rdata\n.word 0\n");
+INCLUDE_RODATA("asm/nonmatchings/bettong", _vt.7Bettong);
 
-void Wallaby::vfunc12(s32 index, Vec3f* src) {
-    unkC[index].unkC = (s8)(src->x * 127.0f);
-    unkC[index].unkD = (s8)(src->y * 127.0f);
-    unkC[index].unkE = (s8)(src->z * 127.0f);
-    unkC[index].unkF = 0xFF;
+void Bettong::vfunc12(s32 index, Vec3f* src) {
 }
 
-void Wallaby::vfunc11(s32 index, Vec3f* src) {
+void Bettong::vfunc11(s32 index, Vec3f* src) {
     unkC[index].unk8 = (s16)(src->x * 127.0f * 32.0f);
     unkC[index].unkA = (s16)(src->y * 127.0f * 32.0f);
 }
 
-void Wallaby::vfunc10(s32 index, Vec3f* src) {
+void Bettong::vfunc10(s32 index, Vec3f* src) {
     unkC[index].unk0 = (s16)src->x;
     unkC[index].unk2 = (s16)src->y;
     unkC[index].unk4 = (s16)src->z;
 }
 
-void Wallaby::vfunc9(s32, u8*) {
+void Bettong::vfunc9(s32 index, u8* out) {
+    out[0] = unkC[index].unkC;
+    out[1] = unkC[index].unkD;
+    out[2] = unkC[index].unkE;
+    out[3] = unkC[index].unkF;
 }
 
-void Wallaby::vfunc8(s32 index, Vec3f* out) {
-    out->x = (f32)(s8)unkC[index].unkC / 127.0f;
-    out->y = (f32)(s8)unkC[index].unkD / 127.0f;
-    out->z = (f32)(s8)unkC[index].unkE / 127.0f;
+void Bettong::vfunc8(s32 index, Vec3f* out) {
+    out->x = 0.0f;
+    out->y = 0.0f;
+    out->z = 0.0f;
 }
 
-void Wallaby::vfunc7(s32 index, Vec3f* out) {
+void Bettong::vfunc7(s32 index, Vec3f* out) {
     out->x = (f32)unkC[index].unk8 * 0.03125f / 127.0f;
     out->y = (f32)unkC[index].unkA * 0.03125f / 127.0f;
 }
 
-void Wallaby::vfunc6(s32 index, Vec3f* out) {
+void Bettong::vfunc6(s32 index, Vec3f* out) {
     out->x = (f32)unkC[index].unk0;
     out->y = (f32)unkC[index].unk2;
     out->z = (f32)unkC[index].unk4;
 }
 
-void Wallaby::vfunc4(void) {
+void Bettong::vfunc4(void) {
     if (unkC != NULL) {
         delete[] unkC;
         unkC = NULL;
     }
 }
 
-void Wallaby::vfunc3(s32 count) {
+void Bettong::vfunc3(s32 newCount) {
     if (unk0 != 0) {
         vfunc4();
     }
-    unk0 = count;
+    unk0 = newCount;
     func_8004B3BC(D_800740B0);
     unkC = new MarsupialVertex[unk0];
     func_8004B390();
-    if (unkC == NULL) {
-        __assert("", 0, 0, 0);
+    if (!unkC) {
+        __assert("", NULL, 0, NULL);
     }
     memset(unkC, 0, unk0 * sizeof(MarsupialVertex));
 }
 
-Wallaby::Wallaby() {
+Bettong::Bettong() {
     unkC = NULL;
-    unk2 = 2;
+    unk2 = 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/wallaby", _._7Wallaby);
+INCLUDE_ASM("asm/nonmatchings/bettong", _._7Bettong);

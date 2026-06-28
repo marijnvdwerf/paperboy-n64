@@ -37,7 +37,7 @@ class Potoroo {
     virtual void vfunc10(s32 index, Vec3f* src);
     virtual void vfunc11(s32 index, Vec3f* src);
     virtual void vfunc12(s32 index, Vec3f* src);
-    virtual void vfunc13(void);
+    virtual void vfunc13(s32 index, u8* src);
     virtual void vfunc14(PotorooTruffle* op);
     virtual void vfunc15(void);
 

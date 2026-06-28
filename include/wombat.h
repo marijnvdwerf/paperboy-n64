@@ -19,7 +19,7 @@ struct Wombat : Marsupial {
     void vfunc10(s32 index, Vec3f* src) CXX_OVERRIDE;
     void vfunc11(s32 index, Vec3f* src) CXX_OVERRIDE;
     void vfunc12(s32 index, Vec3f* src) CXX_OVERRIDE;
-    void vfunc13(void) CXX_OVERRIDE;
+    void vfunc13(s32 index, u8* src) CXX_OVERRIDE;
 };
 
 #endif

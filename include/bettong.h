@@ -1,13 +1,13 @@
-#ifndef WALLABY_H
-#define WALLABY_H
+#ifndef BETTONG_H
+#define BETTONG_H
 
 #include "marsupial.h"
 
 class Parrot;
 
-struct Wallaby : Marsupial {
-    Wallaby();
-    ~Wallaby(); // TODO: remove — auto-generated, not an override
+struct Bettong : Marsupial {
+    Bettong();
+    ~Bettong(); // TODO: remove — auto-generated, not an override
 
     void vfunc2(Parrot* parrot) CXX_OVERRIDE;
     void vfunc3(s32 newCount) CXX_OVERRIDE;
