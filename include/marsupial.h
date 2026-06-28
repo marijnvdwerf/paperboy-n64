@@ -11,9 +11,9 @@ struct MarsupialVertex {
     /* 0x06 */ s16 unk6;
     /* 0x08 */ s16 unk8;
     /* 0x0A */ s16 unkA;
-    /* 0x0C */ s8 unkC;
-    /* 0x0D */ s8 unkD;
-    /* 0x0E */ s8 unkE;
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ u8 unkE;
     /* 0x0F */ u8 unkF;
 };
 

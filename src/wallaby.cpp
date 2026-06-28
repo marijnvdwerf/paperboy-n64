@@ -70,9 +70,9 @@ void Wallaby::vfunc9(s32, u8*) {
 }
 
 void Wallaby::vfunc8(s32 index, Vec3f* out) {
-    out->x = (f32)unkC[index].unkC / 127.0f;
-    out->y = (f32)unkC[index].unkD / 127.0f;
-    out->z = (f32)unkC[index].unkE / 127.0f;
+    out->x = (f32)(s8)unkC[index].unkC / 127.0f;
+    out->y = (f32)(s8)unkC[index].unkD / 127.0f;
+    out->z = (f32)(s8)unkC[index].unkE / 127.0f;
 }
 
 void Wallaby::vfunc7(s32 index, Vec3f* out) {
