@@ -44,10 +44,10 @@ void Potoroo::vfunc14(PotorooTruffle* op) {
 void Potoroo::vfunc13(void) {
 }
 
-void Potoroo::vfunc12(void) {
+void Potoroo::vfunc12(s32, Vec3f*) {
 }
 
-void Potoroo::vfunc11(void) {
+void Potoroo::vfunc11(s32, Vec3f*) {
 }
 
 void Potoroo::vfunc10(s32 index, Vec3f* src) {
@@ -56,22 +56,22 @@ void Potoroo::vfunc10(s32 index, Vec3f* src) {
     unk4[index].z = src->z;
 }
 
-void Potoroo::vfunc9(UNK, u8* out) {
+void Potoroo::vfunc9(s32, u8* out) {
     out[0] = 0;
     out[1] = 0;
     out[2] = 0;
     out[3] = 0;
 }
 
-void Potoroo::vfunc8(UNK, Vec3f* out) {
+void Potoroo::vfunc8(s32, Vec3f* out) {
     out->x = 0;
     out->y = 0;
     out->z = 0;
 }
 
-void Potoroo::vfunc7(UNK, s32* out) {
-    out[0] = 0;
-    out[1] = 0;
+void Potoroo::vfunc7(s32, Vec3f* out) {
+    out->x = 0;
+    out->y = 0;
 }
 
 void Potoroo::vfunc6(s32 index, Vec3f* out) {

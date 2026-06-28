@@ -19,20 +19,20 @@ void Marsupial::vfunc14(PotorooTruffle* adj) {
         if (unk14 == NULL) {
             __assert(D_80003970, NULL, 0, NULL);
         }
-        u8* src = unkC;
+        MarsupialVertex* src = unkC;
         u8* dst = unk14;
         u8* end = dst + (u32)unk0 * 4;
         while (dst < end) {
-            dst[0] = src[12];
-            dst[1] = src[13];
-            dst[2] = src[14];
-            dst[3] = src[15];
-            src += 16;
+            dst[0] = src->unkC;
+            dst[1] = src->unkD;
+            dst[2] = src->unkE;
+            dst[3] = src->unkF;
+            src++;
             dst += 4;
         }
     }
 
-    u8* dst2 = unkC;
+    MarsupialVertex* dst2 = unkC;
     u8* src2 = unk14;
     u8* end2 = src2 + (u32)unk0 * 4;
     s32 result = 1;
@@ -59,11 +59,11 @@ void Marsupial::vfunc14(PotorooTruffle* adj) {
             if (c3 >= 256)
                 c3 = 255;
 
-            dst2[12] = c0;
-            dst2[13] = c1;
-            dst2[14] = c2;
-            dst2[15] = c3;
-            dst2 += 16;
+            dst2->unkC = c0;
+            dst2->unkD = c1;
+            dst2->unkE = c2;
+            dst2->unkF = c3;
+            dst2++;
             src2 += 4;
         } while (src2 < end2);
         result = 1;
@@ -79,14 +79,14 @@ void Marsupial::vfunc15(void) {
         return;
     }
     u8* src = unk14;
-    u8* dst = unkC;
+    MarsupialVertex* dst = unkC;
     u8* end = src + unk0 * 4;
     while (src < end) {
-        dst[12] = src[0];
-        dst[13] = src[1];
-        dst[14] = src[2];
-        dst[15] = src[3];
-        dst += 16;
+        dst->unkC = src[0];
+        dst->unkD = src[1];
+        dst->unkE = src[2];
+        dst->unkF = src[3];
+        dst++;
         src += 4;
     }
     unk10 = 0;
@@ -115,8 +115,8 @@ Marsupial::Marsupial() {
     unk10 = 0;
 }
 
-u8* Marsupial::func_8003B284(s32 index) {
-    return unkC + index * 16;
+MarsupialVertex* Marsupial::func_8003B284(s32 index) {
+    return &unkC[index];
 }
 
 u16 Marsupial::func_8003B294() {

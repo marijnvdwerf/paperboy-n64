@@ -31,12 +31,12 @@ class Potoroo {
     virtual void vfunc4(void);
     virtual void vfunc5(void);
     virtual void vfunc6(s32 index, Vec3f* out);
-    virtual void vfunc7(UNK, s32* out);
-    virtual void vfunc8(UNK, Vec3f* out);
-    virtual void vfunc9(UNK, u8* out);
+    virtual void vfunc7(s32 index, Vec3f* out);
+    virtual void vfunc8(s32 index, Vec3f* out);
+    virtual void vfunc9(s32 index, u8* out);
     virtual void vfunc10(s32 index, Vec3f* src);
-    virtual void vfunc11(void);
-    virtual void vfunc12(void);
+    virtual void vfunc11(s32 index, Vec3f* src);
+    virtual void vfunc12(s32 index, Vec3f* src);
     virtual void vfunc13(void);
     virtual void vfunc14(PotorooTruffle* op);
     virtual void vfunc15(void);
