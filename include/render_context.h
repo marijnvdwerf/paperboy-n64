@@ -156,51 +156,51 @@ class N64RenderContext : public RenderContext {
     /* 0x04 */ char pad4[0xCD4C];
 
     N64RenderContext();
-    virtual s32 vfunc1() CXX_OVERRIDE; // func_80036A68
-    virtual void vfunc2() CXX_OVERRIDE; // func_80036AA0
-    virtual ~N64RenderContext() CXX_OVERRIDE; // _._16N64RenderContext
-    virtual UNK vfunc5(UNK) CXX_OVERRIDE; // func_8003758C
-    virtual Surface16970* vfunc6() CXX_OVERRIDE; // func_80036A54
-    virtual UNK vfunc7(UNK) CXX_OVERRIDE; // func_80037320
-    virtual UNK vfunc8(UNK) CXX_OVERRIDE; // func_80036C00
-    virtual UNK vfunc9(UNK) CXX_OVERRIDE; // func_80037540
-    virtual void vfunc12(s32 val) CXX_OVERRIDE; // func_80036280
-    virtual void vfunc13(s32 val) CXX_OVERRIDE; // func_800349E4
-    virtual UNK vfunc23(s32 idx) CXX_OVERRIDE; // func_80036C18
-    virtual void vfunc24(UNK) CXX_OVERRIDE; // func_80037104
-    virtual UNK vfunc26(UNK) CXX_OVERRIDE; // func_80036878
-    virtual UNK vfunc27(UNK) CXX_OVERRIDE; // func_800367C4
-    virtual UNK vfunc28(UNK) CXX_OVERRIDE; // func_80036710
-    virtual UNK vfunc29(UNK) CXX_OVERRIDE; // func_80036674
-    virtual UNK vfunc30(UNK) CXX_OVERRIDE; // func_800365E8
-    virtual UNK vfunc31(UNK) CXX_OVERRIDE; // func_800364E0
-    virtual UNK vfunc32(UNK) CXX_OVERRIDE; // func_80036420
-    virtual UNK vfunc33(UNK) CXX_OVERRIDE; // func_80036418
-    virtual UNK vfunc34(UNK) CXX_OVERRIDE; // func_80033098
-    virtual void vfunc35(UNK arg) CXX_OVERRIDE; // func_8003747C
-    virtual UNK vfunc36(UNK) CXX_OVERRIDE; // func_800316E4
-    virtual void vfunc37() CXX_OVERRIDE; // func_80033FD8
-    virtual void vfunc39() CXX_OVERRIDE; // func_8003636C
-    virtual void vfunc43(struct Mover* arg, f32 f1, f32 f2) CXX_OVERRIDE; // func_80030E88
-    virtual UNK vfunc44(UNK) CXX_OVERRIDE; // func_800373C8
-    virtual UNK vfunc45(UNK) CXX_OVERRIDE; // func_80031A0C
-    virtual void vfunc46(s16 a, s16 b) CXX_OVERRIDE; // func_800362C8
-    virtual void vfunc47() CXX_OVERRIDE; // func_800362C0
-    virtual UNK vfunc52(UNK) CXX_OVERRIDE; // func_80036A60
-    virtual UNK vfunc53(UNK) CXX_OVERRIDE; // func_80036EC4
-    virtual UNK vfunc54(UNK) CXX_OVERRIDE; // func_80036ED4
-    virtual UNK vfunc55(UNK) CXX_OVERRIDE; // func_80036F74
-    virtual UNK vfunc56(UNK) CXX_OVERRIDE; // func_80036EE8
-    virtual UNK vfunc57(UNK) CXX_OVERRIDE; // func_80032FC0
-    virtual UNK vfunc58(UNK) CXX_OVERRIDE; // func_8003697C
-    virtual UNK vfunc60(UNK) CXX_OVERRIDE; // func_8003284C
-    virtual void vfunc61() CXX_OVERRIDE; // func_800363A0
-    virtual UNK vfunc62(UNK) CXX_OVERRIDE; // func_80036974
-    virtual UNK vfunc63(UNK) CXX_OVERRIDE; // func_8003695C
-    virtual UNK vfunc64(UNK) CXX_OVERRIDE; // func_80036954
-    virtual UNK vfunc65(UNK) CXX_OVERRIDE; // func_8003693C
-    virtual UNK vfunc66(UNK) CXX_OVERRIDE; // func_80036934
-    virtual UNK vfunc67(UNK) CXX_OVERRIDE; // func_8003692C
+    s32 vfunc1() CXX_OVERRIDE; // func_80036A68
+    void vfunc2() CXX_OVERRIDE; // func_80036AA0
+    ~N64RenderContext() CXX_OVERRIDE; // _._16N64RenderContext
+    UNK vfunc5(UNK) CXX_OVERRIDE; // func_8003758C
+    Surface16970* vfunc6() CXX_OVERRIDE; // func_80036A54
+    UNK vfunc7(UNK) CXX_OVERRIDE; // func_80037320
+    UNK vfunc8(UNK) CXX_OVERRIDE; // func_80036C00
+    UNK vfunc9(UNK) CXX_OVERRIDE; // func_80037540
+    void vfunc12(s32 val) CXX_OVERRIDE; // func_80036280
+    void vfunc13(s32 val) CXX_OVERRIDE; // func_800349E4
+    UNK vfunc23(s32 idx) CXX_OVERRIDE; // func_80036C18
+    void vfunc24(UNK) CXX_OVERRIDE; // func_80037104
+    UNK vfunc26(UNK) CXX_OVERRIDE; // func_80036878
+    UNK vfunc27(UNK) CXX_OVERRIDE; // func_800367C4
+    UNK vfunc28(UNK) CXX_OVERRIDE; // func_80036710
+    UNK vfunc29(UNK) CXX_OVERRIDE; // func_80036674
+    UNK vfunc30(UNK) CXX_OVERRIDE; // func_800365E8
+    UNK vfunc31(UNK) CXX_OVERRIDE; // func_800364E0
+    UNK vfunc32(UNK) CXX_OVERRIDE; // func_80036420
+    UNK vfunc33(UNK) CXX_OVERRIDE; // func_80036418
+    UNK vfunc34(UNK) CXX_OVERRIDE; // func_80033098
+    void vfunc35(UNK arg) CXX_OVERRIDE; // func_8003747C
+    UNK vfunc36(UNK) CXX_OVERRIDE; // func_800316E4
+    void vfunc37() CXX_OVERRIDE; // func_80033FD8
+    void vfunc39() CXX_OVERRIDE; // func_8003636C
+    void vfunc43(struct Mover* arg, f32 f1, f32 f2) CXX_OVERRIDE; // func_80030E88
+    UNK vfunc44(UNK) CXX_OVERRIDE; // func_800373C8
+    UNK vfunc45(UNK) CXX_OVERRIDE; // func_80031A0C
+    void vfunc46(s16 a, s16 b) CXX_OVERRIDE; // func_800362C8
+    void vfunc47() CXX_OVERRIDE; // func_800362C0
+    UNK vfunc52(UNK) CXX_OVERRIDE; // func_80036A60
+    UNK vfunc53(UNK) CXX_OVERRIDE; // func_80036EC4
+    UNK vfunc54(UNK) CXX_OVERRIDE; // func_80036ED4
+    UNK vfunc55(UNK) CXX_OVERRIDE; // func_80036F74
+    UNK vfunc56(UNK) CXX_OVERRIDE; // func_80036EE8
+    UNK vfunc57(UNK) CXX_OVERRIDE; // func_80032FC0
+    UNK vfunc58(UNK) CXX_OVERRIDE; // func_8003697C
+    UNK vfunc60(UNK) CXX_OVERRIDE; // func_8003284C
+    void vfunc61() CXX_OVERRIDE; // func_800363A0
+    UNK vfunc62(UNK) CXX_OVERRIDE; // func_80036974
+    UNK vfunc63(UNK) CXX_OVERRIDE; // func_8003695C
+    UNK vfunc64(UNK) CXX_OVERRIDE; // func_80036954
+    UNK vfunc65(UNK) CXX_OVERRIDE; // func_8003693C
+    UNK vfunc66(UNK) CXX_OVERRIDE; // func_80036934
+    UNK vfunc67(UNK) CXX_OVERRIDE; // func_8003692C
 
     s32 func_80031B58(StructYYSubA8*, StructYYSubA8Inner1*, s32, s32);
 };

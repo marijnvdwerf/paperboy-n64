@@ -8,10 +8,10 @@ struct Dunnart : Surface16970Palette {
     /* 0x04 */ u16* data;
     /* 0x08 */ u32 count;
 
-    virtual void vfunc1(u8* dst, s32 start, u32 num) CXX_OVERRIDE;
-    virtual void vfunc2(DunnartColor* colors, s32 start, u32 num) CXX_OVERRIDE;
-    virtual void vfunc3(u8* dst, s32 index) CXX_OVERRIDE;
-    virtual void vfunc4(Surface16970Palette* src) CXX_OVERRIDE;
+    void vfunc1(u8* dst, s32 start, u32 num) CXX_OVERRIDE;
+    void vfunc2(DunnartColor* colors, s32 start, u32 num) CXX_OVERRIDE;
+    void vfunc3(u8* dst, s32 index) CXX_OVERRIDE;
+    void vfunc4(Surface16970Palette* src) CXX_OVERRIDE;
     virtual s32 vfunc5(u8* color);
     virtual s32 vfunc6();
     virtual u32 vfunc7();

@@ -16,11 +16,11 @@ class OtherBird : public Parrot {
   public:
     /* 0x650 */ u8 pad650[8];
 
-    virtual void selectDriver(const char* path) CXX_OVERRIDE;
-    virtual char* getExtension() CXX_OVERRIDE;
-    virtual void parseError(s32 code) CXX_OVERRIDE;
-    virtual s32 nextToken() CXX_OVERRIDE;
-    virtual s32 vfunc21(char* name, s32 len) CXX_OVERRIDE;
+    void selectDriver(const char* path) CXX_OVERRIDE;
+    char* getExtension() CXX_OVERRIDE;
+    void parseError(s32 code) CXX_OVERRIDE;
+    s32 nextToken() CXX_OVERRIDE;
+    s32 vfunc21(char* name, s32 len) CXX_OVERRIDE;
 };
 
 // Rosella - concrete OtherBird, auto-generates vtable + dtor
