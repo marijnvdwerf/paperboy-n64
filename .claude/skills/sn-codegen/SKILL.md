@@ -591,4 +591,256 @@ The array base (`this->times`) hoists the same way; in `func_80020860` both land
 
 ---
 
+## `?:` vs `if`-assignment controls `%hi(global)` CSE range
+
+**Symptom**: a global referenced several times across a function. Target caches `lui %hi(global)` in a callee-saved reg for the early references but re-materializes a fresh `lui v0/v1` for a later reference (after intervening branches/calls). Your version merges *all* references into one callee-saved hi-cache, burning an extra s-register — frame grows by 8, and r-diffs cascade through the whole function.
+
+**Cause**: CSE of the `%hi` constant follows the pre-jump-optimization CFG. A conditional written as declare-then-overwrite (`char* buf = a; if (cond) buf = b;`) produces a CFG that lets CSE carry the cached hi across the join into the later reference. The same logic written as a conditional expression (`char* buf = cond ? a : b;`) produces a join CSE won't cross — the later reference gets a fresh `lui` in a caller-saved temp, and the hi-cache pseudo's live range (hence the s-register count) shrinks to match.
+
+**Fix**: when the target shows a fresh `lui` for a later global reference and your build reuses a long-lived s-reg instead, rewrite a preceding two-step conditional assignment as a `?:` initializer (or vice versa if mismatched in the other direction).
+
+```cpp
+// merges all %hi refs into one s5-cached pseudo (mismatch)
+char* buf = self->pathBuf;
+if (totalLen > 0x40) buf = new char[totalLen];
+
+// hi-cache dies early; later strcat ref re-does lui v0 (matches)
+char* buf = (totalLen <= 0x40) ? self->pathBuf : new char[totalLen];
+```
+
+This was the single lever in `func_8001393C` (albatross.cpp): score → 0 in one change. Note an inline-function wrapper around the global reference does NOT break the CSE — only the CFG shape does.
+
+---
+
+## Statement duplicated into both branch arms is often ONE source statement after the join
+
+**Symptom**: both arms of an `if`/`else` end with the same instruction (e.g. `addu s6,s6,s0` — once in a `j` delay slot, once at the join label). Writing the statement in both source arms produces the same instructions but flips a callee-saved register pair elsewhere in the function (pure `r` markers on two unrelated variables, e.g. s5↔s6), because the duplicated source statement inflates the variable's pre-allocation ref count and changes its allocation priority.
+
+**Fix**: write the statement ONCE, after the `if`/`else`. The compiler duplicates it into the branch delay slot itself:
+
+```cpp
+// two refs: fileOff's allocno priority rises, steals the wrong s-reg
+if (compSize < len) { ...; fileOff += compSize; }
+else                { ...; fileOff += compSize; }
+
+// one ref: allocation matches; compiler still emits the copy in the delay slot
+if (compSize < len) { ... } else { ... }
+fileOff += compSize;
+```
+
+This fixed the s5/s6 swap in `func_80012CE8` (120 → 0). When you see an unexplained s-reg pair swap, audit the source for statements you duplicated across arms that the original likely wrote once.
+
+---
+
+## Reusing one variable for a pre-loop value AND the loop counter rotates the s-register frame
+
+**Symptom**: a value computed before a loop (e.g. `totalRows = unk44 * scaleY`, used only in flip math) and the loop counter itself are the same source variable. The merged live range spans from the early computation through the whole loop, grabs a low callee-saved register (s3), and every other loop variable's s-register rotates by one — dozens of pure `r` markers.
+
+**Fix**: split into two disjoint variables: a `s32 totalRows` for the pre-loop math, and a fresh `u32 row = 0` counter for the loop. The allocator gives each its own (shorter) range and the target's register assignment falls out — it may even coalesce both into the same register (m2c shows this as `temp_sN`/`var_sN` pairs). Was the 639 → 350 lever in `func_80012954`.
+
+```cpp
+// one variable: long live range, steals s3, rotates the frame
+row = self->unk44 * scaleY;
+if (!flip) { dst += (row - 1) * step; step = -step; }
+row = 0;
+while (row < self->unk44) { ...; row++; }
+
+// two variables: ranges disjoint, allocation matches
+s32 totalRows = self->unk44 * scaleY;
+if (!flip) { dst += (totalRows - 1) * step; step = -step; }
+u32 row = 0;
+while (row < self->unk44) { ...; row++; }
+```
+
+Related smaller levers from the same function: a horizontal-scale dispatch on bit depth is a `switch (bpp)` with fall-through cases (`case 15: case 16:`), not nested `if`s — the switch gives the target's unsigned `sltiu` dispatch and body order (declare the switch value `u32`, not `u16`); and `if ((s32)copies > 0) { do{...}while(...); } src--;` (single decrement after the `if`) produces the target's branch-likely with the decrement duplicated into the delay slot.
+
+---
+
+## Apparently dead stack stores may come from an inlined output-parameter helper
+
+**Symptom**: the target stores two computed values into stack locals, but one appears never to be reloaded. Writing direct assignments lets DSE remove or reorder a store and shifts every later stack slot, producing a large structural/stack diff. An `asm("m")` memory operand can force the stores, but project policy bans that crutch.
+
+**Cause**: the values may have been produced by a small `static inline` helper taking output pointers. Before inlining/DSE, both stores are externally observable through pointer arguments, so the compiler preserves them and allocates real stack homes. The helper can also explain why the same paired stores appear at multiple call sites.
+
+**Fix**: look for repeated pairs of related assignments and reconstruct a natural output-parameter helper before concluding that the store is inherently dead:
+
+```cpp
+static inline void getDimensions(Grid* grid, u32 row, u32 col, s32* width, s32* height) {
+    *width = grid->widths[row];
+    *height = grid->heights[col];
+}
+
+getDimensions(grid, row, col, &rowWidth, &colHeight);
+```
+
+In `func_80012F8C`, this pure-C helper restored the target's `rowWidth`/`colH` stores at `sp+0x40`/`sp+0x44`, corrected the uniform stack-slot shift, and dropped the score from 1744 to 475; later register/scheduling cleanups reached 0. Only park or consider an asm constraint after ruling out a real producer API such as an inline helper. Truly parsed-but-unused fields (such as BMP header metadata) may still be genuine DSE cases.
+
+---
+
+## Whole-function callee-saved register rotation (self in the wrong s-reg) is usually unleverable
+
+**Symptom**: the diff is dominated by dozens–hundreds of `r` markers that are all the *same* uniform rotation of the entire s-register file (e.g. `this`/`self` in s1 where the target has s3, and every other callee-saved reg shifted by the same constant offset: s4→s3, s5→s4, s6→s7 …). Often the frame is one saved register larger/smaller too. Zero logic differences.
+
+**Cause**: the SN/GCC global allocator colored the allocnos in a slightly different priority order, so the receiver param grabbed a different hard register and everything else cascaded. The order is a function of the whole live-range/frequency graph, not any single source construct.
+
+**Fix**: no reliable *register-level* lever. Declaration reorder, copying the param to a local (`T* self2 = self`), fp-value caching, and narrow/wide type changes were all tried on `func_80011880` without moving `self` off s1. BUT: before parking, hunt for an upstream *structural* seed — uniform rotations are often phase shifts caused by one RTL-shape difference earlier in the function (an early-return label vs a shared tail, a pseudo born one expression too late). Two rotations previously judged unleverable in albatross.cpp later fell to the "shared tail" and "derive-pointer-from-field" tips below. Only if no structural seed can be found should you park.
+
+---
+
+## `flag = (c1 || c2);` value form vs branchy flag assignments
+
+**Symptom**: an assert/dispatch flag computed from two conditions. Target materializes the flag in an argument register (`move a0,zero` in a delay slot, `li a0,1`, `beqz a0`) and shares ONE register (t2) for repeated loads of the same base pointer across both conditions. Your branchy form (`s32 f = 0; if (c1) f = 1; else if (c2) f = 1;`) produces the same instruction shapes but different register sourcing for the repeated base-pointer loads, cascading r-diffs.
+
+**Fix**: write the flag as a logical-OR value expression:
+
+```cpp
+// branchy: same shape, wrong register story
+s32 oob = 0;
+if (a->x < self->y) oob = 1;
+else if (a->z < self->w) oob = 1;
+
+// value form: both self loads share one CSE pseudo, flag lands in a0 (matches)
+s32 oob = (a->x < self->y || a->z < self->w);
+```
+
+This took `func_80012384` from 575 → 380 in one change. Related: where the target's shared base-pointer register is sourced (`move tX,a0` from the still-live incoming arg vs `lw tX,sp-slot`) depends on whether an aliasing store (e.g. a local's inline-ctor zero stores through a pointer) sits between the parm spill and the first load in RTL order — the local's DECLARATION POSITION moves those stores. Declaring the ctor-bearing local at the top blocked the direct-a0 fold and restored the shared-t2 shape.
+
+---
+
+## Shared-tail wrapper `if` vs early return — reload inheritance across the branch
+
+**Symptom**: an early-out check whose bail path performs the same cleanup call as the function end (e.g. both call `dstSurface->vfunc3()`). Structure matches, but shortly after the check your build reloads a value from its stack slot (`lw t0,0x40(sp)`) where the target keeps using the register that just stored it (`sw t2,0x40(sp)` … `mult v0,t2`) — one extra load plus a caller-saved register rotation downstream until the next call resyncs them.
+
+**Cause**: `if (!cond) { cleanup(); return; }` places the then-block inline in the RTL stream; the label that terminates it resets reload inheritance, so the register copy of the spilled value is forgotten. `if (cond) { whole body } cleanup();` has no label on the fallthrough path — the branch jumps forward over the entire body to the single shared tail — so reload inheritance carries the register through. Final instruction layout is IDENTICAL either way (jump optimization moves the bail path out of line); only the register story differs.
+
+**Fix**: when the bail path and the function end share a call, write the body as one wrapper `if` with the shared statement after it:
+
+```cpp
+// early return: label kills inheritance, step reloads from stack
+if (this->unkED4 != 0x80) { dstSurface->vfunc3(); return; }
+...body using step...
+dstSurface->vfunc3();
+
+// shared tail: step stays in its register across the branch (matches)
+if (this->unkED4 == 0x80) {
+    ...body using step...
+}
+dstSurface->vfunc3();
+```
+
+This was the final lever in `func_80012384` (180 → 0). Related to the "Shared trailing `return <const>`" tip — same principle: merge duplicated tails in source; the compiler duplicates/moves them itself.
+
+---
+
+## Derive the pointer from the field, declare the count variable after — pseudo birth order
+
+**Symptom**: a scale/copy loop uses three short-lived caller-saved temps (width counter, inner counter, destination pointer) and the diff is a pure 3-cycle rotation of a0/a1/a2 (e.g. target {width=a0, copies=a1, dst=a2}, yours {width=a2, copies=a0, dst=a1}). Instruction sequence identical; every hoist/scope/type variation is neutral or much worse.
+
+**Cause**: global allocation order among equal-priority pseudos follows creation order. `s32 w = this->unk40; src = base + w;` births `w` in its own statement — later than the target, which birthed the merged load inside the pointer expression. The one-slot difference in creation order rotates the whole assignment cycle.
+
+**Fix**: reference the field directly in the pointer computation and declare the counter afterward — CSE still merges the two field loads into a single register (no extra load emitted), but the pseudo is born inside the pointer expression and wins the first free register:
+
+```cpp
+// rotated: w born as its own statement
+s32 srcWidth = this->unk40;
+u8* src = (u8*)(dstPtr + srcWidth) - 1;
+
+// matches: load born inside the src expression; srcWidth aliases it via CSE
+u8* dst = (u8*)(dstPtr + dstSurface->unk26) - 1;
+u8* src = (u8*)(dstPtr + this->unk40) - 1;
+s32 srcWidth = this->unk40;
+```
+
+This was the final lever in `func_80012954` (350 → 0).
+
+---
+
+## Debugging register allocation directly with -dg / -dl dumps
+
+**Symptom**: a whole-function callee-saved rotation (or any stubborn `r`-marker cluster) resists source levers and you're guessing at allocator behavior.
+
+**Fix**: run the compiler by hand with dump flags — the RTL dumps are pure gold:
+
+```sh
+mips-linux-gnu-cpp <same flags as build.ninja> -o /tmp/x.i src/<file>.cpp
+wibo tools/bin/cc1pln64.exe -quiet -G0 -O2 -dg /tmp/x.i -o /tmp/x.s   # -> /tmp/x.i.greg
+wibo tools/bin/cc1pln64.exe -quiet -G0 -O2 -dl /tmp/x.i -o /tmp/x.s   # -> /tmp/x.i.lreg
+```
+
+`.greg` shows `;; N regs to allocate: <pseudo list in ALLOCATION ORDER>`, per-pseudo conflict lists, and `;; Register dispositions: 80 in 18 ...` (hard reg 16=s0 … 22=s6). `.lreg` shows per-pseudo stats: `Register 80 used 86 times across 1300 insns; crosses 30 calls`. Allocation priority ≈ `floor_log2(refs) * refs * size / live_length`; `find_reg` then hands each pseudo the lowest-numbered non-conflicting hard reg (callee-saved only if it crosses a call). With these dumps you can *compute* why a pseudo landed in the wrong s-reg instead of guessing. `-dc` (combine) explains opcode-level surprises (e.g. `plus`→`ior`).
+
+---
+
+## Loop counter in a callee-saved reg: the counter doubles as a pre-call value
+
+**Symptom**: a copy-loop counter sits in a callee-saved reg (`move s1,zero` in a delay slot) in the target but in `a1`/`v1` in yours — and fixing it by hand (init before the call) leaves an extra early `move sX,zero` plus asserts sourcing zero from that reg.
+
+**Cause**: a pseudo only gets a callee-saved reg if its live range crosses a call. The original often achieves this *invisibly* by reusing ONE variable for a pre-call value and the loop counter: e.g. `i = unk68 * 3;` (buffer size, passed to `new[]`/`readAt`) then after the calls `i = 0;` and count with it. The single pseudo crosses the calls (callee-saved), and the re-init lands naturally in the loop-guard delay slot.
+
+**Fix**: when a target loop counter is callee-saved, look for a value computed before the calls that dies right where the counter is born — same register, back-to-back ranges is the tell (`addu s1,…` for the size, later `move s1,zero`). Merge them into one variable. In func_80011880 this single change snapped the ENTIRE callee-saved map (self, bits, fileOffset, &dummy, palBuf, i) into the target's assignment.
+
+Related: one function-scope counter shared by several exclusive-path loops (instead of per-block locals) keeps one pseudo, and reusing a dead earlier variable (`fileOffset = biSize + 0xE;` instead of a fresh `dibOffset`) lands the value in that variable's register.
+
+---
+
+## Little-endian field parse: absolute sp reads mean buffer-index source, pointer-relative means walking-p source
+
+**Symptom**: byte-assembled header fields read via fixed sp offsets (`lbu v0,0x2e(sp)`) in the target but via `4(s0)`-style pointer offsets in yours — and the pointer bump (`addiu s0,sp,0x32`) sits EARLIER in the target than your source order allows.
+
+**Cause**: fields read through the walking pointer `p` keep s0-relative addressing and pin the `p += N` after them. Fields read via the buffer directly (`L.hdr[6]`, `L.dibHdr[12]`) are sp-absolute and let the compiler hoist `p += N` above them.
+
+**Fix**: match per field: pointer-relative reads → `p[k]`; sp-absolute reads → `buf[k]` indices, with `p += N` placed between per the emitted `addiu s0` position.
+
+---
+
+## Byte-pair sum: `or` vs `addu` is HImode vs SImode — use a function-scope u32, never u16
+
+**Symptom**: a little-endian 16-bit field parse `v = b[0] + (b[1] << 8)` emits `or` where the target has `addu` (or vice versa), and/or the sum schedules late into the wrong temp.
+
+**Cause**: two independent axes that earlier looked like one trade-off:
+- Opcode: a `u16` variable makes the plus an HImode set; combine proves the operands disjoint and canonicalizes plus→ior (`or`). Any u32/s32 (SImode) destination keeps `addu`. There is no u16 formulation that yields `addu`.
+- Schedule: a *block-local* `u32` births the pseudo late and the sum sinks (no in-block consumer); a *function-scope* `u32` (declared with the other top locals, like an existing `bitsPerPixel`) keeps the early schedule and the target temp register.
+
+**Fix**: declare the variable function-scope `u32` and write the plain `lo + (hi << 8)` sum. This gives `addu` AND the early schedule — resolving what the earlier "u16 flips scheduling but yields or" tip recorded as an open problem (func_80011880: 841 → 258 in one change).
+
+---
+
+## Hi-byte temps steer the scheduler's load placement in sparse blocks
+
+**Symptom**: a small BB parses two byte-pair fields around an interleaved store (`sw zero`); everything is semantically right but the four `lbu`s and the `sw` come out permuted vs target (target hoists both hi-byte loads to the top, defers one lo-byte into a spare temp like `a0`). Statement order and `+` operand order permutations plateau a few points short.
+
+**Cause**: the backward list scheduler gives "launch" bonuses by RTL adjacency; `lo + (hi << 8)` emits the lo load first, so the hi loads can never reach the top slots. The `-dS` dump (see below) shows the exact `launching X before Y` / `blocking insn N` decisions.
+
+**Fix**: pre-load the hi bytes into named temps ABOVE the sums; each temp's load is emitted at the temp's declaration point, and the sums still fold into the same lbu/sll/addu triples:
+
+```cpp
+u32 planesHi = L.dibHdr[9];
+u32 bitsHi = L.dibHdr[11];
+self->unk68 = 0;
+planes = L.dibHdr[8] + (planesHi << 8);
+bitsPerPixel = L.dibHdr[10] + (bitsHi << 8);
+```
+
+This was the 258 → 0 sequence in func_80011880 (230 after the temps, 75 after both, then statement-order of the `= 0` store). Position the plain store between/before the temps per the target's `sw` slot.
+
+---
+
+## Debugging the instruction scheduler with -dS
+
+**Symptom**: instructions all present with right registers but permuted within a BB, and source-order permutations don't converge.
+
+**Fix**: `wibo tools/bin/cc1pln64.exe -quiet -G0 -O2 -dS file.i -o file.s` writes `file.i.sched`: per-BB priorities and a full backward ready-list trace (`ready list at T-N`, `launching X before Y with no stalls`, `blocking insn N for 1 cycles`). T-1 is the LAST insn of the BB; program order is descending T. Correlate insn numbers with `-dc` (`.combine`) which prints full RTL bodies. The "launch" bonus (7f000001) follows RTL adjacency, which is why source emission order matters even when the DAG is identical.
+
+---
+
+## A branch that jumps into the middle of shared tail code may be a shared statement after the if/else
+
+**Symptom**: one arm of a large if/else ends with `j <addr>` where `<addr>` is not the epilogue but a later dispatch (e.g. a switch) that your version emits inside the other arm only; diff shows the jump landing short of your epilogue target.
+
+**Cause**: the statement (e.g. a `switch (bitsPerPixel)` setting pixel-format masks) sits AFTER the if/else in the original, shared by both paths, even though only one path obviously needs it.
+
+**Fix**: move the statement out of the arm to function scope after the join (func_80011880: TGA path falls into the same bitsPerPixel switch as the BMP paths; 5 → 0).
+
+---
+
 *Add new tips as they're discovered. Each tip names its symptom, its cause, and its fix.*

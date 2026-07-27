@@ -8,6 +8,10 @@
 #define NULL 0
 #endif
 
+#ifndef INT_MAX
+#define INT_MAX 0x7FFFFFFF
+#endif
+
 #ifdef HAVE_CXX_OVERRIDE
 #define CXX_OVERRIDE override
 #else

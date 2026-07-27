@@ -5,6 +5,10 @@
 #include "file.h"
 #include "pixel_format.h"
 
+struct Surface16970;
+class Surface16970Palette;
+struct TiledSurface;
+
 struct DugongColor {
     /* 0x0 */ u8 r;
     /* 0x1 */ u8 g;
@@ -23,7 +27,7 @@ struct Dugong {
     /* 0x048 */ u32 unk48;
     /* 0x04C */ PixelFormat pixelFormat;
     /* 0x064 */ s32 unk64;
-    /* 0x068 */ s32 unk68;
+    /* 0x068 */ u32 unk68;
     /* 0x06C */ s32 unk6C;
     /* 0x070 */ s32 unk70;
     /* 0x074 */ s32 unk74;
@@ -56,12 +60,12 @@ struct Dugong {
     virtual void vfunc3(const char* filename);
     virtual void vfunc4();
     virtual const char* vfunc5();
-    virtual void vfunc6();
-    virtual void vfunc7();
-    virtual void vfunc8();
-    virtual void vfunc9();
+    virtual void vfunc6(Surface16970* dstSurface, s32 flipFlag, u8* transColor);
+    virtual void vfunc7(TiledSurface* dstSurface, s32 flipFlag, u8* transColor);
+    virtual void vfunc8(u8* dst);
+    virtual void vfunc9(u8* srcBuffer, Surface16970* dstSurface, s32 flipFlag, u8* transColor);
 
-    void func_8001B230(u8* palette, u8* transColor);
+    void func_8001B230(Surface16970Palette* palette, u8* transColor);
     s32 func_8001B5C8(u8* color);
     void func_8001B794(PixelFormat* dstPf, u8* transColor);
     void func_8001BAE0(u8* src, u8* dst, PixelFormat* dstPf);
@@ -78,7 +82,7 @@ struct Dugong {
     void func_8001D738(u8* src1, u8* src2, u8* dst);
     void func_8001DCFC(u8* src1, u8* src2, u8* dst);
     void func_8001DD90(u8* src, u8* dst, u32 dstWidth, u32 dstHeight, s32 dstStride, PixelFormat* dstPf, s32 unused, u8* transColor);
-    void func_8001DEC0(u8* src, u8* dst, u32 dstWidth, u32 dstHeight, s32 dstStride, PixelFormat* dstPf, u8* palette, s32 flipVertical, u8* transColor);
+    void func_8001DEC0(u8* src, u8* dst, u32 dstWidth, u32 dstHeight, s32 dstStride, PixelFormat* dstPf, Surface16970Palette* palette, s32 flipVertical, u8* transColor);
     void func_8001E0BC(PixelFormat* pf, u32 width, u32 height, u32 arg4, u8* palette, s32 paletteCount);
     void func_8001E1DC(u8* src, u32* dst);
     void func_8001E320(u8* src, u16* dst);

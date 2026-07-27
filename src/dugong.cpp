@@ -7,7 +7,7 @@ extern "C" const char D_80001620[]; // "\nFile: "
 extern "C" const char D_80001628[]; // ""
 extern "C" const char D_800016A4[]; // ".img"
 
-INCLUDE_ASM("asm/nonmatchings/dugong", func_8001B230__6DugongPUcT1);
+INCLUDE_ASM("asm/nonmatchings/dugong", func_8001B230__6DugongP19Surface16970PalettePUc);
 
 #ifdef NON_MATCHING
 s32 Dugong::func_8001B5C8(u8* color) {
@@ -903,7 +903,7 @@ void Dugong::func_8001DD90(u8* src, u8* dst, u32 dstWidth, u32 dstHeight, s32 ds
     }
 }
 
-void Dugong::func_8001DEC0(u8* src, u8* dst, u32 dstWidth, u32 dstHeight, s32 dstStride, PixelFormat* dstPf, u8* palette, s32 flipVertical, u8* transColor) {
+void Dugong::func_8001DEC0(u8* src, u8* dst, u32 dstWidth, u32 dstHeight, s32 dstStride, PixelFormat* dstPf, Surface16970Palette* palette, s32 flipVertical, u8* transColor) {
     u32 scaleX = 1;
     u32 scaleY = 1;
     if (this->unk44 != dstHeight || this->unk40 != dstWidth) {
@@ -964,19 +964,19 @@ void Dugong::func_8001E0BC(PixelFormat* pf, u32 width, u32 height, u32 arg4, u8*
     }
 }
 
-void Dugong::vfunc9() {
+void Dugong::vfunc9(u8*, Surface16970*, s32, u8*) {
 }
 
-void Dugong::vfunc8() {
+void Dugong::vfunc8(u8* dst) {
 }
 
 void Dugong::vfunc1() {
 }
 
-void Dugong::vfunc7() {
+void Dugong::vfunc7(TiledSurface*, s32, u8*) {
 }
 
-void Dugong::vfunc6() {
+void Dugong::vfunc6(Surface16970*, s32, u8*) {
 }
 
 const char* Dugong::vfunc5() {
