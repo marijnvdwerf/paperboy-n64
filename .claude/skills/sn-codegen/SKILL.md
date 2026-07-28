@@ -843,4 +843,95 @@ This was the 258 → 0 sequence in func_80011880 (230 after the temps, 75 after 
 
 ---
 
+## Two-value flag check: `||` with one const-in-a-local flips the result/val register swap
+
+**Symptom**: `if (val == 2) result = 1; else if (val == 3) result = 1;` produces the exact target instruction sequence but with `val`↔`result` registers swapped (result grabs the lower reg, e.g. v1, while target has val=v1, result=a0). No declaration-order/type variation moves it. Rewriting as `val == 2 || val == 3` collapses to a branchless `addu -2; sltu` range check instead.
+
+**Cause**: with the else-if form, `result` has 4 refs (init + two stores + use) over a short range → higher allocator priority than `val` (3 refs) → allocated first, takes the low register. The original was an `||` with ONE shared store (`result` drops to 3 refs, low priority, allocated after `val`), and the range-check conversion didn't fire because one comparison operand wasn't a literal constant at expand time.
+
+**Fix**: use `||` with one comparand routed through a local; the local blocks the contiguous-range conversion at expand, then CSE rematerializes it as the same `li` temp so no extra register appears:
+
+```cpp
+// swapped registers (else-if) or branchless sltu (plain ||)
+s32 two = 2;
+s32 result = 0;
+if (val == two || val == 3) { result = 1; }   // matches: beq/bne chain, result in a0
+return result;
+```
+
+This was the lever in `func_80023BB0` (30 → 0). Also a general debugging aid used to find it: a scratch-TU harness that pipes variant bodies through `mips-linux-gnu-cpp` + `cc1pln64.exe` directly makes trying a dozen variants take seconds instead of full ninja builds.
+
+---
+
+## Dtor calls sub-object dtor with `li a1,2` + own conditional delete → member, not base
+
+**Symptom**: target dtor stores the vtable, runs the body, then `jal _._5Skink / li a1,2`, then `andi s0,s0,1; beqz; jal __builtin_delete`. Your version with `struct Derived : public Base` instead passes the incoming flag straight through (`jal _._5Skink / move a1,s0`) and omits the conditional delete — 20 bytes short.
+
+**Cause**: GCC 2.x delegates the delete-flag to a sole leftmost base's dtor when it can. A *member* object's dtor is always called with flag 2 (destroy, don't free), forcing the derived dtor to emit its own `if (flags & 1) __builtin_delete(this)`. Same field offsets either way when the sub-object is at offset 0.
+
+**Fix**: model the sub-object as a data member at offset 0 (`Skink skink;`), not a base class. Accesses become `self->skink.field` / `self->skink.method()`. Bonus: the ctor codegen is identical (member ctor call), and the s0/s1 callee-saved assignment flips into place too. If the class's virtuals are still `func_NNNN` externs, add `#pragma interface` above the struct so the compiler doesn't emit its own vtable (keep `INCLUDE_RODATA(_vt.NClass)`); the dtor/ctor bodies still emit and still reference `_vt.NClass` externally. This was `_._8Platypus` + `__8Platypus` (both to 0).
+
+## Loop-index vs count s-reg swap: duplicate the post-loop store across if/else arms
+
+**Symptom**: two callee-saved locals are swapped (`cmdIdx` in s2 / `count` in s1, target wants the reverse), every instruction otherwise identical (pure `r` markers). The `.greg` allocation order has the wrong pseudo first; `.lreg` shows the two contenders with near-equal `floor_log2(refs)*refs/live` priority (e.g. count 12refs/41 = 0.878 vs cmdIdx 38refs/220 = 0.864, count wins by a hair).
+
+**Cause**: the priority tie is decided by ONE ref. cmdIdx is stored once after the loop (`self->unk1C = cmdIdx;`) at a branch join — one weight-1 ref. The original wrote that store inside BOTH arms of the trailing `if/else`, inflating cmdIdx to 39 refs (5*39/220 = 0.886 > count 0.878) so cmdIdx sorts first and grabs the low reg. The compiler merges the duplicated store back to a single instruction at the join, so final asm is byte-identical.
+
+**Fix**: duplicate the tail store into both arms of the last if/else:
+```c
+if (file->nextToken() != 6) {
+    file->parseError(6);
+    self->unk1C = cmdIdx;   // duplicated
+} else {
+    self->unk1C = cmdIdx;   // duplicated
+}
+```
+This flipped func_80022BE4 (platypus) from 125 to 0. Levers that did NOT work: for-loop (compiled top-tested, skill-450), moving the store before the check (flips alloc but misplaces the store, score 70), a `result = cmdIdx` copy (copy-propagated away, no effect), reordering the case-6 ORs (extends count.live but breaks asm). The count.live window that flips it is [42,46]; +1 ref on cmdIdx is the only asm-invisible way in. Note the sibling of skill "Duplicate source statement across if/else arms": there the duplication was a bug to REMOVE; here it is the FIX — the discriminator is whether the target's join instruction is a store of the contested pseudo.
+
+## Hoisted loop-invariant constants land in swapped callee-saved regs (share an AND-result var)
+
+**Symptom**: two loop-invariant constants hoisted into callee-saved regs are swapped vs target (e.g. `lui s4,0x7000`/`lui s7,0x6000` where target wants `lui s7,0x7000`/`lui s4,0x6000`), every instruction otherwise identical. From `.greg`/`.lreg` the two const-temp pseudos have lopsided priority and the wrong one allocates first (takes the lower reg).
+
+**Cause**: a masked-compare pattern like `if ((cmd & MASK) == 0) … else if ((cmd & MASK) == OTHER) …` compiles to TWO `and cmd,MASK` insns in the pre-alloc RTL (one per branch — the compiler failed to CSE them across a large loop body), which the final asm later merges to one `and`. But at allocation time the MASK constant pseudo has 2 and-refs (≈5 total) vs the OTHER constant's 1 (≈3), so MASK sorts first and grabs the lower callee-saved reg.
+
+**Fix**: force the single shared AND by introducing an explicit result variable used in both comparisons:
+```c
+u32 kind = cmd & 0x70000000;
+if (kind == 0) { … }
+else if (kind == 0x60000000) break;
+```
+Now the MASK constant is referenced by ONE `and` (ref count drops), the OTHER constant (shorter live range) wins the priority sort and takes the lower reg. This fixed the s4/s7 swap in func_800232E0 (loop 2). NOTE: this is the AND-RESULT var, distinct from naming the mask *constants* (which was neutral). Loop 1 (smaller body) CSE'd on its own and never needed this.
+
+## Caller-saved AND-result gets v0 (target v1) + shift mis-scheduled: hoist only the shift
+
+**Symptom**: after fixing the const-temp swap above, a shared caller-saved compare temp (`cmd & MASK`) lands in v0 where target has v1, and a following `srl`/shift and a sibling `andi` are scheduled in the wrong order (the shift should sit in the branch delay slot but doesn't, because it would clobber the v0 temp).
+
+**Cause**: the compare temp is live only on the `!=0`/break edge and never overlaps the `n = (cmd>>16)&0x3F` computation (which lives on the `==0` edge), so the allocator packs both into v0. The target keeps the compare temp in v1 because the shift executes *speculatively* (delay slot) and thus conflicts with it.
+
+**Fix**: hoist ONLY the shift before the branch, then finish the field extraction inside:
+```c
+n = cmd >> 16;             // executes unconditionally, like the target's delay-slot srl
+if (kind == 0) {
+    n = (n & 0x3F) + 1;    // rest stays in the if-body
+    …
+```
+This makes `n`'s shift live across the branch → it conflicts with the compare temp → compare temp moves to v1, and the shift naturally fills the bnez delay slot. Hoisting *more* (the full `(cmd>>16)&0x3F`, or `n` entirely) over-moves the shift above the `and` (score regressed) — hoist the shift alone. Took func_800232E0 from 60 to 0.
+
+## Loop-invariant constant re-materialized each iteration (loop.c "savings 1 not desirable")
+
+**Symptom**: the target hoists a big constant into a register ONCE before a loop (`lui a3,0x1000` before the loop, reused via `beq`/`sltu`), often caller-saving it around a call inside the loop; yours re-emits the `lui` inside the loop every iteration. All registers otherwise match. The delta is ~6 coupled insns (the missing hoist + its spill/reload + minor schedule shift).
+
+**Cause**: the constant is a *switch-dispatch pivot* (e.g. `switch (cmd & 0x70000000)` with a `case 0x10000000:` — GCC's balanced compare tree uses the pivot in a `beq` and an `sltu`, 2 uses). The `-dL` .loop dump shows `Insn NNN: regno NNN (life 2), move-insn savings 1 not desirable`. loop.c's invariant motion moves a *const-load* movable only when `savings >= 2`, and savings for a const ≈ (uses − 1). With 2 uses savings is 1 → refused in a high-pressure outer loop (the same life-2/savings-1 const IS moved in a low-pressure inner loop, so it's pressure-gated). The retail source clearly had a THIRD reference to the constant that later passes deleted, so loop.c saw savings 2 and hoisted; the extra use is invisible in the final asm.
+
+**Fix**: add a dead reference to the constant inside the loop that (a) is an **assignment to a named local** (a bare `(void)(expr)` gets killed by cse1 *before* loop.c and does nothing) and (b) uses the constant via an operation that forces a `lui` const-load which cse1 merges with the pivot (`+ 0x10000000` works; `& 0x10000000` did NOT — it got DCE'd too early):
+```c
+u32 masked = cmd & 0x70000000;
+u32 unused = masked + 0x10000000;   /* 3rd use → loop.c savings 2 → hoist; DCE'd after */
+(void)unused;
+switch (masked) { case 0: …; case 0x10000000: …; case 0x60000000: … }
+```
+cse1 merges the `0x10000000` with the switch pivot (raising its ref count / lifetime to `life 4`), loop.c hoists it, then flow DCE deletes the dead `unused` store — final asm has the hoisted const with its 2 real uses. This took func_80023000 from 493 to 0. Verify with the `-dL` dump: the const's line should flip from "not desirable" to "moved to NNN". Note: keep the `switch` (an outer `if (masked == cmdType)` chain gets the register right but reintroduces `self->unk1C` caching — beql/move — in the `0x60000000` arm, because cse can follow an if-chain but not multiway switch dispatch).
+
+---
+
 *Add new tips as they're discovered. Each tip names its symptom, its cause, and its fix.*
