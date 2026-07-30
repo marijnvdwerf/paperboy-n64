@@ -932,6 +932,93 @@ switch (masked) { case 0: …; case 0x10000000: …; case 0x60000000: … }
 ```
 cse1 merges the `0x10000000` with the switch pivot (raising its ref count / lifetime to `life 4`), loop.c hoists it, then flow DCE deletes the dead `unused` store — final asm has the hoisted const with its 2 real uses. This took func_80023000 from 493 to 0. Verify with the `-dL` dump: the const's line should flip from "not desirable" to "moved to NNN". Note: keep the `switch` (an outer `if (masked == cmdType)` chain gets the register right but reintroduces `self->unk1C` caching — beql/move — in the `0x60000000` arm, because cse can follow an if-chain but not multiway switch dispatch).
 
+## Indexed array-member writes (`self->arr[i]`) vs walking pointer: constant offset placement
+
+**Symptom**: a loop writes a struct-array member (e.g. `self->palette[i].r/g/b/a` at base offset 0xA4). Target keeps the induction register starting at `self` (`move a2,s0`) with the member offset in each store (`sb v0,0xA4(a2)`); your walking-pointer version (`T* dst = self; dst = (T*)((u8*)dst + 4)`) folds the base offset into the pointer init (`addiu a1,s0,0xA4`) and stores at `0..3(a1)`.
+
+**Cause**: with an explicit walking pointer whose only uses share a constant offset, loop.c shifts the offset into the biv's initial value. With `self->arr[i]` indexing, strength reduction builds the giv as `self + 4*i` and leaves the field offsets (0xA4..0xA7) inside the MEMs — matching the target.
+
+**Fix**: replace the walking pointer with a counter-indexed access on the object: `self->palette[i].b = ...; i++;` with a `do {} while (i < n)` loop. The counter serves both as compare var and (via the reduced giv) as the address base. This was the main lever in func_80027110's four palette loops (2918 → 425).
+
+## Per-case init of a var shared across switch cases → init hoisted into compare delay slots
+
+**Symptom**: target has `move a0,s1` (init of a walking pointer) in the *delay slots* of the switch's compare `beq`s AND at some case heads — i.e. the init exists once per case. A single init before the `switch` emits the move exactly once (wrong); declaring the var inside each case gives per-case moves but the wrong register.
+
+**Cause**: a variable *declared* before the switch (long live range, uses in all cases → high priority) gets an early register (a0); the per-case *assignments* give the compiler one init per case to hoist into the dispatch delay slots.
+
+**Fix**: split declaration and init: `u8* p; switch (...) { case A: p = buf; ...` — declaration before the switch pins the register, per-case assignment produces the per-case moves. (func_80027110: `p` in a0 with delay-slot inits.)
+
+**Related**: the loop *counter* in the same function needed the opposite — declared fresh in each case (`u32 i = 0;` inside the case) rather than shared, to land in a1 (shared declaration pushed it to a2). When a var's register is wrong, toggle shared-decl vs per-case-decl: it changes live range and hence allocation priority. (425 → 170.)
+
+## Byte-field parse cluster: pre-load into locals to group load-load-load / store-store-store
+
+**Symptom**: parsing consecutive header bytes into consecutive struct fields. Target emits `lbu v0; lbu v1; lbu a0; sw v0; sw v1; sw a0` (loads grouped, then stores); direct member assignments emit interleaved `lbu/sw` pairs. Similarly, the target pre-loads the *high byte* of a later 16-bit field before an intervening store (`lbu v1,hi; sw other; lbu v0,lo; sll; addu`).
+
+**Cause**: each `self->f = hdr[k]` is an independent dependency chain; the scheduler only groups them if the loads are separate statements feeding named locals.
+
+**Fix**: introduce locals in the target's load order, then store:
+```cpp
+u32 b0 = hdr[0]; u32 b1 = hdr[1]; u32 b2 = hdr[2];
+self->idLength = b0; self->colorMapType = b1; self->imageType = b2;
+```
+and for the hoisted-high-byte pattern, pull just the high byte into a local *before* the intervening store: `u32 hi = hdr[6]; self->bitDepth = hdr[7]; self->len = hdr[5] + (hi << 8);` (func_80027110 header parse.)
+
+## Declarations inside loop bodies block while/for rotation (old-C style is codegen-visible)
+
+**Symptom**: a source while/for compiles top-tested (`beq` exit test at top, `j` back-edge) but the target shows the rotated form: entry guard test before the loop + bottom conditional back-edge. Or a for-loop whose rotated target duplicates the decrement/test (entry `addiu; beq t6` AND bottom `addiu; bne t5` with TWO distinct const registers).
+
+**Cause**: `expand_end_loop` (stmt.c) rolls a leading exit test to the loop bottom, and `duplicate_loop_exit_test` (jump.c) then copies it before the loop as the guard — but the expand_end_loop scan **aborts at any `NOTE_INSN_BLOCK_BEG`**, which cc1pln64 emits for any compound in the loop body containing a *declaration* (at any depth — even a `u8 b` temp deep in an inner do-while). Bodies with braces but no decls are fine. The duplicated entry test's constants get remapped/CSE'd with function-wide literals (t6) while the in-loop original keeps its own pseudo (t5, `li` hoisted into the guard's delay slot).
+
+**Fix**: declare ALL locals at function top, old-C style, and write the natural `while`/`for`; the compiler produces the guard + bottom-test + duplicated-decrement itself. Do not hand-write `count--; if (count != negOne) do {...} while (...)` when the target shows the duplicated-test register pattern — write `for (count--; count != -1; count--)`.
+
+---
+
+## Loop tail `bne back; j exit` vs `beq exit; j back` is decided by reorg branch prediction — fix the LOOP NESTING, not the branch
+
+**Symptom**: a loop followed by more code (so its exit needs a `j`) ends `beq cond,exit; j top` where the target has `bne cond,top; j exit` (or vice versa). Every do-while/for(;;)/continue/break reformulation of the loop itself leaves the pair inverted.
+
+**Cause**: `reorg.c relax_delay_slots` reverses a conditional jump followed by an unconditional jump whenever the conditional is predicted taken (`mostly_true_jump > 0`). A backward branch into a loop predicts 2 (always inverted); a forward exit branch predicts 0 (stable) — UNLESS the exit target label is followed by `NOTE_INSN_LOOP_VTOP` (the bottom test of a *rotated* enclosing loop), which predicts 1 and makes reorg invert the beq-form into the bne-back form. So the target shape is only reachable when the ENCLOSING loop is a compiler-rotated while/for (see previous tip) whose bottom test is the exit target.
+
+**Fix**: if the back-edge orientation won't flip, stop iterating on the inner loop and make the enclosing loop rotate (all decls at function top, `while (x < self->field)` reloading the member per-iteration). This was func_800279D8: 205 → 0 came from rewriting the whole function old-C style, not from touching the inner loop.
+
+**Debug flow**: compile the isolated function with `-da` and diff the per-pass dumps (`.jump/.loop/.greg/.jump2/.dbr`) to find WHICH pass diverges, then read that pass in gcc-2.7.2.2 (local copy in ~/Downloads) to find the gate, then design source to flip the gate. Store harness + findings under `docs/codegen-tests/<topic>/`.
+
+---
+
+## Walking store pointer may be a strength-reduction giv from `arr[counter]`
+
+**Symptom**: target initializes a walking store pointer with `move t0,<base>` in the loop *preheader* (after the entry guard), bumps it with `addiu t0,t0,1` after each store, while a separate counter register also increments. Your explicit `u8* dstPtr = dst;` local produces the same walker but its init lands *before* the entry guard.
+
+**Cause**: the original had no pointer at all — it wrote `dst[totalWritten]`; loop.c strength reduction creates the walking-pointer giv, placing its init in the preheader. The counter stays live because something else reads it (e.g. `savedPos = totalWritten`). A source-level pointer local is emitted at its declaration position, before the loop.
+
+**Fix**: replace the walking pointer with counter-indexed stores (`dst[totalWritten] = ...; totalWritten++;`). Sibling of the "indexed array-member writes vs walking pointer" tip — check WHERE the walker's init instruction sits relative to the loop guard to tell which form the original used.
+
+---
+
+## Free asm-invisible refs can flip allocation order at a floor_log2 boundary
+
+**Symptom**: a counter and a strength-reduction giv (or two similar pseudos) have swapped registers; the `.greg` allocation order shows the wrong one first, and priorities (`floor_log2(refs)*refs/live` from `.lreg`) are not close enough for small tweaks.
+
+**Fix**: priorities jump at powers of two of the ref count. Add semantically-free references that fold away in the final asm: e.g. write a loop guard as `if (i < self->count)` right after `i = 0;` instead of `if (self->count != 0)` — cse folds it to the same `beqz`, but the counter gains one ref per site. In func_80027110, four such guards took the shared counter from 28 refs (log2=4) to 32 (log2=5), lifting it above the palette givs: i landed in a1, givs in a2 (180 → 20).
+
+---
+
+## Commutative-op operand order + register tie: local-alloc ties dst to op1 — unless op1 is multi-block
+
+**Symptom**: `or dst,op1,op2` where yours has `or v1,v1,v0` (dst==op1) and target has `or v1,v0,v1` (dst==op2, three roles in two regs). Every rewrite of the expression (`a|b` vs `b|a`, compound assignment, temp splitting) just moves the tie to whichever operand is op1.
+
+**Cause**: `local-alloc.c block_alloc` ties the output qty with the FIRST dying register operand. Source operand order is preserved in RTL, so `lo | (hi << 8)` gives op1=lo — and the tie drags lo into the dst register. `combine_regs` FAILS for pseudos not local to one basic block (`REG_BASIC_BLOCK == REG_BLOCK_GLOBAL`), and then the tie falls through to op2.
+
+**Fix**: declare the op1 variable at a scope where it is used in MORE THAN ONE basic block — e.g. `u32 lo; u32 hi;` before a `switch` whose two case-loops both assign/use them. The pseudos become global-allocated, the local tie on op1 fails, dst ties op2, and the operand order + registers both match. This was the final lever in func_80027110 (20 → 0), combined with source order `lo | (hi << 8)`. General principle: old-C-style shared declarations are codegen-visible through BOTH loop rotation (see above) and local-alloc tying.
+
+---
+
+## Compiled switch jump table + INCLUDE_RODATA vtable: missing `.align 3` pad
+
+**Symptom**: function diffs at score 0 but the ROM checksum fails; `cmp -l` shows a 4-byte shift in the vtable pointers. The compiled switch's jump table (N entries, N odd) ends 4-misaligned, and the following `INCLUDE_RODATA(_vt.NClass)` file (spimdisasm-generated) has no `.align` directive, so the vtable lands 4 bytes early.
+
+**Fix**: add `.align 3` after `.section .rdata` in the `_vt.*.s` file (the original cc1plus emitted vtables 8-aligned; splat's jtbl dump carries an explicit trailing pad word instead). Note the file is regenerated by configure — re-check after any reconfigure.
+
 ---
 
 *Add new tips as they're discovered. Each tip names its symptom, its cause, and its fix.*
