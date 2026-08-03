@@ -156,6 +156,59 @@ python3 tools/gen_padmelon.py --preset win_split    # matching arrangement
 python3 tools/gen_padmelon.py --list-presets         # see alternatives
 ```
 
+## Jabiru case study (probe-verified refinements)
+
+The Jabiru TU (2026-08-03) replaced hand reasoning with a simulation solver
+(`tools/jabiru_sim.py`) plus direct cc1pln64 probes (compile a tiny .cpp
+through the project pipeline and read the .s — no assembling needed):
+
+```bash
+mips-linux-gnu-cpp -nostdinc -undef -D__GNUC__=2 -D__OPTIMIZE__ -lang-c++ \
+  -o /tmp/p.i /tmp/p.cpp && wibo tools/bin/cc1pln64.exe -quiet -G0 -O2 /tmp/p.i -o /tmp/p.s
+```
+
+Refined rules (each probe-verified; they supersede vaguer statements above):
+
+1. **One deferral queue, emitted reversed.** In-class bodies enqueue at
+   class-definition time (declaration order); `inline`-in-cpp bodies at their
+   definition; auto-generated dtors at class **completion** (not at `new`).
+   Ordinary and deferred definitions may interleave lexically — only relative
+   order within each group matters.
+2. **Vtables emit in reverse class-declaration order** (class declared first
+   → vtable emitted last of the vtables).
+3. **Retention:** every inline member of a polymorphic class whose vtable the
+   TU owns is materialized even if unreferenced. Unreferenced inline members
+   of non-polymorphic classes, free inlines, and `extern "C"` inlines are
+   dropped. To keep an unreferenced helper in the deferred region, make it a
+   member of the vtable-owning class with an `asm("name")` alias.
+4. **`extern "C" inline` referenced only from deferred code emits in a
+   separate group at the very end** — wrong slot. Use an inline member with
+   `asm("name")` instead.
+5. **Second-wave demotion:** a deferred fn whose only references come from
+   other deferred bodies emits in a late extra wave (possibly `local`). A
+   reference from ordinary code restores its proper queue slot. An
+   INCLUDE_ASM'd caller is invisible to the compiler, so tails look wrong
+   until that caller is decompiled — expect this and don't chase it.
+6. **Inlining is textual:** inline body defined before a caller is inlined
+   into it (no practical size limit observed at -O2 — a 0x500-byte body
+   inlined fine); defined after → real `jal`. Holds for deferred callers too.
+   This lets a "define inline late" arrangement force real calls between
+   deferred functions, and dictates where each inline def must sit relative
+   to its callers.
+7. **MSVC6 cross-check** (same-engine Windows build, CL under wibo):
+   ordinary defs in strict source order (one COMDAT each); vftable +
+   generated dtors + in-class virtual bodies batch at first materialization;
+   inline bodies emit at first use; unreferenced inlines dropped. PC address
+   order ≈ source order for the ordinary defs and first-use order for
+   inlines — a strong prior, but EXE layout passes through COMDAT selection,
+   so treat single-function anomalies as possibly link-order artifacts.
+
+Method note: the solver inverts the target — a placement assignment dictates
+the source order (front region forward, deferred region reversed), which is
+then checked against the PC order. Run candidates past an adversarial review
+before editing source; both reviews (opus + gpt) caught a reversal sign error
+and the extern-"C"-inline trap that hand reasoning missed.
+
 ## Commands
 
 ```bash
