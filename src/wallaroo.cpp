@@ -1,17 +1,7 @@
 #include "common.h"
 #include "dingo.h"
 #include "vector.h"
-
-struct Pademelon : public Dingo {
-    /* 0x34 */ Mat3f rotation;
-    /* 0x58 */ Vec3f translation;
-
-    Pademelon();
-    void func_80022548();
-    void func_800220D0(Mat4f* out, f32 scale);
-    void func_80022144(f32 halfExt);
-    void func_80022168(Vec3f* v);
-};
+#include "pademelon.h"
 
 struct AnimEntry {
     /* 0x00 */ char pad0[4];

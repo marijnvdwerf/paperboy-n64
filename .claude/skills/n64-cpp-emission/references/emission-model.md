@@ -156,6 +156,38 @@ python3 tools/gen_padmelon.py --preset win_split    # matching arrangement
 python3 tools/gen_padmelon.py --list-presets         # see alternatives
 ```
 
+### Header-split refinement (2026-08-04)
+
+The matched arrangement was later refactored so consumers (wallaroo.cpp,
+E7450.cpp) share a real `include/pademelon.h` instead of local partial
+re-declarations, with `pademelon.o` staying byte-identical. Solver:
+`tools/pademelon_sim.py` (jabiru-style; enumerated 78 surviving `(k, m)`
+cuts). Two rules fell out:
+
+1. **Header-in-class bodies must form a contiguous SUFFIX of the deferred
+   emission order.** In-class bodies enqueue first (at class-definition
+   time, i.e. at the `#include`), so their reversal is the emission TAIL.
+   A candidate header split is therefore fully described by two cuts of the
+   N64 order: `k` (ordinary prefix) and `m` (header-in-class suffix start);
+   the middle `k+1..m-1` must be `inline`-in-cpp definitions. In-class
+   bodies are declared in reverse-N64 order (31→m) so the tail comes out
+   ascending.
+
+2. **Any member a consumer TU calls as a real jal must stay body-hidden**
+   (declaration in header, `inline` definition in the .cpp). A header body
+   is textually visible before the consumer's caller, so rule 6 inlines it
+   there and breaks that TU. This includes the implicit base-ctor call in a
+   derived class's constructor — a header-inline ctor would inline into
+   `Derived::Derived()`. Conversely, members the original build DID inline
+   at consumer call sites (Pademelon's 12 tail accessors never exist
+   standalone on PC) are evidence those bodies lived in the header — and
+   future TUs may NEED that visibility to match.
+
+Chosen split for Pademelon (k=6, m=20): 6 ordinary heavy bodies; ctor +
+reset + the wallaroo-called helpers `inline` in the .cpp; the 12 tail
+accessors (incl. vfunc17) in-class in the header. wallaroo.o byte-identical
+after switching it to the header.
+
 ## Jabiru case study (probe-verified refinements)
 
 The Jabiru TU (2026-08-03) replaced hand reasoning with a simulation solver
