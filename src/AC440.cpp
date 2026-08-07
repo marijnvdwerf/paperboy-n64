@@ -108,4 +108,3 @@ INCLUDE_ASM("asm/nonmatchings/AC440", func_800E69D8);
 // Return negative float (stub)
 INCLUDE_ASM("asm/nonmatchings/AC440", func_800E69F4);
 #endif
-
