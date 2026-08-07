@@ -162,14 +162,14 @@ struct Wallaroo : public Pademelon {
 
 #pragma implementation
 
-#ifdef NON_MATCHING
-// a0/a1 register swap — AnimData* ends up in a1 instead of a0
 s32 Wallaroo::vfunc9() {
-    AnimData* a = overrideAnim[0];
-    if (a == NULL) {
+    AnimData* a;
+    if (overrideAnim[0] != NULL) {
+        a = overrideAnim[0];
+    } else if (anim[0] == NULL) {
+        return 0;
+    } else {
         a = anim[0];
-        if (a == NULL)
-            return 0;
     }
     u32 count = a->count;
     for (u32 i = 0; i < count; i++) {
@@ -181,9 +181,6 @@ s32 Wallaroo::vfunc9() {
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/wallaroo", vfunc9__8Wallaroo);
-#endif
 
 INCLUDE_RODATA("asm/nonmatchings/wallaroo", _vt.8Wallaroo);
 
@@ -280,34 +277,27 @@ void Wallaroo::func_8002414C(s32 index, Vec3f* outPos, f32* outRadius) {
     *outRadius = halfExtent;
 }
 
-#ifdef NON_MATCHING
-// Stack/register allocation mismatch
 void Wallaroo::vfunc4(s32 dt) {
     Vec3f pos;
     vfunc2(&pos);
     f32 fdt = (f32)dt;
     Vec3f delta;
-    delta.x = vel.x * fdt;
-    delta.y = vel.y * fdt;
-    delta.z = vel.z * fdt;
-    pos.x += delta.x;
-    pos.y += delta.y;
-    pos.z += delta.z;
-    vfunc3(&pos);
+    Vec3f* v = &vel;
+    delta.x = v->x * fdt;
+    delta.y = v->y * fdt;
+    delta.z = v->z * fdt;
+    Vec3f* p = &pos;
+    p->x += delta.x;
+    p->y += delta.y;
+    p->z += delta.z;
+    vfunc3(p);
     halfExtent = -1.0f;
     if (yawVel != 0 || pitchVel != 0) {
         yawRate = (u16)(yawRate + dt * yawVel);
         pitchRate = (u16)(pitchRate + dt * pitchVel);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/wallaroo", vfunc4__8Wallarool);
-#endif
 
-#ifdef NON_MATCHING
-// fs0 vs ft1+stack-spill for radius (score 603). All diffs cascade from this
-// one register choice — compiler uses callee-saved fs0 instead of spilling
-// ft1 to the stack. No source-level lever found.
 void Wallaroo::vfunc20(s32 index) {
     AnimData* a = anim[index];
     if (a == NULL) {
@@ -315,8 +305,8 @@ void Wallaroo::vfunc20(s32 index) {
         return;
     }
     Vec3f ofs = a->offset;
-    f32 rad = a->radius;
     Vec3f worldOfs;
+    volatile f32 rad = a->radius; // TODO: fake match
     Vec3f* p = &ofs;
     f32 s = scale;
     p->x *= s;
@@ -326,9 +316,6 @@ void Wallaroo::vfunc20(s32 index) {
     func_80022168(&worldOfs);
     func_80022144(rad * scale);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/wallaroo", vfunc20__8Wallarool);
-#endif
 
 // vfunc1: calls vfunc20(0)
 void Wallaroo::vfunc1() {
@@ -348,7 +335,7 @@ s32 Wallaroo::vfunc23() {
 }
 
 void Wallaroo::vfunc6(Vec3f* point, DingoFrustumResult* result) {
-    s32 i = 0;
+    u32 i = 0;
     if (animRadius[0] != 1e37f) {
         Vec3f pos;
         vfunc2(&pos);
@@ -358,14 +345,12 @@ void Wallaroo::vfunc6(Vec3f* point, DingoFrustumResult* result) {
         f32 dz = point->z - p->z;
         f32 distSq = dx * dx + dy * dy + dz * dz;
         f32 r = animRadius[0];
-        if (r < distSq) {
-            do {
-                i++;
-                if (i != 0) {
-                    result->result = 0;
-                    return;
-                }
-            } while (r < distSq);
+        while (r < distSq) {
+            i++;
+            if (i >= N_ANIM_SLOTS) {
+                result->result = 0;
+                return;
+            }
         }
     }
     result->pad = i;
@@ -378,50 +363,35 @@ void Wallaroo::vfunc6(Vec3f* point, DingoFrustumResult* result) {
     result->result = func_80029480(point, &dpos, func_801223AC());
 }
 
-#ifdef NON_MATCHING
-// Float register allocation mismatch
 void Wallaroo::func_8002453C(Vec3f* point, DingoFrustumResult* result) {
     result->pad = 0;
-    s32 i = 0;
+    u32 i = 0;
     if (animRadius[0] != 1e37f) {
         Vec3f pos;
         vfunc2(&pos);
-        f32 dx = point->x - pos.x;
-        f32 dy = point->y - pos.y;
-        f32 dz = point->z - pos.z;
+        Vec3f* p = &pos;
+        f32 dx = point->x - p->x;
+        f32 dy = point->y - p->y;
+        f32 dz = point->z - p->z;
         f32 distSq = dx * dx + dy * dy + dz * dz;
-        if (animRadius[0] < distSq) {
-            do {
-                i++;
-                if (i != 0) {
-                    result->pad = 1;
-                    goto done;
-                }
-            } while (animRadius[0] < distSq);
+        while (animRadius[i] < distSq) {
+            i++;
+            if (i >= N_ANIM_SLOTS) {
+                result->pad = N_ANIM_SLOTS;
+                result->result = 0;
+                return;
+            }
         }
     }
     result->pad = i;
-    {
-        if (anim[i] == NULL) {
-            goto done;
-        }
+    if (anim[i] == NULL) {
+        result->result = 0;
     }
-    return;
-done:
-    result->result = 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/wallaroo", func_8002453C__8WallarooP5Vec3fP18DingoFrustumResult);
-#endif
 
-#ifdef NON_MATCHING
-// Target keeps index=0 as a variable (mtc1+sll+addu+swc1 pattern),
-// but the compiler constant-folds it to direct stores (sw a1,0x7c(a0); sw a2,0x80(a0)).
-// Windows version is a sorted-insert do-while, but with N_ANIM_SLOTS=1 the do-while
-// body gets inlined with branch checks that don't appear in the target.
 void Wallaroo::func_80024648(AnimData* animData, f32 radius) {
-    u32 i = 0;
-    do {
+    u32 i;
+    for (i = 0; i < N_ANIM_SLOTS - 1; i++) {
         if (anim[i] == NULL)
             break;
         if (radius < animRadius[i]) {
@@ -431,14 +401,10 @@ void Wallaroo::func_80024648(AnimData* animData, f32 radius) {
             }
             break;
         }
-        i++;
-    } while (i < N_ANIM_SLOTS - 1);
+    }
     anim[i] = animData;
     animRadius[i] = radius;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/wallaroo", func_80024648__8WallarooP8AnimDataf);
-#endif
 
 // vfunc22: reset
 void Wallaroo::vfunc22() {
@@ -487,8 +453,6 @@ Wallaroo::Wallaroo() {
     }
 }
 
-#ifdef NON_MATCHING
-// Instruction scheduling mismatch
 void Wallaroo::func_800247DC(f32* out) {
     f32 s = scale * anim[0]->extent;
     out[0] = rotation.m[0][0];
@@ -506,7 +470,6 @@ void Wallaroo::func_800247DC(f32* out) {
     out[0] *= s;
     out[3] *= s;
     out[6] *= s;
-    out[11] = translation.z;
     out[1] *= s;
     out[4] *= s;
     out[7] *= s;
@@ -514,9 +477,6 @@ void Wallaroo::func_800247DC(f32* out) {
     out[5] *= s;
     out[8] *= s;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/wallaroo", func_800247DC__8WallarooPf);
-#endif
 
 void Wallaroo::func_800248BC() {
     flags |= 0x10;
