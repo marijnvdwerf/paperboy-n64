@@ -1,0 +1,318 @@
+{"type":"segment","vrom":"0x0","label":"header"}
+{"offset":"0x0","annotation":"ROM header","tags":["header"]}
+{"type":"segment","vrom":"0x1000","label":"entry"}
+{"offset":"0x1000","annotation":"entrypoint: clear BSS regions, jump to boot","tags":["boot"],"proposal":"entry.s (crt0, linked first explicitly)"}
+{"offset":"0x6BD0","annotation":"libc: memcmp/memset/strcpy/qsort/rand/toupper","tags":["lib","libc"],"proposal":"SN libc archive members | clib.c"}
+{"offset":"0x7660","annotation":"nnsched: N64 SDK audio/graphics task scheduler","tags":["lib","sched","n64"],"proposal":"nnsched.c (SDK sample, likely real name)"}
+{"offset":"0x7FE0","annotation":"PFS character encoding conversion (ASCII to/from controller pak)","tags":["pak","abstract"],"proposal":"app/pak_chars.cpp | app/pad_ascii.cpp"}
+{"offset":"0x8260","annotation":"game bootstrap: heap alloc, DMA overlay, init subsystems, run main","tags":["boot","gamestate"],"proposal":"app/paperboy.cpp | app/main.cpp"}
+{"offset":"0x8DA0","annotation":"copies current JamArchive filename into global path buffer","tags":["archive","string-util"],"proposal":"app/path.cpp | app/pathname.cpp"}
+{"offset":"0x8E30","annotation":"StructTT: game-state base with active/sub-state flags (GameContext family)","tags":["base-class","gamestate"],"proposal":"app/pause.cpp | app/phase.cpp | app/process.cpp"}
+{"offset":"0x8EB0","annotation":"GameSubContext: per-round game state, level progress, health","tags":["gamestate","level"],"proposal":"app/player.cpp | app/progress.cpp"}
+{"offset":"0x9E10","annotation":"StructWW: audio system wrapper, loads sound banks","tags":["audio","base-class"],"proposal":"app/sound.cpp | app/sound_sys.cpp"}
+{"offset":"0xA0B0","annotation":"libnaudio n_alAuxBusPull / n_alFxNew / alN_PVoiceNew","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_auxbus.c (libnaudio, real-ish)"}
+{"offset":"0xA670","annotation":"libnaudio n_alEnvmixerPull / n_alEnvmixerParam","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_env.c"}
+{"offset":"0xB010","annotation":"libnaudio n_alResamplePull","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_resample.c"}
+{"offset":"0xB720","annotation":"libnaudio n_alMainBusPull","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_mainbus.c"}
+{"offset":"0xB7A0","annotation":"libnaudio n_alFxPull + helpers","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_reverb.c"}
+{"offset":"0xC380","annotation":"libnaudio n_alSynRemovePlayer","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synremoveplayer.c"}
+{"offset":"0xC400","annotation":"libnaudio alSynAddPlayer","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synaddplayer.c"}
+{"offset":"0xC450","annotation":"libnaudio n_alSynAllocFX","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synallocfx.c"}
+{"offset":"0xC4B0","annotation":"libnaudio alSynAllocVoice + voice helpers","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synallocvoice.c"}
+{"offset":"0xC6B0","annotation":"libnaudio alSynFreeVoice / alSynFreeFX helpers","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synfreevoice.c"}
+{"offset":"0xC780","annotation":"libnaudio alSynSetFXParam helpers","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synsetfxparam.c"}
+{"offset":"0xC820","annotation":"libnaudio alSynSetFXMix","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synsetfxmix.c"}
+{"offset":"0xC8C0","annotation":"libnaudio alSynSetPriority / misc synth params","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synsetpriority.c"}
+{"offset":"0xC950","annotation":"libnaudio n_alSynSetPan / n_alSynSetPitch","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synsetpan.c + n_synsetpitch.c"}
+{"offset":"0xCA60","annotation":"libnaudio n_alSynSetVol","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synsetvol.c"}
+{"offset":"0xCB10","annotation":"libnaudio n_alSynStartVoice","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synstartvoice.c"}
+{"offset":"0xCBA0","annotation":"libnaudio n_alSynStopVoice pre-handler","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synstopvoice.c"}
+{"offset":"0xCCA0","annotation":"libnaudio n_alSynStopVoice / n_alSynNew / n_alAudioFrame","tags":["lib","libnaudio","audio"],"proposal":"audio/lib/n_synthesizer.c"}
+{"offset":"0xD260","annotation":"StructTTBase: empty virtual interface, base of GameContext state machine","tags":["base-class"],"proposal":"base/classes.cpp | base/exec.cpp"}
+{"offset":"0xD2C0","annotation":"StructYYBase: ROM archive manager, JamArchive accessors","tags":["archive","file-io"],"proposal":"base/engine.cpp | base/game_base.cpp"}
+{"offset":"0xD730","annotation":"StructYY engine object methods (timing, controller, scene)","tags":["engine","input","n64"],"proposal":"base/engine_n64.cpp | base/game_n64.cpp"}
+{"offset":"0xDD50","annotation":"string/filename utilities, fixed-point parser, rand seed","tags":["string-util"],"proposal":"base/filename.cpp (functions are filename_*)"}
+{"offset":"0xE2C0","annotation":"3D math: matrix multiply, quaternion slerp, vector ops","tags":["math","matrix","vector"],"proposal":"base/fmath.cpp | base/geometry.cpp"}
+{"offset":"0x109C0","annotation":"boot/idle/main threads: osInitialize, thread creation, C++ ctors","tags":["boot","n64","thread"],"proposal":"base/kernel.cpp | base/os_main.cpp"}
+{"offset":"0x10CC0","annotation":"WString wide-string class","tags":["string-util","text"],"proposal":"base/wstring.cpp (class is WString)"}
+{"offset":"0x11570","annotation":"StructYYSubA8Base: display subsystem base, node list management","tags":["video","base-class","abstract"],"proposal":"graphics/adapter_list.cpp | graphics/attach.cpp"}
+{"offset":"0x11890","annotation":"sandpiper: keyframe data (pos/speed/rotation) parsed from Parrot","tags":["anim","parser"],"proposal":"graphics/anim_curve.cpp | graphics/anim_channel.cpp"}
+{"offset":"0x11B40","annotation":"Galah: .adb tokenized file reader; Numbat: data loader variant","tags":["parser","loader"],"proposal":"graphics/anim_file.cpp | graphics/anim_bank.cpp (.adb)"}
+{"offset":"0x12480","annotation":"albatross: BMP image loader (headers, LZSS decompress)","tags":["image-loader","texture"],"proposal":"graphics/bmp_file.cpp | graphics/bitmap.cpp"}
+{"offset":"0x146D0","annotation":"camera: frustum planes, FOV, lookat, scene tracking","tags":["camera","frustum"],"proposal":"graphics/camera.cpp (real name likely)"}
+{"offset":"0x16110","annotation":"pixel_format: pack/unpack RGBA, bitmask utilities","tags":["texture","pixel-format"],"proposal":"graphics/formats.cpp | graphics/image_format.cpp (pixel_format is OUR name; must sort < model/)"}
+{"offset":"0x168C0","annotation":"joey: scene-graph node (parent/child/sibling linked list)","tags":["scene-graph"],"proposal":"graphics/graph_node.cpp | graphics/item_node.cpp"}
+{"offset":"0x16970","annotation":"Surface16970 fill/blit methods (4/8/16/32 bpp)","tags":["surface"],"proposal":"graphics/image_ops.cpp | graphics/image_fill.cpp"}
+{"offset":"0x17440","annotation":"StructYYSubA8GrandBase: display adapter base (320x240 default)","tags":["video","base-class","abstract"],"proposal":"graphics/layer_base.cpp"}
+{"offset":"0x177B0","annotation":"Surface177B0: surface with buffer pointer and dimensions","tags":["surface"],"proposal":"graphics/layer_buffer.cpp"}
+{"offset":"0x17880","annotation":"quoll: abstract counted-resource base (does little itself)","tags":["base-class"],"proposal":"graphics/ledger.cpp (counted resource base; needs l-e name)"}
+{"offset":"0x17910","annotation":"font definition (.fdb) file parser feeding Slug glyphs","tags":["font","parser"],"proposal":"graphics/letter_file.cpp (.fdb)"}
+{"offset":"0x18120","annotation":"slug: bitmap font renderer, glyph table, text drawing","tags":["font","text","render"],"proposal":"graphics/letters.cpp"}
+{"offset":"0x1AA60","annotation":"font texture allocation/sizing, glyph grid, BMP/TGA surface init","tags":["font","texture"],"proposal":"graphics/letters_gfx.cpp"}
+{"offset":"0x1BE30","annotation":"dugong: base image file reader, palette + pixel conversion","tags":["image-loader","palette"],"proposal":"graphics/load_image.cpp | graphics/loader.cpp"}
+{"offset":"0x1F7F0","annotation":"Cassowary: spline animation interpolation","tags":["anim","spline","math"],"proposal":"graphics/loop_anim.cpp | graphics/lerp_track.cpp"}
+{"offset":"0x21010","annotation":"goanna: skeletal animation data (.adb offsets/rotations/times)","tags":["anim","skeleton"],"proposal":"graphics/member_motion.cpp — weak (must sort < model/)"}
+{"offset":"0x21B40","annotation":"peacock: material properties (colors, blend/render flags)","tags":["material","render"],"proposal":"graphics/model/material.cpp"}
+{"offset":"0x21F80","annotation":"skink: named-texture list resolved from RenderContext","tags":["texture","registry"],"proposal":"graphics/model/named_textures.cpp"}
+{"offset":"0x22520","annotation":"pademelon: 3D transform node (3x3 rotation + translation)","tags":["transform","matrix"],"proposal":"graphics/model/orient.cpp | graphics/model/placement.cpp"}
+{"offset":"0x23450","annotation":"platypus: geometry/mesh container (vertices, normals, faces)","tags":["mesh"],"proposal":"graphics/model/prop.cpp | graphics/model/shape.cpp"}
+{"offset":"0x24A30","annotation":"wallaroo: animated 3D object (transform + scale + anim slots)","tags":["entity","anim","transform"],"proposal":"graphics/model/prop_anim.cpp | graphics/model/puppet.cpp"}
+{"offset":"0x25690","annotation":"bandicoot: 8-char name hash table for asset lookup","tags":["hashtable","registry"],"proposal":"graphics/model/registry.cpp | graphics/model/quick_names.cpp"}
+{"offset":"0x25B30","annotation":"render_context: scene renderer, named-object registries","tags":["render","registry","abstract"],"proposal":"graphics/model/render_context.cpp (real name likely)"}
+{"offset":"0x27750","annotation":"possum: RGBA color palette array","tags":["palette"],"proposal":"graphics/model/rgb_table.cpp | graphics/model/swatches.cpp"}
+{"offset":"0x27B10","annotation":"porcupine: pixel surface with owned palette","tags":["surface","palette"],"proposal":"graphics/model/sprite.cpp"}
+{"offset":"0x27D10","annotation":"cormorant: TGA image loader (RLE decompress)","tags":["image-loader"],"proposal":"graphics/model/targa.cpp | graphics/model/tga_file.cpp"}
+{"offset":"0x28F80","annotation":"boodie: per-face material-index array","tags":["mesh","material"],"proposal":"graphics/model/tri_materials.cpp"}
+{"offset":"0x29290","annotation":".tdb scene file parser constructing Wedgetail render-tree nodes","tags":["parser","scene-graph","render"],"proposal":"graphics/model/view_file.cpp (.tdb; 'tree_file' fits content but breaks order)"}
+{"offset":"0x29B80","annotation":"bunyip: renderable surface base, negotiates pixel format","tags":["surface","base-class"],"proposal":"graphics/picture.cpp (surface base; must sort > model/)"}
+{"offset":"0x29ED0","annotation":"frustum AABB culling (6 planes vs box corners)","tags":["frustum","math"],"proposal":"graphics/planes.cpp (frustum planes)"}
+{"offset":"0x2A120","annotation":"potoroo: vertex position array (Vec3f[])","tags":["mesh","vertex"],"proposal":"graphics/points.cpp (Vec3f array)"}
+{"offset":"0x2A4A0","annotation":"hedgehog: Surface16970 with extra pointer (tiny)","tags":["surface"],"proposal":"graphics/proxy_surface.cpp"}
+{"offset":"0x2A500","annotation":"StructYYSubA8: N64 video init (VI mode, scheduler, black)","tags":["video","n64"],"proposal":"graphics/screen.cpp | graphics/screen_n64.cpp"}
+{"offset":"0x2A930","annotation":"camera view/projection matrix math","tags":["camera","matrix"],"proposal":"graphics/sight.cpp | graphics/screen_view.cpp"}
+{"offset":"0x2B9C0","annotation":"kangaroo: transform node, parent-chain world transform","tags":["scene-graph","transform"],"proposal":"graphics/space_node.cpp"}
+{"offset":"0x2C6A0","annotation":"bowerbird: N64 display list buffer (Gfx alloc/emit)","tags":["display-list","n64"],"proposal":"graphics/stream.cpp (gfx command stream)"}
+{"offset":"0x2C9A0","annotation":"double-buffered N64 framebuffer surface (VI swap)","tags":["video","framebuffer","n64"],"proposal":"graphics/swap_buffer.cpp"}
+{"offset":"0x2CD50","annotation":"WString array + indexed storage management for palette/text data","tags":["text","palette","alloc"],"proposal":"graphics/text_arrays.cpp"}
+{"offset":"0x2D1C0","annotation":"Echidna render-surface init + display-list segment reservation","tags":["surface","display-list"],"proposal":"graphics/text_draw.cpp"}
+{"offset":"0x2DC10","annotation":"renders palette-mapped surfaces into display lists","tags":["render","display-list","palette"],"proposal":"graphics/text_page.cpp"}
+{"offset":"0x2EBF0","annotation":"Mulga: named scene-object registry with frustum support","tags":["registry","frustum"],"proposal":"graphics/tracker.cpp — weak"}
+{"offset":"0x2EEA0","annotation":"bettong: vertex buffer (position + texcoord + RGBA colors)","tags":["mesh","vertex"],"proposal":"graphics/tri_colors.cpp"}
+{"offset":"0x2F430","annotation":"Peacock model-export objects + Dingo mesh load/unload","tags":["mesh","model"],"proposal":"graphics/tri_mesh.cpp"}
+{"offset":"0x2F700","annotation":"dirty-flag check + RDP tile-sync command stub","tags":["display-list","n64"],"proposal":"graphics/tri_sync.cpp — weak"}
+{"offset":"0x2F750","annotation":"renders textured quads into display lists (tile + vertex setup)","tags":["render","display-list","n64"],"proposal":"graphics/verts_draw.cpp"}
+{"offset":"0x313F0","annotation":"dunnart: RGBA5551 palette (color lookup table)","tags":["palette"],"proposal":"graphics/video_palette.cpp"}
+{"offset":"0x318E0","annotation":"N64RenderContext: display list building and submission","tags":["render","display-list","n64"],"proposal":"graphics/video_render.cpp — weak (breaks n64_render_context pairing)"}
+{"offset":"0x38440","annotation":"skeletal mesh renderer: bone traversal + Fennec anim evaluation","tags":["anim","skeleton","render"],"proposal":"graphics/walk_bones.cpp — weak"}
+{"offset":"0x39890","annotation":"StructYYInner factory: constructs Mulga/Clone/Camera/Quokka/Fennec","tags":["factory","engine"],"proposal":"graphics/world_factory.cpp"}
+{"offset":"0x3A0B0","annotation":"wombat: vertex buffer (position + texcoord, white colors)","tags":["mesh","vertex"],"proposal":"verts white variant — post-'world' letters run out; dir story breaks here"}
+{"offset":"0x3A620","annotation":"Bilby: scene entity building Echidna surfaces (extends Wedgetail)","tags":["scene-graph","entity","surface"],"proposal":"scene entity (Bilby) — dir unclear"}
+{"offset":"0x3A950","annotation":"Clone: model instance rendered at separate transform (RenderContext subclass)","tags":["render","model"],"proposal":"model instance (Clone) — dir unclear"}
+{"offset":"0x3AF40","annotation":"echidna: paletted texture surface (pixels + palette)","tags":["texture","palette","surface"],"proposal":"paletted texture (Echidna) — dir unclear"}
+{"offset":"0x3B120","annotation":"tiny setter + mid-func fragment (Echidna/Wallaby boundary)","tags":["fragment"],"proposal":"(fragment, belongs to neighbor TU)"}
+{"offset":"0x3B130","annotation":"wallaby: vertex buffer (position + texcoord + normals)","tags":["mesh","vertex"],"proposal":"verts normals variant — dir unclear"}
+{"offset":"0x3B720","annotation":"currawong: vertex buffer with separate float normal array","tags":["mesh","vertex"],"proposal":"verts float-normal variant — dir unclear"}
+{"offset":"0x3BBA0","annotation":"marsupial: base vertex buffer with color adjustment","tags":["mesh","vertex","base-class"],"proposal":"vertex buffer base — dir unclear"}
+{"offset":"0x3BEB0","annotation":"tenrec: 16-bit render-target surface referencing source surface","tags":["surface","render"],"proposal":"render-target surface — dir unclear"}
+{"offset":"0x3C030","annotation":"Hydra: abstract scene/level loader (.tdf/.mdf/.adf/.gdf/.sdf), allocates entity arrays","tags":["loader","level","base-class"],"proposal":"scene loader base (Hydra) — scene_loader.cpp (.tdf/.mdf/.adf/.gdf/.sdf) — dir unclear"}
+{"offset":"0x3D300","annotation":"Node3: 3D audio emitter/listener params (speed-of-sound constants)","tags":["audio","3d-audio"],"proposal":"music/atmos.cpp | music/audio_3d.cpp"}
+{"offset":"0x3D370","annotation":"audio-system base + Hydra destructors (no logic)","tags":["audio","base-class"],"proposal":"music/base.cpp"}
+{"offset":"0x3D5E0","annotation":"StructVV: music bank manager (.mbk), owns sound sample entries","tags":["audio","music","bank"],"proposal":"music/bank.cpp (.mbk)"}
+{"offset":"0x3D640","annotation":"Lyrebird: 3D positional audio emitter (distance-based falloff)","tags":["audio","3d-audio","vector"],"proposal":"music/emitter.cpp (3D positional)"}
+{"offset":"0x3DE00","annotation":"StructWWBase vtable stubs (8 tiny funcs)","tags":["audio","base-class"],"proposal":"music/engine.cpp"}
+{"offset":"0x3DE40","annotation":"StructWWBase core: sound bank load, MusInitialize","tags":["audio","music","bank"],"proposal":"music/engine_init.cpp (MusInitialize + bank load)"}
+{"offset":"0x3E8E0","annotation":"sound bank entries (StructUU samples) loaded from .anb bank file","tags":["audio","bank"],"proposal":"music/sample.cpp (.anb entries)"}
+{"offset":"0x3EE50","annotation":"sound sample data loader (RomFile reads into sample buffer)","tags":["audio","loader","file-io"],"proposal":"music/sample_file.cpp"}
+{"offset":"0x3F580","annotation":"3D audio emitter wrappers (Lyrebird control)","tags":["audio","3d-audio"],"proposal":"music/source.cpp"}
+{"offset":"0x3F820","annotation":"Node2: audio voice/channel pool (48 slots, builds Lyrebirds)","tags":["audio","voice-pool"],"proposal":"music/voices.cpp (48-slot pool)"}
+{"offset":"0x40790","annotation":"sound effect playback control (start/stop/volume/pan)","tags":["audio","sfx"],"proposal":"music/wave_control.cpp | music/sfx_play.cpp"}
+{"offset":"0x40CC0","annotation":"text-parser driver methods (per-TU header-class emission)","tags":["parser"],"proposal":"(header emission — gamefile.h OtherBird bodies)"}
+{"offset":"0x40D10","annotation":"cockatoo: binary-format tokenized file parser","tags":["parser","file-io"],"proposal":"pad/bin_file.cpp | os/bin_file.cpp — dir uncertain"}
+{"offset":"0x41770","annotation":"Cuscus: fixed-size ring buffer (insert/query/wrap-around)","tags":["container","ring-buffer"],"proposal":"pad/buffer.cpp | pad/command_buffer.cpp"}
+{"offset":"0x41CE0","annotation":"input device base (buttons, axes, repeat, mapping)","tags":["input","base-class","abstract"],"proposal":"pad/controller.cpp (InputDeviceBase)"}
+{"offset":"0x42940","annotation":"controller_system: registry of up to 4 input devices","tags":["input","controller","abstract"],"proposal":"pad/controller_system.cpp (real name likely)"}
+{"offset":"0x42D90","annotation":"Brolga: controller port assignment/polling across 4 ports","tags":["input","controller","abstract"],"proposal":"pad/ports.cpp | pad/port_map.cpp"}
+{"offset":"0x43650","annotation":"Pigeon: filename hash table with file I/O error strings","tags":["hashtable","file-io"],"proposal":"storage/errors.cpp | storage/error_table.cpp"}
+{"offset":"0x43DD0","annotation":"AbstractFile: buffered file I/O, archive + search paths","tags":["file-io","archive","base-class"],"proposal":"storage/file.cpp (AbstractFile/File)"}
+{"offset":"0x455F0","annotation":"JamArchive: \"LJAM\" archive filesystem (folder/file tree)","tags":["archive","file-io"],"proposal":"storage/jam_archive.cpp (LJAM magic)"}
+{"offset":"0x462D0","annotation":"sentry: controller pak state machine base (does little)","tags":["pak","base-class","abstract"],"proposal":"storage/joypak.cpp"}
+{"offset":"0x463C0","annotation":"pelican: pak-file I/O base (opens via Otter)","tags":["pak","file-io","abstract"],"proposal":"storage/joypak_file.cpp"}
+{"offset":"0x465A0","annotation":"kookaburra: indexed wide-string table (localization lookup)","tags":["localization","text"],"proposal":"storage/language.cpp | storage/lang_table.cpp"}
+{"offset":"0x46B40","annotation":"parrot: text/data parser base (tokens, readFloat/readInt, drivers)","tags":["parser","file-io","base-class"],"proposal":"storage/lexer.cpp (Parrot token parser)"}
+{"offset":"0x476E0","annotation":"lzss: LZSS decompression","tags":["compression"],"proposal":"storage/lzss.cpp (real name likely)"}
+{"offset":"0x477C0","annotation":"n64_controller_system: controller/pak polling thread + PFS wrappers","tags":["input","pak","n64"],"proposal":"system/n64_controller_system.cpp (NB: split separates it from pad/controller_system — single broad dir also plausible)"}
+{"offset":"0x48AD0","annotation":"N64 gamepad device: stick deadzone, button/analog dispatch","tags":["input","controller","n64"],"proposal":"system/n64_device.cpp | system/n64_controller.cpp"}
+{"offset":"0x49630","annotation":"RomFile: N64 ROM file I/O (DMA-based reads)","tags":["file-io","rom","n64"],"proposal":"system/n64_file.cpp (RomFile)"}
+{"offset":"0x49A80","annotation":"penguin: controller pak file read/write via PFS","tags":["pak","save","file-io","n64"],"proposal":"system/n64_pak_file.cpp"}
+{"offset":"0x49D50","annotation":"Boobook: controller pak plug detection (4 Otter slots)","tags":["pak","controller","n64"],"proposal":"system/n64_pak_plug.cpp | system/n64_pak_manager.cpp"}
+{"offset":"0x4A000","annotation":"otter: controller pak slot manager (init/delete/query)","tags":["pak","save","n64"],"proposal":"system/n64_pak_slot.cpp | system/n64_pak_system.cpp"}
+{"offset":"0x4A9C0","annotation":"magpie: behavior-script keyword dictionary (IF/ELSE/MOV, VAR_PAPERS/VAR_LIVES)","tags":["script","dictionary","parser"],"proposal":"system/opcodes.cpp | system/op_table.cpp"}
+{"offset":"0x4ACE0","annotation":"sound effect definition file parser (properties, envelopes)","tags":["audio","sfx","parser"],"proposal":"system/patch.cpp (SFX definitions = audio patches)"}
+{"offset":"0x4B090","annotation":"sound bank header parser (count + name/path strings)","tags":["audio","bank","parser"],"proposal":"system/patch_bank.cpp"}
+{"offset":"0x4B220","annotation":"pre-heap utility functions (memset wrapper)","tags":["util","alloc"],"proposal":"system/pools.cpp | system/quick_mem.cpp"}
+{"offset":"0x4B2F0","annotation":"heap: Heap class (first-fit free list alloc/free/bind)","tags":["heap","alloc"],"proposal":"system/ram.cpp | system/ram_heap.cpp"}
+{"offset":"0x4B7D0","annotation":"heap_pool: pool allocator, 16 sub-heaps, free-list coalescing","tags":["heap","alloc"],"proposal":"system/ram_pools.cpp"}
+{"offset":"0x4BF70","annotation":"global new/delete wrappers around HeapPool","tags":["heap","alloc","runtime"],"proposal":"system/replace_new.cpp | system/sn_new.cpp"}
+{"offset":"0x4C060","annotation":"asset registry: file entry construction","tags":["asset-registry","loader"],"proposal":"system/resource.cpp"}
+{"offset":"0x4C630","annotation":"asset registry core: entry lookup, list management","tags":["asset-registry","loader"],"proposal":"system/resource_dir.cpp"}
+{"offset":"0x4CD90","annotation":"asset filename ops (compare, strip extension, alloc)","tags":["asset-registry","string-util"],"proposal":"system/resource_file.cpp"}
+{"offset":"0x4D0D0","annotation":"asset registry helpers: entry query and iteration","tags":["asset-registry","loader"],"proposal":"system/resource_group.cpp"}
+{"offset":"0x4D370","annotation":"asset loading pipeline: stage and finalize entries","tags":["asset-registry","loader"],"proposal":"system/resource_list.cpp"}
+{"offset":"0x4DF80","annotation":"asset loading pipeline: resolve and commit entries","tags":["asset-registry","loader"],"proposal":"system/resource_loader.cpp"}
+{"offset":"0x4E3C0","annotation":"asset entry insertion (filename compare, link)","tags":["asset-registry","loader"],"proposal":"system/resource_pool.cpp"}
+{"offset":"0x4E790","annotation":"asset entry creation + registration by filename","tags":["asset-registry","loader"],"proposal":"system/resource_table.cpp"}
+{"offset":"0x4E9C0","annotation":"SPB song/patch bank loader (GAMEDATA\\AUDIO)","tags":["audio","bank","loader"],"proposal":"system/sound_bank_file.cpp | system/spb_file.cpp"}
+{"offset":"0x4ECE0","annotation":"SMB/SRB music + sound resource bank loader (SCREAM, METALBIG)","tags":["audio","bank","loader"],"proposal":"system/sound_res_file.cpp | system/srb_file.cpp"}
+{"offset":"0x4F0A0","annotation":"RSP microcode blob (0x20C0 bytes)","tags":["data","rsp"],"proposal":"(data: RSP microcode blob)"}
+{"offset":"0x51160","annotation":"libmus: music sequence player","tags":["lib","libmus","audio","music"],"proposal":"libmus player.c (real name)"}
+{"offset":"0x545A0","annotation":"libmus: sound effect player","tags":["lib","libmus","audio","sfx"],"proposal":"libmus player_fx.c (real name)"}
+{"offset":"0x54DC0","annotation":"libmus: audio DMA transfer","tags":["lib","libmus","audio"],"proposal":"libmus aud_dma.c (real name)"}
+{"offset":"0x55220","annotation":"libmus: audio scheduler init","tags":["lib","libmus","audio"],"proposal":"libmus aud_sched.c (real name)"}
+{"offset":"0x553E0","annotation":"libmus: audio thread","tags":["lib","libmus","audio"],"proposal":"libmus aud_thread.c (real name)"}
+{"offset":"0x55680","annotation":"libmus: memory allocation helpers","tags":["lib","libmus","audio"],"proposal":"libmus lib_memory.c (real name)"}
+{"offset":"0x558D0","annotation":"libultra osSetIntMask (handwritten)","tags":["lib","libultra","n64"],"proposal":"libultra osSetIntMask (archive)"}
+{"offset":"pal_pad60270","annotation":"PAL text padding (0x50)","tags":["padding","pal"]}
+{"offset":"0x60270","annotation":"libultra osViSwapBuffer / __osViSwapContext","tags":["lib","libultra","video","n64"],"proposal":"libultra osViSwapBuffer/__osViSwapContext (archive)"}
+{"offset":"pal_pad63A60","annotation":"PAL text padding (0x20)","tags":["padding","pal"]}
+{"offset":"0x63A60","annotation":"libultra osInitialize","tags":["lib","libultra","n64"],"proposal":"libultra osInitialize (archive)"}
+{"offset":"0x64F20","annotation":"C++ runtime __builtin_vec_new","tags":["runtime","alloc"],"proposal":"SN C++ runtime __builtin_vec_new (archive)"}
+{"offset":"0x64F40","annotation":"C++ runtime __builtin_vec_delete","tags":["runtime","alloc"],"proposal":"SN C++ runtime __builtin_vec_delete (archive)"}
+{"type":"segment","vrom":"0x79AE0","label":"first (overlay)"}
+{"offset":"pal_79AE0","annotation":"PAL rodata padding","tags":["padding","pal"]}
+{"offset":"pal_79E60","annotation":"PAL rodata padding","tags":["padding","pal"]}
+{"offset":"pal_7F620","annotation":"PAL rodata padding","tags":["padding","pal"]}
+{"offset":"pal_pad85BC0","annotation":"PAL text padding (empty stub)","tags":["padding","pal"]}
+{"offset":"0x85BC0","annotation":"gameplay HUD state controller (\"Map: On/Off\", PARG/PAGM)","tags":["hud","gamestate"],"proposal":"game/args.cpp | game/arena_hud.cpp"}
+{"offset":"0x86D20","annotation":"level/scene resource manager (level lifecycle)","tags":["level","loader"],"proposal":"game/assets.cpp | game/attract.cpp"}
+{"offset":"0x87F00","annotation":"scene node string-path accessor utilities","tags":["scene-graph","string-util"],"proposal":"game/base_path.cpp | game/branch_names.cpp"}
+{"offset":"0x881A0","annotation":"scene tree node create/link/update helpers","tags":["scene-graph"],"proposal":"game/branch.cpp | game/build_scene.cpp"}
+{"offset":"0x88330","annotation":"per-frame scene/state tick, state dispatcher (states 1-7)","tags":["gamestate","dispatcher"],"proposal":"game/context.cpp | game/control.cpp"}
+{"offset":"0x885D0","annotation":"DMA overlay loader (async ROM-to-RAM)","tags":["loader","dma","n64"],"proposal":"game/dma.cpp | game/data_load.cpp"}
+{"offset":"0x88A80","annotation":"state 6 ctor: gameplay init (PBOY.CDB/PGRL.CDB, MOVIES)","tags":["gamestate","gameplay","loader"],"proposal":"game/mode_game.cpp | game/state_game.cpp"}
+{"offset":"0x89500","annotation":"state 5 ctor: level load (MT.LDB, LV1, BG)","tags":["gamestate","level","loader"],"proposal":"game/mode_level.cpp | game/state_level.cpp"}
+{"offset":"0x89A50","annotation":"state 4 ctor: pre-game/neighborhood select (PREGAME.LDB, NEIG)","tags":["gamestate","menu","loader"],"proposal":"game/mode_neighborhood.cpp (NEIG)"}
+{"offset":"0x89D80","annotation":"state 1 ctor: UI/license/main menu (UI.LDB, LIC0, SBTY, CRED)","tags":["gamestate","menu","ui"],"proposal":"game/mode_options.cpp | game/mode_menus.cpp"}
+{"offset":"0x8A2A0","annotation":"state 7 ctor: memory card menu (MEMCARD.LDB)","tags":["gamestate","menu","save"],"proposal":"game/mode_pak.cpp (memcard)"}
+{"offset":"0x8A720","annotation":"state 3 ctor: paper route / level select (PAPER.LDB, LEVELS\\)","tags":["gamestate","level","menu"],"proposal":"game/mode_paper_route.cpp"}
+{"offset":"0x8AB10","annotation":"binary object database loader (.ODB reader)","tags":["parser","asset-db"],"proposal":"game/object_db.cpp (.odb!)"}
+{"offset":"0x8AF90","annotation":"binary data file parser (geometry/float data)","tags":["parser"],"proposal":"game/object_file.cpp | game/object_geo.cpp"}
+{"offset":"0x8BA90","annotation":"text data parser (Parrot-based, mixed types)","tags":["parser","text"],"proposal":"game/params.cpp | game/parse_misc.cpp"}
+{"offset":"0x8D9F0","annotation":"effect/animation binary loader","tags":["loader","anim","fx"],"proposal":"game/particle_file.cpp | game/pfx_file.cpp"}
+{"offset":"0x8E850","annotation":"binary data loader (token-driven)","tags":["loader","parser"],"proposal":"game/preload.cpp — weak fit"}
+{"offset":"0x8F080","annotation":"binary file loader (resources)","tags":["loader","parser"],"proposal":"game/props_file.cpp — weak fit"}
+{"offset":"0x8F360","annotation":"binary data loader (indexed arrays)","tags":["loader","parser"],"proposal":"game/records.cpp — weak fit"}
+{"offset":"0x8F7D0","annotation":"binary level/data loader (ints, many fields)","tags":["loader","level"],"proposal":"game/route_file.cpp | game/round_data.cpp"}
+{"offset":"0x8FDA0","annotation":"subscriber state data loader","tags":["loader","subscriber"],"proposal":"game/street_data.cpp | game/subscriber_file.cpp"}
+{"offset":"0x90C10","annotation":"subscriber/house state manager (sssubs/ssnons/ssdelv)","tags":["subscriber","gamestate","level"],"proposal":"game/street_state.cpp | game/subscribers.cpp (sssubs/ssnons/ssdelv)"}
+{"offset":"0x92F70","annotation":"heap-copied name strings for game entity fields (6 slots)","tags":["string-util","entity"],"proposal":"game/tags.cpp | game/street_names.cpp"}
+{"offset":"0x932C0","annotation":"Entry98: delivery target slot (house/obstacle state, outcome flags)","tags":["entity","delivery","gamestate"],"proposal":"game/targets.cpp (delivery targets)"}
+{"offset":"0x93480","annotation":"array container (alloc/resize/manage)","tags":["container","alloc"],"proposal":"game/token_list.cpp — weak fit"}
+{"offset":"0x93B60","annotation":"file path builder (strncpy/strcat)","tags":["string-util","path"],"proposal":"game/track_path.cpp | game/tree_path.cpp"}
+{"offset":"0x93D30","annotation":"object factory/registry (new/delete, vtable dispatch)","tags":["factory","registry"],"proposal":"game/track_objects.cpp — weak fit"}
+{"offset":"0x94390","annotation":"string-keyed token dictionary (539 entries: Variables, Regions, ...)","tags":["script","dictionary","parser"],"proposal":"game/vars.cpp | game/variables.cpp (dict has 'Variables')"}
+{"offset":"0x96380","annotation":"asset path resolver with dictionary lookup","tags":["path","dictionary","asset-registry"],"proposal":"game/virtual_path.cpp | game/vars_path.cpp"}
+{"offset":"0x96EA0","annotation":"level resource loader/initializer","tags":["level","loader"],"proposal":"game/world.cpp | game/world_load.cpp"}
+{"offset":"0x98090","annotation":"Dingo object instantiation / track setup","tags":["entity","track","level"],"proposal":"game/world_objects.cpp | game/world_track.cpp"}
+{"offset":"0x984C0","annotation":"camera/transform math (sin/cos projections)","tags":["camera","math"],"proposal":"logic/angles.cpp | logic/camera_math.cpp"}
+{"offset":"0x98F50","annotation":"movement/physics controller","tags":["physics","movement"],"proposal":"logic/bike.cpp | logic/cycle.cpp | logic/drive.cpp"}
+{"offset":"0x9BBD0","annotation":"orientation/rotation handler","tags":["math","rotation"],"proposal":"logic/direction.cpp | logic/lean.cpp"}
+{"offset":"0x9C470","annotation":"camera controller","tags":["camera"],"proposal":"logic/eye.cpp | logic/follow_cam.cpp"}
+{"offset":"0x9CA70","annotation":"Cuscus input/command buffer create/destroy (see 41770, 9E2B0)","tags":["input","command-buffer","abstract"],"proposal":"logic/input_buffers.cpp"}
+{"offset":"0x9CD20","annotation":"scene update dispatcher (vtable-driven)","tags":["scene-graph","dispatcher"],"proposal":"logic/node_update.cpp"}
+{"offset":"0x9D0B0","annotation":"input polling / controller state reader","tags":["input","polling","abstract"],"proposal":"logic/pads.cpp | logic/poll.cpp"}
+{"offset":"0x9E2B0","annotation":"interprets Cuscus command buffer to set level scene state/triggers","tags":["command-buffer","level","script"],"proposal":"logic/replay.cpp | logic/script_run.cpp (cuscus playback)"}
+{"offset":"0x9F7C0","annotation":"object behavior-script parser (43 dict lookups)","tags":["script","parser","entity"],"proposal":"logic/scripts.cpp | logic/triggers.cpp"}
+{"offset":"0xA1D70","annotation":"named object array manager","tags":["registry","container"],"proposal":"logic/table.cpp | logic/store.cpp"}
+{"offset":"0xA2C70","annotation":"track/world data loader","tags":["track","level","loader"],"proposal":"logic/track.cpp"}
+{"offset":"0xA49A0","annotation":"game object / track scene manager (\"TRACKS\\\", \"igmap\")","tags":["track","level","entity"],"proposal":"logic/track_scene.cpp | logic/tracks.cpp (TRACKS\\)"}
+{"offset":"0xA80B0","annotation":"gameplay camera object","tags":["camera","gameplay"],"proposal":"logic/view.cpp | logic/view_cam.cpp"}
+{"offset":"0xAC370","annotation":"pak-related lookup helpers (sentinel-list search)","tags":["pak","util","abstract"],"proposal":"mempak/lookup.cpp | mempak/codes.cpp"}
+{"offset":"0xAC440","annotation":"controller pak save/load, game state serialization (PBOY.1)","tags":["pak","save","serialization","n64"],"proposal":"mempak/save.cpp | mempak/save_game.cpp (PBOY.1)"}
+{"offset":"0xAEDE0","annotation":"ObjB: area-event object (pak dispatch via Otter)","tags":["entity","pak","abstract"],"proposal":"objects/area_obj.cpp | objects/actor_b.cpp"}
+{"offset":"0xAFA30","annotation":"scene-node text-data reader (strtok/strcmp parser)","tags":["parser","text","scene-graph"],"proposal":"objects/attributes.cpp (strtok property reader)"}
+{"offset":"0xB00E0","annotation":"ObjA: gameplay object with save/load integration","tags":["entity","gameplay","save"],"proposal":"objects/base_obj.cpp | objects/actor.cpp"}
+{"offset":"0xB1680","annotation":"scene-node property accessors (84 getter/setters)","tags":["scene-graph","accessors"],"proposal":"objects/fields.cpp | objects/getters.cpp"}
+{"offset":"0xB31D0","annotation":"scene-node list/collection operations","tags":["scene-graph","container"],"proposal":"objects/groups.cpp (dict has 'Groups')"}
+{"offset":"0xB3770","annotation":"container alloc/dealloc helper (vec new/delete)","tags":["alloc","container"],"proposal":"objects/heap_arrays.cpp"}
+{"offset":"0xB38C0","annotation":"area/zone loader with frustum setup","tags":["level","zone","frustum"],"proposal":"objects/map.cpp | objects/level_zones.cpp"}
+{"offset":"0xB78F0","annotation":"scene-graph builder (surfaces, files, nodes)","tags":["scene-graph","loader"],"proposal":"objects/scene_build.cpp | objects/setup.cpp"}
+{"offset":"0xBCFA0","annotation":"scene resource manager (filename-keyed load/store)","tags":["registry","resource"],"proposal":"objects/store.cpp | objects/stash.cpp"}
+{"offset":"0xBFF50","annotation":"scene-graph node utilities (flags, accessors; used project-wide)","tags":["scene-graph","util"],"proposal":"objects/tree.cpp | objects/tree_nodes.cpp"}
+{"offset":"0xC2E50","annotation":"thin forwarder to C2F00 math (5 stubs)","tags":["math"],"proposal":"objects/util.cpp"}
+{"offset":"0xC2F00","annotation":"core geometry/math pipeline (transforms, splines, collision)","tags":["math","geometry","collision"],"proposal":"objects/vec_ops.cpp | objects/world_math.cpp"}
+{"offset":"0xCA340","annotation":"surface property accessors (22 small funcs)","tags":["surface","accessors"],"proposal":"objects/world_surface.cpp — weak fit"}
+{"offset":"0xCA860","annotation":"level object spawner (Pademelon/Dingo, scene queries)","tags":["entity","spawner","level"],"proposal":"objects/world_spawn.cpp — weak fit"}
+{"offset":"0xCFE20","annotation":"scene-node query with load trigger","tags":["scene-graph","loader"],"proposal":"objects/zone_query.cpp — weak fit"}
+{"offset":"0xD01A0","annotation":"Dingo subclass: static collision surface","tags":["collision","entity"],"proposal":"props/collide_a.cpp — family shares collide_* prefix"}
+{"offset":"0xD0250","annotation":"Dingo subclass: distance-checked collision node","tags":["collision","entity"],"proposal":"props/collide_b.cpp (distance check)"}
+{"offset":"0xD03F0","annotation":"Dingo subclass: static collision surface variant","tags":["collision","entity"],"proposal":"props/collide_c.cpp"}
+{"offset":"0xD04A0","annotation":"Dingo subclass: collision node delegating hit test to model","tags":["collision","entity"],"proposal":"props/collide_model.cpp"}
+{"offset":"0xD0710","annotation":"transform pair accessor (10 tiny funcs)"}
+{"offset":"0xD07B0","annotation":"directional normalize helper"}
+{"offset":"0xD0A00","annotation":"geometry node with scene query"}
+{"offset":"0xD0BF0","annotation":"BSP/triangle collision pipeline + FX resource loading (FXfont/FXbundle)","tags":["collision","bsp","fx"],"proposal":"props/collision.cpp | props/faces.cpp (FXfont/FXbundle)"}
+{"offset":"0xD5370","annotation":"scene-entity type factory: 30-entry token dispatch (0x28-0x44) to D5xxx-D9xxx","tags":["factory","entity","dispatcher"],"proposal":"props/factory.cpp (token 0x28-0x44 dispatch)"}
+{"offset":"0xD5660","annotation":"renderable transform node (axis-angle rotation/scale matrix)","tags":["transform","render"],"proposal":"props/gizmo.cpp | props/frame.cpp"}
+{"offset":"0xD5C90","annotation":"collision proxy delegating to D0BF0 pipeline","tags":["collision"],"proposal":"props/hit_proxy.cpp"}
+{"offset":"0xD5D00","annotation":"trigger box (TBOX) entity with collision region test","tags":["trigger","collision","entity"],"proposal":"props/hit_trigger.cpp (TBOX)"}
+{"offset":"0xD6590","annotation":"lightweight polymorphic dispatch node (virtual call chain)","tags":["util","dispatcher"],"proposal":"props/link.cpp"}
+{"offset":"0xD67B0","annotation":"axis-angle rotation node with child scene traversal","tags":["transform","rotation"],"proposal":"props/orbit.cpp | props/rotator.cpp"}
+{"offset":"0xD6F50","annotation":"scene entity container node (child iteration)","tags":["entity","container"],"proposal":"props/set.cpp | props/group_node.cpp"}
+{"offset":"0xD71A0","annotation":"animation timeline/keyframe node (uses D9920 interpolation)","tags":["anim","keyframe"],"proposal":"props/timeline.cpp | props/keyframes.cpp"}
+{"offset":"0xD7A70","annotation":"particle effect emitter (\"FXturbo\" named effects)","tags":["particle","fx"],"proposal":"props/turbo_fx.cpp | props/sparks.cpp (FXturbo)"}
+{"offset":"0xD9020","annotation":"vertex normal/orientation node (normalized basis vectors)","tags":["vector","math"],"proposal":"props/uprights.cpp | props/normals.cpp — weak fit"}
+{"offset":"0xD9670","annotation":"surface material/collision property ref with dirty tracking","tags":["material","collision"],"proposal":"props/surface_ref.cpp — weak fit"}
+{"offset":"0xD9920","annotation":"animation interpolation/blend engine (weighted Vec3f lerp)","tags":["anim","math","interpolation"],"proposal":"props/tween.cpp | props/lerp.cpp"}
+{"offset":"0xDB5B0","annotation":"string-keyed resource registry (strnicmp lookup)","tags":["registry","string-util"],"proposal":"registry — text/assets.cpp? — dir unclear"}
+{"offset":"0xDBDA0","annotation":"render-param destructor set (8 tiny funcs)","tags":["util","cleanup"],"proposal":"(tiny dtor set, belongs with DBE20 family)"}
+{"offset":"0xDBE20","annotation":"2D/HUD text render submission (font glyphs, colors, button icons)","tags":["hud","font","render"],"proposal":"text/draw.cpp | text/font_draw.cpp (F_*, FUA-FUZ, FSY*, GICOIN)"}
+{"offset":"0xDDE30","annotation":"render callback node variant A (engine delegate)","tags":["render","callback"],"proposal":"text/effect_a.cpp — weak fit"}
+{"offset":"0xDDF60","annotation":"mesh/model file loader (Bandicoot registry)","tags":["model","loader","registry"],"proposal":"text/font_models.cpp — weak fit"}
+{"offset":"0xDE8C0","annotation":"DDF60 sub-helper (string iteration)","tags":["loader","util"],"proposal":"(helper of DDF60)"}
+{"offset":"0xDE960","annotation":"matrix/transform pipeline (mat3 ops)","tags":["matrix","math","render"],"proposal":"text/matrix.cpp — weak fit"}
+{"offset":"0xDFF10","annotation":"render callback node variant B (engine-core pointer)","tags":["render","callback"],"proposal":"text/effect_b.cpp — weak fit"}
+{"offset":"0xE0080","annotation":"render callback node variant C (engine delegate)","tags":["render","callback"],"proposal":"text/effect_c.cpp — weak fit"}
+{"offset":"0xE0240","annotation":"skeletal animation driver (Wallaroo/Pademelon/Skink)","tags":["anim","skeleton"],"proposal":"puppet anim driver — dir unclear"}
+{"offset":"0xE1460","annotation":"resource linked-list node (global register/unregister)","tags":["resource","container"],"proposal":"ui/asset_node.cpp — weak fit"}
+{"offset":"0xE1810","annotation":"lighting/color pipeline (Peacock materials)","tags":["render","lighting","color"],"proposal":"ui/colors.cpp | ui/lighting.cpp (Peacock materials)"}
+{"offset":"0xE2430","annotation":"display-list frame builder (model/anim render commands)","tags":["display-list","render","anim"],"proposal":"ui/draw_frames.cpp — weak fit"}
+{"offset":"0xE27E0","annotation":"text/label render submission","tags":["text","render"],"proposal":"ui/labels.cpp | ui/text_draw.cpp"}
+{"offset":"0xE3240","annotation":"thin wrapper over E1460 resource list ops","tags":["resource","util"],"proposal":"ui/list_ops.cpp — weak fit"}
+{"offset":"0xE3380","annotation":"koala: named graphical resource handle base (colors/glyphs/icons)","tags":["resource","font","ui"],"proposal":"ui/icons.cpp | ui/hud_assets.cpp (koala base)"}
+{"offset":"0xE33D0","annotation":"Koala lifecycle bridge (ctor/dtor)","tags":["resource"],"proposal":"(koala lifecycle bridge)"}
+{"offset":"0xE3450","annotation":"Koala resource-handle collection manager (create/destroy/iterate)","tags":["resource","registry"],"proposal":"ui/icon_list.cpp | ui/asset_table.cpp"}
+{"offset":"0xE4490","annotation":"Koala resource-category variant (flags 0x50000)","tags":["resource"],"proposal":"ui/icon_type_a.cpp (flags 0x50000)"}
+{"offset":"0xE4500","annotation":"Koala resource-category variant (flags 0x60000)","tags":["resource"],"proposal":"ui/icon_type_b.cpp (flags 0x60000)"}
+{"offset":"0xE4560","annotation":"Koala resource-category variant (30-entry, largest)","tags":["resource"],"proposal":"ui/icon_type_c.cpp (30-entry)"}
+{"offset":"0xE4630","annotation":"Koala resource-category variants (two ctor overloads)","tags":["resource"],"proposal":"ui/icon_type_d.cpp"}
+{"offset":"0xE4710","annotation":"Koala resource-category variant (float params)","tags":["resource"],"proposal":"ui/icon_type_e.cpp"}
+{"offset":"0xE47D0","annotation":"filename-based resource record loader","tags":["resource","loader"],"proposal":"ui/record_load.cpp — weak fit"}
+{"offset":"0xE4DB0","annotation":"resource record cleanup/teardown","tags":["resource","cleanup"],"proposal":"ui/record_free.cpp — weak fit"}
+{"offset":"0xE4F80","annotation":"BSP scene node vtable accessors","tags":["bsp","scene-graph"],"proposal":"world/bsp_node.cpp"}
+{"offset":"0xE50C0","annotation":"BSP scene node geometry math (sin/sqrt/normalize)","tags":["bsp","math"],"proposal":"world/bsp_node_math.cpp"}
+{"offset":"0xE5930","annotation":"Wallaroo/BSP scene node factory","tags":["bsp","factory"],"proposal":"world/bsp_objects.cpp"}
+{"offset":"0xE5AB0","annotation":"BSP database (.bdb) file parser","tags":["bsp","parser","asset-db"],"proposal":"world/bsp_file.cpp (.bdb)"}
+{"offset":"0xE7450","annotation":"BSP collision query wrapper (delegates to jabiru)","tags":["bsp","collision"],"proposal":"world/bsp_query.cpp (wrapper)"}
+{"offset":"0xE7550","annotation":"jabiru: BSP collision tree loader/querier (.bvb, ray-cast)","tags":["bsp","collision","parser"],"proposal":"world/bsp_tree.cpp (.bvb, jabiru)"}
+{"offset":"0xE8FD0","annotation":"image database (.idb) file parser","tags":["asset-db","image-loader"],"proposal":"world/image_db.cpp (.idb)"}
+{"offset":"0xE9AE0","annotation":"model database (.mdb) file parser","tags":["asset-db","model"],"proposal":"world/model_db.cpp (.mdb)"}
+{"offset":"0xEA5D0","annotation":"dingo: base spatial object (position, bounds, transforms)","tags":["entity","base-class"],"proposal":"world/mover.cpp (dingo base spatial object)"}
+{"offset":"0xEAD50","annotation":"scene graph node classes (Brushtail/Cicada/Antechinus/Cockatiel)","tags":["scene-graph","entity"],"proposal":"world/props.cpp | world/scenery.cpp"}
+{"offset":"0xED560","annotation":"fennec: renderable spatial object with animation entries","tags":["entity","render","anim"],"proposal":"world/puppet.cpp | world/sprite_obj.cpp (fennec)"}
+{"offset":"0xED9F0","annotation":"hyena: physics integrator (Euler velocity + acceleration)","tags":["physics"],"proposal":"world/velocity.cpp | world/swerve.cpp (hyena physics)"}
+{"offset":"0xEDB10","annotation":"RenderContext subclass for scene rendering","tags":["render"],"proposal":"world/view_context.cpp"}
+{"offset":"pal_F19C0","annotation":"PAL data padding","tags":["padding","pal"]}
+{"offset":"0xF5430","annotation":"scene entity record base (.ceb sub-parser)","tags":["parser","entity"],"proposal":"entities/atom.cpp | entities/base_record.cpp"}
+{"offset":"0xF5C80","annotation":"scene entity bundle (.ceb) file parser (orchestrates sub-parsers)","tags":["parser","asset-db"],"proposal":"entities/bundle_file.cpp (.ceb)"}
+{"offset":"0xF9800","annotation":"image/texture entity parser (UV floats, image lookup)","tags":["parser","image-loader"],"proposal":"entities/images.cpp | entities/decals.cpp"}
+{"offset":"0xFA220","annotation":"effect/particle entity parser","tags":["parser","fx"],"proposal":"entities/particles.cpp"}
+{"offset":"0xFA860","annotation":"environment/background entity parser (SDSE/SDM/SDRD/BACK)","tags":["parser","environment"],"proposal":"entities/scene_data.cpp (SDSE/SDM/SDRD/BACK)"}
+{"offset":"0xFAC90","annotation":"geometry bounds parser (near/far clip planes)","tags":["parser","camera"],"proposal":"entities/clip_bounds.cpp"}
+{"offset":"0xFB4B0","annotation":"scene entity text/string parser (WString, Kookaburra, Slug)","proposal":"entities/labels.cpp"}
+{"offset":"0xFB9B0","annotation":"sound/audio entity reference parser","tags":["parser","audio"],"proposal":"entities/sounds.cpp"}
+{"offset":"0xFBD10","annotation":"path/spline definition parser","tags":["parser","path"],"proposal":"entities/paths.cpp (dict has 'Paths')"}
+{"offset":"0xFC110","annotation":"color/lighting property parser (RGB /255 scale)","tags":["parser","color"],"proposal":"entities/tints.cpp | entities/colors.cpp"}
+{"offset":"0xFC500","annotation":"animation/model binding parser","tags":["parser","anim"],"proposal":"entities/anim_links.cpp — weak fit"}
+{"offset":"0xFCA00","annotation":"Cicada (BSP node) instance manager","tags":["bsp","entity"],"proposal":"entities/props.cpp (cicada instances)"}
+{"offset":"0xFD0A0","annotation":"scene entity instance loader (top-level sub-parser)","tags":["parser","entity"],"proposal":"entities/spawn.cpp | entities/instances.cpp"}
+{"offset":"0xFDB30","annotation":"entity property table parser (Bandicoot name registration)","tags":["parser","entity","registry"],"proposal":"entities/values.cpp | entities/named_props.cpp"}
+{"offset":"0xFE010","annotation":"Dingo subclass: scene node update/accessor methods","tags":["entity","accessors"],"proposal":"screens/actor_fields.cpp — weak fit"}
+{"offset":"0xFE460","annotation":"Dingo subclass: simple entity rendering","tags":["entity","render"],"proposal":"screens/basic_draw.cpp — weak fit"}
+{"offset":"0xFE880","annotation":"Dingo subclass: scene config entity (SCEC/SCOK/SCNO)","tags":["entity","scene-config"],"proposal":"screens/config.cpp (SCEC/SCOK/SCNO)"}
+{"offset":"0xFF430","annotation":"Dingo subclass: sound entity (SDSE/SDM/SDRD)","tags":["entity","audio"],"proposal":"screens/env_sound.cpp (SDSE/SDM/SDRD)"}
+{"offset":"0xFF910","annotation":"Dingo subclass: HUD/scoring overlay (BRONZE/SILVER/GOLD, LEVEL COMPLETE)","tags":["hud","ui","score"],"proposal":"screens/hud_score.cpp | screens/level_score.cpp (medals)"}
+{"type":"segment","vrom":"0xF19C0","label":"F19C0"}
+{"offset":"0x102110","annotation":"Dingo subclass: UI element (static/button)","tags":["ui","hud"],"proposal":"screens/statics.cpp | screens/ui_widgets.cpp"}
+{"offset":"0x103130","annotation":"Dingo subclass: level objectives display (\"Collect fireflies!\")","tags":["ui","hud","objectives"],"proposal":"screens/objectives.cpp"}
+{"offset":"0x103CB0","annotation":"Dingo subclass: game start/controller prompt (Rumble Pak)","tags":["ui","prompt"],"proposal":"screens/prompt.cpp | screens/start_screen.cpp (Rumble Pak)"}
+{"offset":"0x1049B0","annotation":"Dingo subclass: level results/medal screen (SECRET CODE)","tags":["ui","hud","results"],"proposal":"screens/results.cpp (medals, SECRET CODE)"}
+{"offset":"0x107570","annotation":"Dingo subclass: scene node render overrides","tags":["entity","render"],"proposal":"screens/scene_draw.cpp — weak fit"}
+{"offset":"0x1077B0","annotation":"model entry parser for collision database","tags":["parser","model","asset-db"],"proposal":"world_db/models.cpp — NB: sub-parsers not alphabetical, likely include-order"}
+{"offset":"0x108210","annotation":"camera data parser for collision database","tags":["parser","camera"],"proposal":"world_db/cameras.cpp"}
+{"offset":"0x108580","annotation":"texture/image entry parser for collision database","tags":["parser","texture"],"proposal":"world_db/textures.cpp"}
+{"offset":"0x108960","annotation":"comparators + small utils for collision data","tags":["util","sort"],"proposal":"world_db/sort_utils.cpp"}
+{"offset":"0x108B60","annotation":"collision database (.cdb) record parser","tags":["parser","collision","asset-db"],"proposal":"world_db/records.cpp (.cdb)"}
+{"offset":"0x10A650","annotation":"collision database (.cdb) file loader (top-level)","tags":["asset-db","collision"],"proposal":"world_db/collision_db.cpp (.cdb loader)"}
+{"offset":"0x10B1B0","annotation":"collision record float/int data parser","tags":["parser","collision"],"proposal":"world_db/values.cpp"}
+{"offset":"0x10B520","annotation":"world database (.wdb) loader (builds Wallaroo/Cassowary/Jabiru/Camera)","tags":["asset-db","world"],"proposal":"world_db/world_db.cpp (.wdb)"}
+{"offset":"0x10FA40","annotation":"model animation database (.mab) file loader","tags":["asset-db","anim"],"proposal":"world_db/motion_bank.cpp (.mab)"}
