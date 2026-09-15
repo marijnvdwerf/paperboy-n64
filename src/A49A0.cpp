@@ -102,7 +102,8 @@ struct GameObjChild : GameObjChildBase {
 };
 
 struct GameObjChild2 {
-    char pad0[0xC];
+    char pad0[0x8];
+    s32 unk8;
     virtual void vfunc_01();
     virtual void vfunc_02();
     virtual void vfunc_03();
@@ -165,9 +166,13 @@ struct UnkArgStruct {
     u32 count;
     char pad18[0x8];
     s32 unk20;
-    char pad24[0x20];
+    char pad24[0x18];
+    s32 unk3C;
+    char pad40[0x4];
     s32 unk44;
-    char pad48[0x10];
+    char pad48[0x4];
+    void* unk4C;
+    char pad50[0x8];
     s32 unk58;
     char pad5C[0x90];
     char unkEC[0xC];
@@ -279,6 +284,11 @@ struct SceneNodeBase {
     virtual void vfunc_55();
     virtual void vfunc_56();
     virtual void vfunc_57();
+    virtual void vfunc_58();
+    virtual void vfunc_59();
+    virtual void vfunc_60();
+    virtual void vfunc_61();
+    virtual void vfunc_62();
 };
 
 struct SceneNode : SceneNodeBase {
@@ -298,6 +308,8 @@ void func_800CB780(s32);
 void func_800CB804(s32, void*);
 s32 func_800CC3B8(s32 arg0, void* arg1);
 void func_800DA890(s32 arg);
+void func_800DAC04(s32);
+void func_800E6830(UnkStruct7954*);
 SceneNode* func_800DCA68(UnkArgStruct*, SceneNodeEntry*, s32);
 void func_800DC944(UnkArgStruct* arg);
 SceneNode* func_800DF190(UnkArgStruct*, SceneNodeEntry*);
@@ -332,17 +344,29 @@ void func_800FA608(SceneNode*, u8);
 void func_800FAFEC(SceneNode*);
 void func_80101C44(SceneNode*);
 void func_80114BB0(SoundState* a0, const char* a1, s32 a2, s32 a3, f32 a4, f32 a5, s32 a6);
+char* strcpy(char*, const char*);
+s32 stricmp(const char*, const char*);
 
 extern GameTop* D_8006AB04;
 extern GameScene* D_801258C0;
+extern GameObjChild2* D_801258D0;
 extern SceneEntry* D_80127670;
 extern UnkStruct7954* D_80127954;
 extern s32 D_801272F0;
+extern s32 D_80127310;
 extern s32 D_801286D0;
 extern s32 D_80128710;
 extern GameState* D_80128010;
 extern u8 D_8012802C;
+extern char D_80128030[];
+extern s32 D_80128230;
+extern const char* D_80128234[];
+extern s32 D_801295F0;
 extern SoundState* D_80129060;
+extern const char D_800B6548[];
+extern const char D_800B6580[];
+extern const char D_800B6588[];
+extern const char D_800B661C[];
 }
 
 INCLUDE_RODATA("asm/nonmatchings/A49A0", D_800B6530);
@@ -594,7 +618,85 @@ INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCA68);
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCED4);
 
-INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DCFF0);
+extern "C" s32 func_800DCFF0(UnkArgStruct* self) {
+    GameObjChild2* child;
+    GameSubContext* sc;
+    s32 saved;
+    s32 state;
+    s32 active;
+    s32 enabled;
+
+    saved = self->unk3C;
+    self->unk3C = 0;
+    if (self->unk4C != NULL) {
+        strcpy(D_80128030, *(const char**)((u8*)self->unk4C + 0x6C));
+    }
+
+    child = D_801258D0;
+    sc = D_8006AB10;
+    active = 0;
+    if (child->vfunc_07() != 0) {
+        active = D_80128010->unkB4 == 0;
+    }
+    if (active != 0) {
+        func_800DAC04(self->unk58);
+    }
+
+    state = child->unk8;
+    enabled = 0;
+    if (sc->unk10 != 0 || (sc->unk18 != 0 && sc->func_80008C74() == 3)) {
+        enabled = 1;
+    }
+
+    if (enabled != 0) {
+        switch (state) {
+            case 4:
+                if (stricmp(D_80128030, D_800B6580) == 0 && D_801295F0 == 0) {
+                    return 0x20;
+                }
+                if (stricmp(D_80128030, D_800B6580) == 0 && D_801295F0 == 2) {
+                    return 0x20;
+                }
+                if (stricmp(D_80128030, D_800B6580) == 0 && D_801295F0 == 7) {
+                    return 0x20;
+                }
+                break;
+
+            case 3:
+                if (stricmp(D_80128030, D_800B6548) == 0) {
+                    return 0x23;
+                }
+                break;
+
+            case 1:
+                stricmp(D_80128030, D_800B6588);
+                if (stricmp(D_80128030, D_800B661C) == 0 && D_801295F0 == 2) {
+                    return 0x26;
+                }
+                if (D_801295F0 == 5) {
+                    SceneNode* node = (SceneNode*)func_800CC3B8(D_80127310, (void*)D_80128234[D_80128230]);
+                    node->vfunc_62();
+                    D_80128230 = (D_80128230 + 1) % 28;
+                    if (D_80128230 == 0) {
+                        sc->func_80008C94();
+                    }
+                    sc->unk178 = 0;
+                    return 4;
+                }
+                break;
+
+            case 2:
+            case 5:
+            case 6:
+                break;
+        }
+    }
+
+    if (state == 1 && saved != 0) {
+        func_800E6830(D_80127954);
+    }
+    return saved;
+}
 
 INCLUDE_ASM("asm/nonmatchings/A49A0", func_800DD2C0);
 
