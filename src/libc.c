@@ -35,7 +35,27 @@ void* memset(void* dst, int c, unsigned n) {
     return dst;
 }
 
-INCLUDE_ASM("asm/nonmatchings/libc", strcmp);
+int strcmp(const char* str1, const char* str2) {
+    u32 i = 0;
+    u8 temp_a3;
+    u8 temp_v1;
+
+    do {
+        temp_a3 = (u8)str1[i];
+        temp_v1 = (u8)str2[i];
+
+        if (temp_a3 != temp_v1) {
+            if (temp_v1 < temp_a3) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+        i++;
+    } while (temp_a3 != 0);
+
+    return 0;
+}
 
 char* strcpy(char* dst, const char* src) {
     s32 i = 0;
