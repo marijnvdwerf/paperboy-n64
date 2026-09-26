@@ -276,7 +276,7 @@ s32 JamArchive::findFile(const char* path) {
     return 0;
 }
 
-s32 JamArchive::locate(const char* path, s32* outOffset, s32* outSize) {
+s32 JamArchive::locate(const char* path, u32* outOffset, u32* outSize) {
     FolderNode* node = &this->root;
     int i = -1;
 

@@ -116,7 +116,7 @@ s32 RomFile::rawClose() {
     return 8;
 }
 
-s32 RomFile::rawOpen() {
+s32 RomFile::rawOpen(const char*) {
     return 8;
 }
 

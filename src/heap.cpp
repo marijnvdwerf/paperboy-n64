@@ -1,15 +1,13 @@
 #include "heap.h"
 
-#ifdef NON_MATCHING
 void* Heap::alloc(u32 reqSize) {
     u32 hdrSize = 8;
     if (this->alignShift != 0) {
-        u32 alignment = 1 << this->alignShift;
-        u32 alignM1 = alignment - 1;
+        u32 alignM1 = (1U << this->alignShift) - 1;
         reqSize += alignM1;
-        u32 mask = ~alignM1;
-        reqSize &= mask;
-        hdrSize = (alignment + 7) & mask;
+        reqSize &= ~alignM1;
+        hdrSize = (1U << this->alignShift) + 7;
+        hdrSize &= ~alignM1;
     }
     reqSize += hdrSize;
     if (reqSize < 0x10) {
@@ -29,22 +27,20 @@ void* Heap::alloc(u32 reqSize) {
         return NULL;
     }
 
-    u32 consumed;
     if (reqSize + 0x10 < blkSize) {
-        consumed = reqSize;
         b->size = reqSize;
         HeapBlock* newBlock = (HeapBlock*)((u8*)b + reqSize);
         HeapBlock* phys = (HeapBlock*)((u8*)b + blkSize);
         newBlock->size = blkSize - reqSize;
         newBlock->nextFree = b->nextFree;
         newBlock->prevFree = b->prevFree;
-        if (b->nextFree != NULL) {
-            b->nextFree->prevFree = newBlock;
+        if (newBlock->nextFree != NULL) {
+            newBlock->nextFree->prevFree = newBlock;
         }
         if (this->freeList == b) {
             this->freeList = newBlock;
-        } else if (b->prevFree != NULL) {
-            b->prevFree->nextFree = newBlock;
+        } else if (newBlock->prevFree != NULL) {
+            newBlock->prevFree->nextFree = newBlock;
         }
         newBlock->prevPhys = b;
         if ((u8*)phys < this->base + this->size) {
@@ -52,8 +48,8 @@ void* Heap::alloc(u32 reqSize) {
         }
         newBlock->used = 0;
         newBlock->id = this->id;
+        blkSize = reqSize;
     } else {
-        consumed = blkSize;
         if (this->freeList == b) {
             this->freeList = b->nextFree;
         } else {
@@ -64,26 +60,17 @@ void* Heap::alloc(u32 reqSize) {
         }
     }
 
-    this->used += consumed;
-    b->used = 1;
+    this->used += blkSize;
+    b->setUsed(1);
     b->id = this->id;
     return (u8*)b + hdrSize;
 }
-#else
-extern "C" {
-INCLUDE_ASM("asm/nonmatchings/heap", alloc__4HeapUl);
-}
-#endif
 
-#ifdef NON_MATCHING
 void Heap::free(void* ptr) {
-    int zero;
     u32 hdrSize = 8;
-    zero = 0;
     if (this->alignShift != 0) {
-        u32 alignment = 1 << this->alignShift;
-        hdrSize = alignment + 7;
-        hdrSize &= -alignment;
+        hdrSize = (1U << this->alignShift) + 7;
+        hdrSize &= -(1U << this->alignShift);
     }
     HeapBlock* b = (HeapBlock*)((u8*)ptr - hdrSize);
     u32 blkSize = b->size;
@@ -92,8 +79,8 @@ void Heap::free(void* ptr) {
     this->used -= blkSize;
     u8* end = this->base + this->size;
 
-    s32 mergedNext = 0;
-    if ((u8*)next < end && next->used == zero) {
+    bool merged = false;
+    if ((u8*)next < end && next->getUsed() == 0) {
         blkSize += next->size;
         b->size = blkSize;
         b->nextFree = next->nextFree;
@@ -106,49 +93,43 @@ void Heap::free(void* ptr) {
         if (next->nextFree != NULL) {
             next->nextFree->prevFree = b;
         }
-        HeapBlock* after = (HeapBlock*)((u8*)b + blkSize);
-        if ((u8*)after < end) {
-            after->prevPhys = b;
+        next = (HeapBlock*)((u8*)b + blkSize);
+        if ((u8*)next < end) {
+            next->prevPhys = b;
         }
-        mergedNext = 1;
+        merged = true;
     }
 
     HeapBlock* prev = b->prevPhys;
-    if (prev != NULL && prev->used == zero) {
+    if (prev != NULL && prev->getUsed() == 0) {
         blkSize += prev->size;
         prev->size = blkSize;
-        if (mergedNext) {
+        if (merged) {
             if (this->freeList == b) {
                 this->freeList = b->nextFree;
             } else {
                 b->prevFree->nextFree = b->nextFree;
             }
             if (b->nextFree != NULL) {
-                next = b->prevFree;
-                b->nextFree->prevFree = next;
+                b->nextFree->prevFree = b->prevFree;
             }
         }
-        HeapBlock* after = (HeapBlock*)((u8*)prev + blkSize);
-        if ((u8*)after < end) {
-            after->prevPhys = prev;
+        next = (HeapBlock*)((u8*)prev + blkSize);
+        if ((u8*)next < end) {
+            next->prevPhys = prev;
         }
+        merged = true;
         return;
     }
-
-    if (!mergedNext) {
-        b->prevFree = NULL;
+    if (!merged) {
         b->nextFree = this->freeList;
+        b->prevFree = NULL;
         if (this->freeList != NULL) {
             this->freeList->prevFree = b;
         }
         this->freeList = b;
     }
 }
-#else
-extern "C" {
-INCLUDE_ASM("asm/nonmatchings/heap", free__4HeapPv);
-}
-#endif
 
 s32 Heap::freeBlockCount() {
     HeapBlock* b = this->freeList;
@@ -165,9 +146,8 @@ u32 Heap::maxFreeBlockSize() {
     u32 maxSize = 0;
     if (b != NULL) {
         do {
-            u32 sz = b->size;
-            if (maxSize < sz) {
-                maxSize = sz;
+            if (maxSize < b->size) {
+                maxSize = b->size;
             }
             b = b->nextFree;
         } while (b != NULL);

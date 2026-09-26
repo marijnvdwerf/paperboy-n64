@@ -17,10 +17,10 @@ struct DugongColor {
 };
 
 struct Dugong {
-    /* 0x000 */ s32 unk0;
-    /* 0x004 */ s32 unk4;
-    /* 0x008 */ s32 unk8;
-    /* 0x00C */ u8* unkC;
+    /* 0x000 */ u32 unk0;
+    /* 0x004 */ u32 unk4;
+    /* 0x008 */ u32 unk8;
+    /* 0x00C */ DugongColor* unkC;
     /* 0x010 */ File file;
     /* 0x040 */ u32 unk40;
     /* 0x044 */ u32 unk44;
@@ -28,7 +28,7 @@ struct Dugong {
     /* 0x04C */ PixelFormat pixelFormat;
     /* 0x064 */ s32 unk64;
     /* 0x068 */ u32 unk68;
-    /* 0x06C */ s32 unk6C;
+    /* 0x06C */ u32 unk6C;
     /* 0x070 */ s32 unk70;
     /* 0x074 */ s32 unk74;
     /* 0x078 */ s32 unk78;
@@ -66,20 +66,20 @@ struct Dugong {
     virtual void vfunc9(u8* srcBuffer, Surface16970* dstSurface, s32 flipFlag, u8* transColor);
 
     void func_8001B230(Surface16970Palette* palette, u8* transColor);
-    s32 func_8001B5C8(u8* color);
+    s32 func_8001B5C8(DugongColor* color);
     void func_8001B794(PixelFormat* dstPf, u8* transColor);
     void func_8001BAE0(u8* src, u8* dst, PixelFormat* dstPf);
     void func_8001BD54(u8* src, u8* dst);
-    void func_8001BF54(u8* src, u8* dst);
+    void func_8001BF54(u8* src, u16* dst);
     void func_8001C158(u8* src, u8* dst);
-    void func_8001C3AC(u8* src, u8* dst);
+    void func_8001C3AC(u8* src, u32* dst);
     void func_8001C5B0(u8* src, u8* dst);
     void func_8001C8E4(u8* src, u16* dst);
     void func_8001CC1C(u8* src, u8* dst);
     void func_8001D040(u8* src, u32* dst);
     void func_8001D378(u8* src, u8* dst);
     void func_8001D500(u8* buf, s32 scaleX, s32 dstWidth, s32 bitDepth);
-    void func_8001D738(u8* src1, u8* src2, u8* dst);
+    void func_8001D738(u8* src1, u8* src2, u16* dst);
     void func_8001DCFC(u8* src1, u8* src2, u8* dst);
     void func_8001DD90(u8* src, u8* dst, u32 dstWidth, u32 dstHeight, s32 dstStride, PixelFormat* dstPf, s32 unused, u8* transColor);
     void func_8001DEC0(u8* src, u8* dst, u32 dstWidth, u32 dstHeight, s32 dstStride, PixelFormat* dstPf, Surface16970Palette* palette, s32 flipVertical, u8* transColor);

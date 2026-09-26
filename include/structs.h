@@ -80,7 +80,7 @@ class JamArchive {
     /* 0x30 */ // vtable
 
     JamArchive();
-    virtual s32 locate(const char* path, s32* outOffset, s32* outSize);
+    virtual s32 locate(const char* path, u32* outOffset, u32* outSize);
     virtual s32 close();
     virtual s32 readLine(s32 offset, u8* buffer, u32 bufferSize, u32 maxLength, u32* processedLength);
     virtual s32 read(s32 offset, void* buf, s32 size, s32* outRead);

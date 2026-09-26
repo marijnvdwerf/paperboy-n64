@@ -11,18 +11,18 @@ class AbstractFile {
   public:
     /* 0x00 */ s32 openFlags;
     /* 0x04 */ s32 state;
-    /* 0x08 */ s32 fileOffset;
-    /* 0x0C */ s32 readCursor;
-    /* 0x10 */ s32 fileSize;
+    /* 0x08 */ u32 fileOffset;
+    /* 0x0C */ u32 readCursor;
+    /* 0x10 */ u32 fileSize;
     /* 0x14 */ u32 bufferCapacity;
-    /* 0x18 */ s32 bufferStart;
-    /* 0x1C */ s32 bufferEnd;
+    /* 0x18 */ u32 bufferStart;
+    /* 0x1C */ u32 bufferEnd;
     /* 0x20 */ u8* buffer;
     /* 0x24 */ s32 archiveIndex;
     /* 0x28 */ // vtable
 
     AbstractFile();
-    virtual s32 rawOpen() = 0;
+    virtual s32 rawOpen(const char*) = 0;
     virtual s32 rawClose() = 0;
     virtual s32 seek(u32) = 0;
     virtual s32 rawRead(void*, s32, s32*) = 0;
@@ -31,8 +31,8 @@ class AbstractFile {
     virtual ~AbstractFile();
     virtual s32 open(const char*, s32, s32);
     virtual s32 close();
-    virtual s32 readAt(s32, void*, s32, void*);
-    virtual s32 read(void*, s32);
+    virtual s32 readAt(u32, void*, u32, s32*);
+    virtual s32 read(u8*, s32);
     virtual s32 writeAt(s32 pos, void* buf, s32 len);
     virtual s32 writeLine(void* buf, s32 len);
     virtual s32 flush();
@@ -74,7 +74,7 @@ class RomFile : public AbstractFile {
 
     RomFile();
 
-    virtual s32 rawOpen();
+    virtual s32 rawOpen(const char*);
     virtual s32 rawClose();
     virtual s32 seek(u32);
     virtual s32 rawRead(void*, s32, s32*);

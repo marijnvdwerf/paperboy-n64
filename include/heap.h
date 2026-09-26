@@ -10,6 +10,14 @@ struct HeapBlock {
     /* 0x04 */ HeapBlock* prevPhys;
     /* 0x08 */ HeapBlock* nextFree;
     /* 0x0C */ HeapBlock* prevFree;
+
+    void setUsed(u32 value) {
+        used = value;
+    }
+
+    u32 getUsed() {
+        return used;
+    }
 };
 
 struct Heap {
@@ -28,16 +36,28 @@ struct Heap {
     void reset();
     void init();
     void bind(u8* base, u32 size, u32 id, u32 alignShift);
+
+    u32 getSize() {
+        return size;
+    }
+
+    u8* getBase() {
+        return base;
+    }
+
+    u8* getEnd() {
+        return base + size;
+    }
 };
 
 struct FreeRegion {
-    /* 0x00 */ u32 size;
+    /* 0x00 */ s32 size;
     /* 0x04 */ FreeRegion* next;
     /* 0x08 */ FreeRegion* prev;
 };
 
 struct HeapPool {
-    /* 0x000 */ void* base;
+    /* 0x000 */ u8* base;
     /* 0x004 */ u32 usableSize;
     /* 0x008 */ FreeRegion* freeList;
     /* 0x00C */ Heap heaps[16];
@@ -46,7 +66,7 @@ struct HeapPool {
     /* 0x1D0 */ u32 used[16];
 
     HeapPool();
-    s32 alloc(u32 size, u32 alignShift);
+    s32 alloc(s32 size, u32 alignShift);
     void free(s32 idx);
     u32 maxFreeSize();
     void bumpId(s32 idx);
@@ -54,7 +74,7 @@ struct HeapPool {
     void freePtr(void* ptr);
     void* allocFrom(s32 idx, u32 size);
     void initHeap(s32 idx);
-    s32 bind(u8* base, u32 size, u32 alignShift);
+    s32 bind(u32 size, u8* base, u32 alignShift);
     void reset();
     void init(u8* base, u32 size, u32 alignShift);
 };

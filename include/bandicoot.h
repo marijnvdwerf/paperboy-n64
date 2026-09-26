@@ -25,7 +25,7 @@ struct Bandicoot {
     void findByValue(void* value, char* out);
     void* findByName(const char* name);
     s32 hasEntries();
-    u32 hash(u8* name);
+    u32 hash(const char* name);
 };
 
 #endif // BANDICOOT_H

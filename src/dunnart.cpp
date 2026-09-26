@@ -5,7 +5,6 @@ extern "C" void func_8004B3BC(s32);
 extern "C" void func_8004B390();
 
 extern s32 D_80072C10;
-extern "C" const char D_80002CF0[];
 
 void Dunnart::vfunc1(u8* dst, s32 start, u32 num) {
     DunnartColor* colors = (DunnartColor*)dst;
@@ -140,7 +139,7 @@ void Dunnart::func_80030B88(PixelFormat* pf) {
     func_8004B390();
 
     if (data == NULL) {
-        __assert(D_80002CF0, 0, 0, 0);
+        __assert("", 0, 0, 0);
     }
 
     for (u32 i = 0; i < count; i++) {
@@ -168,5 +167,3 @@ u16* Dunnart::func_80030CC0() {
 s32 Dunnart::func_80030CCC() {
     return data != 0;
 }
-
-INCLUDE_RODATA("asm/nonmatchings/dunnart", D_80002CF0);

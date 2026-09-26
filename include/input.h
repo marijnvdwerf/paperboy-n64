@@ -1,6 +1,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#pragma interface
+
 #include "common.h"
 
 extern "C" {
@@ -10,6 +12,8 @@ extern "C" {
 
 class ControllerDevice;
 class ControllerSystem;
+class EventListener;
+class Kookaburra;
 
 class InputDeviceBase {
   public:
@@ -35,9 +39,9 @@ class InputDeviceBase {
     /* 0x58 */ char name[0x20];
     /* 0x78 */ u8 pad78[0x10];
     /* 0x88 */ s32 port;
-    /* 0x8C */ void* handler;
-    /* 0x90 */ void* buttonDevice;
-    /* 0x94 */ void* analogDevice;
+    /* 0x8C */ EventListener* handler;
+    /* 0x90 */ Kookaburra* buttonDevice;
+    /* 0x94 */ Kookaburra* analogDevice;
     /* 0x98 */ // vtable
 
     InputDeviceBase();
@@ -50,10 +54,10 @@ class InputDeviceBase {
     virtual s32 isActive();
     virtual s32 getButtonCount();
     virtual s32 getAxisCount();
-    virtual void* vfunc10();
+    virtual const u16* vfunc10(s32 code);
     virtual f32 getAxisRaw(s32 axis) = 0;
     virtual f32 getAxisValue(s32 mask) = 0;
-    virtual u8 getButtonState(s32 code) = 0;
+    virtual s32 getButtonState(s32 code) = 0;
     virtual s32 vfunc14() = 0;
     virtual s32 vfunc15() = 0;
     virtual s32 vfunc16() = 0;
@@ -80,10 +84,10 @@ class InputDeviceBase {
     virtual s32 vfunc37() = 0;
     virtual s32 pakCheck();
 
-    void func_800410E0(f32 val, f32 prev, u16 id);
-    s32 func_80041270(s32 delta);
+    void func_800410E0(f32 val, f32 prev, u32 id);
+    void func_80041270(s32 delta);
     s32 func_800414E4(void* listener);
-    void func_80041564(void* listener);
+    s32 func_80041564(void* listener);
     s32 func_80041580(s32 axis1, s32 axis2);
     void func_800416F8();
     u16* func_80041814();
@@ -99,12 +103,12 @@ class InputDeviceBase {
     void func_80041C34();
     void func_80041C3C();
     void func_80041C48();
-    void func_80041C50(void* val);
-    void func_80041C58(void* val);
+    void func_80041C50(Kookaburra* val);
+    void func_80041C58(Kookaburra* val);
     void func_80041C60(s32 a1);
     void func_80041C80(s32 val);
     void func_80041C88(s32 val);
-    void func_80041C90(void* val);
+    void func_80041C90(EventListener* val);
     s32 func_80041C98();
     s32 func_80041CA4();
     s32 func_80041CB0();
@@ -114,7 +118,7 @@ class InputDeviceBase {
     s32 func_80041CDC();
     s32 func_80041CE8();
     s32 func_80041CF4();
-    void* func_80041D00();
+    EventListener* func_80041D00();
     u32 func_80041D0C();
     s32 func_80041D28();
     u32 func_80041D34();
@@ -150,7 +154,7 @@ class ControllerDevice : public InputDeviceBase {
     virtual s32 getAxisCount();
     virtual f32 getAxisRaw(s32 axis);
     virtual f32 getAxisValue(s32 mask);
-    virtual u8 getButtonState(s32 code);
+    virtual s32 getButtonState(s32 code);
     virtual s32 vfunc14();
     virtual s32 vfunc15();
     virtual s32 vfunc16();
@@ -187,6 +191,7 @@ class EventListener {
   public:
     virtual void onPressed(ControllerDevice* dev, s32 code, s32 userData) = 0;
     virtual void onReleased(ControllerDevice* dev, s32 code, s32 userData) = 0;
+    virtual void onRepeat(InputDeviceBase* dev, s32 code, s32 userData) = 0;
 };
 
 #endif

@@ -87,23 +87,16 @@ void Potoroo::vfunc4(void) {
     }
 }
 
-#ifdef NON_MATCHING
 void Potoroo::vfunc3(s32 newCount) {
-    Vec3f* mem;
-
     if (unk0 != 0) {
         vfunc4();
     }
     unk0 = newCount;
-    mem = new Vec3f[(u16)newCount];
-    unk4 = mem;
-    if (mem == NULL) {
+    unk4 = new Vec3f[unk0];
+    if (unk4 == NULL) {
         __assert(D_800024C0, NULL, 0, NULL);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/potoroo", vfunc3__7Potorool);
-#endif
 
 Potoroo::~Potoroo() {
     vfunc4();

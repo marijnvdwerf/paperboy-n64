@@ -1,5 +1,6 @@
 #include "common.h"
 #include "input.h"
+#include "kookaburra.h"
 
 extern "C" char* strncpy(char*, const char*, unsigned);
 extern "C" f32 atanf(f32);
@@ -8,34 +9,35 @@ extern "C" void func_80042804(void*, s32, void*);
 extern "C" void func_8004278C(void*, s32, void*);
 
 extern u16 D_80076180[256];
-extern char D_80004490[];
 
-INCLUDE_RODATA("asm/nonmatchings/41CE0", D_80004490);
+static inline const u16* emptyEntry() {
+    static const u16 entry[4] = { 0 };
+    return entry;
+}
 
 INCLUDE_RODATA("asm/nonmatchings/41CE0", _vt.15InputDeviceBase);
 
-// reg-alloc: s0/s1/s2 assignment, a1 pre-computation before branch
-#ifdef NON_MATCHING
-void InputDeviceBase::func_800410E0(f32 val, f32 prev, u16 id) {
+void InputDeviceBase::func_800410E0(f32 val, f32 prev, u32 id) {
     s32 pressed = -1;
     s32 released = pressed;
-    s32 half = id >> 1;
+    u32 code = id;
+    id &= 0xFFFF;
     if (val > 0.0f) {
         if (prev <= 0.0f)
             pressed = id;
-        if (this->getButtonState(id + 1)) {
+        if (this->getButtonState(code + 1)) {
             released = id + 1;
         }
     } else if (val < 0.0f) {
         if (prev >= 0.0f)
             pressed = id + 1;
-        if (this->getButtonState(id)) {
+        if (this->getButtonState(code)) {
             released = id;
         }
     } else {
-        if (this->getAxisRaw(half) > 0.0f) {
+        if (this->getAxisRaw(id >> 1) > 0.0f) {
             released = id;
-        } else if (this->getAxisRaw(half) < 0.0f) {
+        } else if (this->getAxisRaw(id >> 1) < 0.0f) {
             released = id + 1;
         }
     }
@@ -46,14 +48,8 @@ void InputDeviceBase::func_800410E0(f32 val, f32 prev, u16 id) {
         this->onInput(released | 0x40000000, 0, 1);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_800410E0__15InputDeviceBaseffUs);
-#endif
 
-// complex update function with nested loops and vcalls
-#ifdef NON_MATCHING
-s32 InputDeviceBase::func_80041270(s32 delta) {
-    s32 s1 = 0;
+void InputDeviceBase::func_80041270(s32 delta) {
     u32 prefix = 0;
     this->repeatTimer -= delta;
     if (!this->repeatEnabled)
@@ -64,66 +60,48 @@ s32 InputDeviceBase::func_80041270(s32 delta) {
         return;
 
     switch (this->deviceType) {
+        case 4:
+            prefix = 0x30000000;
+            break;
         case 3:
             prefix = 0x10000000;
             break;
         case 2:
             prefix = 0x20000000;
             break;
-        case 4:
-            prefix = 0x30000000;
-            break;
     }
-    s32 i = 0;
+    s32 repeated = 0;
+    s32 i = repeated;
     while (1) {
-        s32 count = this->getButtonCount();
-        if (i >= count)
+        if (i >= this->getButtonCount())
             break;
-        u32 id = prefix | i;
-        if (this->getButtonState(0)) {
-            s1++;
-            u16 mapped = this->buttonMap[i];
-            void** h = (void**)this->handler;
-            void* obj = *h;
-            // vcall through handler's vtable slot 3
+        if (this->getButtonState(prefix | i)) {
+            repeated++;
+            this->handler->onRepeat(this, prefix | this->buttonMap[i], this->timestamp);
         }
         i++;
     }
     if (this->hasAnalogHooks) {
         s32 j = 0;
         while (1) {
-            s32 count2 = this->getAxisCount() * 2;
-            if (j >= count2)
+            if (j >= this->getAxisCount() * 2)
                 break;
-            u32 id2 = j | 0x40000000;
-            if (this->getButtonState(0)) {
-                s1++;
-                u16 mapped2 = this->analogMap[j];
-                void** h2 = (void**)this->handler;
-                void* obj2 = *h2;
-                // vcall through handler's vtable slot 3
+            if (this->getButtonState(j | 0x40000000)) {
+                repeated++;
+                this->handler->onRepeat(this, this->analogMap[j] | 0x40000000, this->timestamp);
             }
             j++;
         }
     }
-    if (s1) {
+    if (repeated) {
         this->repeatTimer = this->repeatRate;
     } else {
         this->repeatTimer = this->repeatDelay;
     }
-    if (this->listenerCount > 0) {
-        void** p = this->listeners;
-        s32 k = 0;
-        do {
-            func_8004278C(*p, this->timestamp, this);
-            p++;
-            k++;
-        } while (k < this->listenerCount);
+    for (s32 k = 0; k < this->listenerCount; k++) {
+        func_8004278C(this->listeners[k], this->timestamp, this);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041270__15InputDeviceBasel);
-#endif
 
 s32 InputDeviceBase::pakCheck() {
     return this->vfunc37();
@@ -174,22 +152,14 @@ s32 InputDeviceBase::func_800414E4(void* listener) {
     return 0;
 }
 
-// reg-alloc diff: v0/v1 swapped, addu reordered
-#ifdef NON_MATCHING
-void InputDeviceBase::func_80041564(void* listener) {
-    s32 n = this->listenerCount;
-    this->listeners[n] = listener;
-    this->listenerCount = n + 1;
+s32 InputDeviceBase::func_80041564(void* listener) {
+    this->listeners[this->listenerCount++] = listener;
+    return this->listenerCount;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041564__15InputDeviceBasePv);
-#endif
 
-// reg-alloc diff: s2/ra save ordering, move s2,a2 placement
-#ifdef NON_MATCHING
 s32 InputDeviceBase::func_80041580(s32 axis1, s32 axis2) {
-    f32 x = this->getAxisValue(0);
-    f32 y = this->getAxisValue(0);
+    f32 x = this->getAxisValue(axis1);
+    f32 y = this->getAxisValue(axis2);
     if (axis1 == 2) {
         x = -x;
     } else if (axis2 == 2) {
@@ -208,20 +178,16 @@ s32 InputDeviceBase::func_80041580(s32 axis1, s32 axis2) {
         return 5;
     }
     f32 angle = atanf(y / x);
-    f32 a2 = angle;
     if (x < 0.0f) {
-        a2 = a2 + 3.14159265f;
+        angle = angle + 3.14159265f;
     }
-    if (a2 < 0.0f) {
-        a2 = a2 + 6.28318530f;
+    if (angle < 0.0f) {
+        angle = angle + 6.28318530f;
     }
-    a2 = a2 + 0.39269908f;
-    a2 = a2 / 0.78539816f;
-    return (s32)a2 + 1;
+    angle = angle + 0.3926999867f;
+    angle = angle / 0.78539816f;
+    return (s32)angle + 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041580__15InputDeviceBasell);
-#endif
 
 void InputDeviceBase::onInput(s32 a1, s32 value, s32 deliver) {
     s8 save = value;
@@ -243,20 +209,39 @@ void InputDeviceBase::func_800416F8() {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/41CE0", vfunc10__15InputDeviceBase);
+const u16* InputDeviceBase::vfunc10(s32 code) {
+    u16 index = code;
+    Kookaburra* device;
+    code &= 0xF0000000;
+    u32 type = code;
+    switch (type) {
+        case 0x10000000:
+        case 0x20000000:
+        case 0x30000000:
+            device = this->buttonDevice;
+            break;
+        case 0x40000000:
+            device = this->analogDevice;
+            break;
+        default:
+            return emptyEntry();
+    }
+    if (device && index < device->count) {
+        return device->getEntry(index);
+    }
+    return emptyEntry();
+}
 
 u16* InputDeviceBase::func_80041814() {
-    u16* p = this->analogMap;
-    if (p == D_80076180)
+    if (this->analogMap == D_80076180)
         return 0;
-    return p;
+    return this->analogMap;
 }
 
 u16* InputDeviceBase::func_80041834() {
-    u16* p = this->buttonMap;
-    if (p == D_80076180)
+    if (this->buttonMap == D_80076180)
         return 0;
-    return p;
+    return this->buttonMap;
 }
 
 void InputDeviceBase::func_80041854(u16* a1, u16* a2) {
@@ -275,84 +260,58 @@ void InputDeviceBase::func_80041884(const char* n) {
     this->name[0x1F] = 0;
 }
 
-// reg-alloc diff: target caches delay in v1 for delay-slot store
-#ifdef NON_MATCHING
 void InputDeviceBase::func_800418B4(s32 rate, s32 delay) {
     if (rate) {
         this->repeatDelay = delay;
         this->repeatRate = rate;
         this->repeatEnabled = 1;
-        this->repeatTimer = delay;
+        this->repeatTimer = this->repeatDelay;
     } else {
         this->repeatEnabled = 0;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_800418B4__15InputDeviceBasell);
-#endif
 
-// reg-alloc diff: target caches delay in v1 for delay-slot store
-#ifdef NON_MATCHING
 void InputDeviceBase::func_800418DC(s32 rate, s32 delay) {
     this->repeatDelay = delay;
     this->repeatRate = rate;
     this->repeatEnabled = 1;
-    this->repeatTimer = delay;
+    this->repeatTimer = this->repeatDelay;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_800418DC__15InputDeviceBasell);
-#endif
 
-// reg-alloc diff: s0/s1/s2 assignment swapped
-#ifdef NON_MATCHING
 s32 InputDeviceBase::vfunc6(s32 delta) {
     s32 i = 0;
     this->timestamp += delta;
-    if (this->listenerCount > 0) {
-        void** p = this->listeners;
-        do {
-            func_80042804(*p, this->timestamp, this);
-            p++;
-            i++;
-        } while (i < this->listenerCount);
+    while (i < this->listenerCount) {
+        func_80042804(this->listeners[i], this->timestamp, this);
+        i++;
     }
     this->func_80041270(delta);
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/41CE0", vfunc6__15InputDeviceBasel);
-#endif
 
-// switch codegen diff: beql vs beq for case 2, s1/s3 init ordering
-#ifdef NON_MATCHING
 void InputDeviceBase::func_80041988() {
     u32 prefix = 0;
-    s32 i = 0;
     switch (this->deviceType) {
+        case 4:
+            prefix = 0x30000000;
+            break;
         case 3:
             prefix = 0x10000000;
             break;
         case 2:
             prefix = 0x20000000;
             break;
-        case 4:
-            prefix = 0x30000000;
-            break;
     }
+    s32 i = 0;
     while (1) {
-        s32 count = this->getButtonCount();
-        if (i >= count)
+        if (i >= this->getButtonCount())
             break;
-        s32 id = prefix | i;
-        if (this->getButtonState(id)) {
-            this->onInput(id, 0, 1);
+        if (this->getButtonState(prefix | i)) {
+            this->onInput(prefix | i, 0, 1);
         }
         i++;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/41CE0", func_80041988__15InputDeviceBase);
-#endif
 
 s32 InputDeviceBase::disconnect() {
     if (this->enabled == 0) {
@@ -362,8 +321,6 @@ s32 InputDeviceBase::disconnect() {
     return this->enabled < 1;
 }
 
-#if 0
-// TODO: pending rodata reorganisation
 void InputDeviceBase::init() {
     this->dirty = 0;
     this->hasAnalogHooks = 0;
@@ -389,9 +346,6 @@ void InputDeviceBase::init() {
     this->name[0] = 0;
     this->handler = 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/41CE0", init__15InputDeviceBase);
-#endif
 
 InputDeviceBase::~InputDeviceBase() {
     disconnect();
@@ -431,11 +385,11 @@ void InputDeviceBase::func_80041C48() {
     this->hasAnalogHooks = 0;
 }
 
-void InputDeviceBase::func_80041C50(void* val) {
+void InputDeviceBase::func_80041C50(Kookaburra* val) {
     this->analogDevice = val;
 }
 
-void InputDeviceBase::func_80041C58(void* val) {
+void InputDeviceBase::func_80041C58(Kookaburra* val) {
     this->buttonDevice = val;
 }
 
@@ -451,7 +405,7 @@ void InputDeviceBase::func_80041C88(s32 val) {
     this->deviceType = val;
 }
 
-void InputDeviceBase::func_80041C90(void* val) {
+void InputDeviceBase::func_80041C90(EventListener* val) {
     this->handler = val;
 }
 
@@ -491,7 +445,7 @@ s32 InputDeviceBase::func_80041CF4() {
     return this->repeatRate;
 }
 
-void* InputDeviceBase::func_80041D00() {
+EventListener* InputDeviceBase::func_80041D00() {
     return this->handler;
 }
 

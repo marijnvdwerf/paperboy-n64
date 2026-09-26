@@ -232,14 +232,14 @@ with open(input_filename, mode="r") as input_file:
                     )
                     mfhilo_delay_count = 3 # Set to 3 so it becomes 2 after the decrement
                     mfhilo_delay_location = len(preprocessed) + 1
-            elif identifier in "divu":
+            elif identifier in ("divu", "remu"):
                 # Insert nops if there was a mflo/mfhi recently right after it
                 while mfhilo_delay_count > 0:
                     preprocessed.append("\tnop\n")
                     mfhilo_delay_count -= 1
-                # Manually expand divu operations, since modern gnu assembler expands them slightly differently
+                # Manually expand unsigned division/remainder register operands as asn64 does.
                 operands = [s.strip() for s in tokens[1].split(",")]
-                if operands[0] != "$0":
+                if operands[0] != "$0" and (identifier != "remu" or operands[2].startswith("$")):
                     divu_branch_label: str = f"BRANCH_LABEL_{generated_symbol_count}"
                     generated_symbol_count += 1
                     line = (
@@ -249,7 +249,7 @@ with open(input_filename, mode="r") as input_file:
                          "\tnop\n"
                          "\tbreak 0x7\n"
                         f"{divu_branch_label}:\n"
-                        f"\tmflo {operands[0]}\n"
+                        f"\t{'mfhi' if identifier == 'remu' else 'mflo'} {operands[0]}\n"
                          "\t.set at\n"
                     )
                     mfhilo_delay_count = 3 # Set to 3 so it becomes 2 after the decrement

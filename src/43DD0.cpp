@@ -36,96 +36,192 @@ extern "C" int toupper(int);
 
 extern "C" void func_8004B3BC(s32);
 extern "C" void func_8004B390();
-extern "C" char D_800047F0[];
 
-// reg-alloc diffs: s2 init from s3 vs zero, instruction reordering in loop and search path section
-#ifdef NON_MATCHING
+inline void AbstractFile::resetBufferRange() {
+    this->bufferEnd = 0;
+    this->bufferStart = 0;
+}
+
+inline s32 AbstractFile::isOpen() {
+    return this->state & 1;
+}
+
+inline s32 AbstractFile::isSequentialMode() {
+    return this->openFlags & 8;
+}
+
+inline s32 AbstractFile::isReadMode() {
+    return this->openFlags & 2;
+}
+
+inline s32 AbstractFile::isCreateMode() {
+    return this->openFlags & 4;
+}
+
+inline s32 AbstractFile::isArchiveMode() {
+    return this->state & 2;
+}
+
+inline s32 AbstractFile::isBuffered() {
+    return this->state & 4;
+}
+
+inline s32 AbstractFile::isDirty() {
+    return this->state & 8;
+}
+
+inline s32 AbstractFile::getFileSize() {
+    return this->fileSize;
+}
+
+inline void AbstractFile::setArchives(JamArchive* arg0, u32 arg1) {
+    D_800763F8 = arg0;
+    D_800763FC = arg1;
+}
+
+inline JamArchive* AbstractFile::getArchives() {
+    return D_800763F8;
+}
+
+inline u32 AbstractFile::getArchiveCount() {
+    return D_800763FC;
+}
+
+inline char* AbstractFile::getSearchPath(s32 index) {
+    return D_80076608[index];
+}
+
+inline u32 AbstractFile::getSearchPathCount() {
+    return D_80076400;
+}
+
+inline char* AbstractFile::getCurrentDir() {
+    return D_80076404;
+}
+
+inline void AbstractFile::setCurrentDir(const char* src) {
+    if (src) {
+        strncpy(D_80076404, src, 256);
+        D_80076404[255] = '\0';
+    } else {
+        D_80076404[0] = '\0';
+    }
+}
+
+inline AbstractFile::AbstractFile() {
+    this->init();
+}
+
+inline AbstractFile::~AbstractFile() {
+    if (this->buffer) {
+        delete[] this->buffer;
+        this->buffer = NULL;
+    }
+    this->init();
+}
+
+inline void AbstractFile::init() {
+    this->openFlags = 0;
+    this->state = 0;
+    this->fileOffset = 0;
+    this->fileSize = 0;
+    this->readCursor = 0;
+    this->bufferCapacity = 0;
+    this->bufferStart = 0;
+    this->bufferEnd = 0;
+    this->buffer = NULL;
+    this->archiveIndex = -1;
+}
+
+inline void AbstractFile::reset() {
+    delete[] this->buffer;
+    this->openFlags = 0;
+    this->state = 0;
+    this->fileOffset = 0;
+    this->fileSize = 0;
+    this->readCursor = 0;
+    this->bufferCapacity = 0;
+    this->bufferStart = 0;
+    this->bufferEnd = 0;
+    this->buffer = NULL;
+    this->archiveIndex = -1;
+}
+
+inline s32 AbstractFile::locateInArchives() {
+    s32 result = 8;
+    u32 i = 0;
+    if (D_800763F8 == NULL) {
+        return result;
+    }
+    if (this->openFlags & 0x45) {
+        return 8;
+    }
+    for (i = 0; i < D_800763FC; i++) {
+        result = D_800763F8[i].locate(D_80076508, &this->fileOffset, &this->fileSize);
+        if (result == 0) {
+            this->archiveIndex = i;
+            this->state = 3;
+            break;
+        }
+    }
+    return result;
+}
+
 s32 AbstractFile::findFile(const char* filename) {
     s32 result = 8;
     s32 isAbsolute = isAbsolutePath(filename);
     if (isAbsolute == 0) {
         buildPath(NULL, filename);
         u32 i = 0;
-        do {
+        for (i = 0; result == 8; i++) {
             if (i >= D_800763FC) {
                 break;
             }
             result = D_800763F8[i].findFile(D_80076508);
+        }
+        if (result != 8) {
+            return result;
+        }
+    }
+    if (D_80076400 != 0 && isAbsolute == 0) {
+        result = 8;
+        u32 i = 0;
+        while (1) {
+            if (i >= D_80076400) {
+                break;
+            }
+            buildPath(D_80076608[i], filename);
+            s32 err = RomFile::func_80048D58(D_80076508);
             i++;
-        } while (result == 8);
-        if (result == 8) {
-            goto check_search_paths;
+            if (err != 8) {
+                result = err;
+                break;
+            }
+            result = err;
         }
     } else {
-    check_search_paths:
-        if (D_80076400 != 0 && isAbsolute == 0) {
-            result = 8;
-            u32 j = 0;
-            char** searchPath = D_80076608;
-            do {
-                if (j >= D_80076400) {
-                    goto done_search;
-                }
-                buildPath(*searchPath, filename);
-                searchPath++;
-                j++;
-                result = RomFile::func_80048D58(D_80076508);
-                if (result != 8) {
-                    goto done_search;
-                }
-            } while (1);
-        } else {
-            buildPath(NULL, filename);
-            result = RomFile::func_80048D58(D_80076508);
-        done_search:;
-        }
+        buildPath(NULL, filename);
+        result = RomFile::func_80048D58(D_80076508);
     }
     return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", findFile__12AbstractFilePCc);
-#endif
 
-// complex: archive search, search paths, buffer allocation
-#ifdef NON_MATCHING
 s32 AbstractFile::open(const char* filename, s32 flags, s32 bufferSize) {
     if (this->state & 1) {
         this->close();
     }
+    this->openFlags = flags;
     this->state = 0;
     this->readCursor = 0;
     this->bufferStart = 0;
     this->bufferEnd = 0;
     this->fileOffset = 0;
-    this->openFlags = flags;
 
     s32 isAbsolute = isAbsolutePath(filename);
     s32 result;
     if (isAbsolute == 0) {
         buildPath(NULL, filename);
-        s32 v1 = 8;
-        if (D_800763F8 != NULL) {
-            result = 8;
-            if (this->openFlags & 0x45) {
-            } else if (isAbsolute < D_800763FC) {
-                u32 i = 0;
-                s32 byteOff = 0;
-                do {
-                    JamArchive* archive = &D_800763F8[i];
-                    v1 = archive->locate(D_80076508, &this->fileOffset, &this->fileSize);
-                    if (v1 == 0) {
-                        this->archiveIndex = i;
-                        this->state = 3;
-                        break;
-                    }
-                    i++;
-                    byteOff += 0x34;
-                } while (i < D_800763FC);
-            }
-            result = v1;
-        } else {
-            result = v1;
-        }
+        result = locateInArchives();
         if (result != 8) {
             this->state |= (result == 0);
             return result;
@@ -135,22 +231,22 @@ s32 AbstractFile::open(const char* filename, s32 flags, s32 bufferSize) {
     if (D_80076400 != 0 && isAbsolute == 0) {
         result = 8;
         u32 j = 0;
-        char** searchPath = D_80076608;
-        do {
+        while (1) {
             if (j >= D_80076400) {
                 break;
             }
-            buildPath(*searchPath, filename);
-            searchPath++;
+            buildPath(D_80076608[j], filename);
+            s32 err = this->rawOpen(D_80076508);
             j++;
-            result = this->rawOpen();
-            if (result != 8) {
+            if (err != 8) {
+                result = err;
                 break;
             }
-        } while (1);
+            result = err;
+        }
     } else {
         buildPath(NULL, filename);
-        result = this->rawOpen();
+        result = this->rawOpen(D_80076508);
     }
 
     if (result != 0) {
@@ -158,46 +254,39 @@ s32 AbstractFile::open(const char* filename, s32 flags, s32 bufferSize) {
     }
 
     this->state = 1;
-    if ((flags & 0x20) && this->buffer != 0) {
-        return result;
-    }
-
-    delete[] this->buffer;
-    this->buffer = NULL;
-
-    if (bufferSize != 0) {
-        bufferSize += bufferSize & 1;
-        func_8004B3BC(D_80076504);
-        this->buffer = new u8[bufferSize];
-        func_8004B390();
-        if (this->buffer == NULL) {
-            this->close();
-            return 4;
+    if (!(flags & 0x20) || this->buffer == 0) {
+        if (this->buffer != NULL) {
+            delete[] this->buffer;
+            this->buffer = NULL;
         }
+
+        if (bufferSize != 0) {
+            bufferSize += bufferSize & 1;
+            func_8004B3BC(D_80076504);
+            this->buffer = new u8[bufferSize];
+            func_8004B390();
+            if (this->buffer == NULL) {
+                this->close();
+                return 4;
+            }
+        }
+        this->bufferCapacity = bufferSize;
     }
-    this->bufferCapacity = bufferSize;
     return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", open__12AbstractFilePCcll);
-#endif
 
-// beqzl vs beqz and reg-alloc diffs in multiply and delete paths
-#ifdef NON_MATCHING
-void AbstractFile::close() {
+s32 AbstractFile::close() {
     if (this->state & 2) {
-        D_800763F8[this->archiveIndex].close();
+        s32 result = D_800763F8[this->archiveIndex].close();
         this->archiveIndex = -1;
         this->openFlags = 0;
         this->state = 0;
-        return;
+        return result;
     }
     this->rawClose();
-    if (this->openFlags & 0x20) {
-    } else {
-        u8* buf = this->buffer;
-        if (buf) {
-            delete[] buf;
+    if (!(this->openFlags & 0x20)) {
+        if (this->buffer) {
+            delete[] this->buffer;
             this->buffer = NULL;
         }
     }
@@ -206,15 +295,15 @@ void AbstractFile::close() {
     this->openFlags = 0;
     this->state = 0;
     this->archiveIndex = -1;
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", close__12AbstractFile);
-#endif
 
-// complex: large-read chunking, archive/buffer/unbuffered paths
-#ifdef NON_MATCHING
-s32 AbstractFile::readAt(s32 pos, void* buf, s32 len, void* outActual) {
-    s32* actual = (s32*)outActual;
+s32 AbstractFile::readAt(u32 pos, void* buf, u32 len, s32* actual) {
+    s32 chunkActual;
+    s32 rawActual;
+    s32 result;
+    void* src;
+    u32 avail;
     *actual = 0;
     if (!(this->state & 1)) {
         return 7;
@@ -223,44 +312,41 @@ s32 AbstractFile::readAt(s32 pos, void* buf, s32 len, void* outActual) {
         return 3;
     }
 
-    while ((u32)len >= 0x1001) {
-        s32 chunkActual;
-        s32 result = this->readAt(pos, buf, 0x1000, &chunkActual);
+    while (len >= 0x1001) {
+        result = this->readAt(pos, buf, 0x1000, &chunkActual);
         if (result != 0) {
             return result;
         }
         *actual += chunkActual;
-        buf = (u8*)buf + chunkActual;
+        buf = buf + chunkActual;
         len -= chunkActual;
         pos += chunkActual;
     }
 
     if (this->state & 2) {
-        if ((u32)pos >= (u32)this->fileSize) {
+        if (pos >= this->fileSize) {
             return 0x10;
         }
-        if ((u32)this->fileSize < (u32)(pos + len)) {
+        if (this->fileSize < (pos + len)) {
             len = this->fileSize - pos;
         }
-        JamArchive* archive = &D_800763F8[this->archiveIndex];
-        s32 saved = *actual;
-        s32 result = archive->read(pos + this->fileOffset, buf, len, actual);
-        *actual += saved;
+        chunkActual = *actual;
+        result = D_800763F8[this->archiveIndex].read(pos + this->fileOffset, buf, len, actual);
+        *actual += chunkActual;
         return result;
     }
 
     if (this->state & 4) {
-        s32 bufStart = this->bufferStart;
-        if ((u32)pos >= (u32)bufStart && (u32)pos < (u32)this->bufferEnd) {
-            u8* src = this->buffer + (pos - bufStart);
-            u32 avail = this->bufferEnd - pos;
-            if ((u32)this->bufferEnd >= (u32)(pos + len)) {
+        if (pos >= this->bufferStart && pos < this->bufferEnd) {
+            src = this->buffer + (pos - this->bufferStart);
+            if (this->bufferEnd >= (pos + len)) {
                 memcpy(buf, src, len);
                 *actual += len;
                 return 0;
             }
+            avail = this->bufferEnd - pos;
             memcpy(buf, src, avail);
-            buf = (u8*)buf + avail;
+            buf = buf + avail;
             pos += avail;
             *actual += avail;
             len -= avail;
@@ -268,7 +354,7 @@ s32 AbstractFile::readAt(s32 pos, void* buf, s32 len, void* outActual) {
     }
 
     if (this->fileOffset != pos) {
-        s32 result = this->seek(pos);
+        result = this->seek(pos);
         if (result != 0) {
             return result;
         }
@@ -276,229 +362,197 @@ s32 AbstractFile::readAt(s32 pos, void* buf, s32 len, void* outActual) {
 
     if (this->buffer) {
         while (1) {
-            s32 chunkActual;
             this->state &= ~4;
-            s32 result = this->rawRead(this->buffer, this->bufferCapacity, &chunkActual);
+            result = this->rawRead(this->buffer, this->bufferCapacity, &rawActual);
             if (result != 0) {
                 if (result == 0x10 && *actual != 0) {
                     return 0;
                 }
                 return result;
             }
-            s32 readStart = this->fileOffset;
-            s32 readEnd = readStart + chunkActual;
             this->state |= 4;
-            this->bufferStart = readStart;
-            this->bufferEnd = readEnd;
-            u8* src = this->buffer + (pos - readStart);
-            if ((u32)readEnd >= (u32)(pos + len)) {
+            this->bufferStart = this->fileOffset;
+            this->bufferEnd = this->fileOffset + rawActual;
+            src = this->buffer + (pos - this->bufferStart);
+            if (this->bufferEnd >= (pos + len)) {
                 memcpy(buf, src, len);
                 *actual += len;
                 len = 0;
             } else {
-                u32 avail = readEnd - pos;
+                avail = this->bufferEnd - pos;
                 memcpy(buf, src, avail);
-                buf = (u8*)buf + avail;
+                buf = buf + avail;
                 pos += avail;
                 len -= avail;
                 *actual += avail;
             }
-            this->fileOffset += chunkActual;
+            this->fileOffset += rawActual;
             if (len == 0) {
-                return result;
+                break;
             }
         }
-    }
-
-    s32 chunkActual;
-    s32 result = this->rawRead(buf, len, &chunkActual);
-    if (result != 0) {
-        if (result == 0x10 && *actual != 0) {
-            return 0;
+    } else {
+        result = this->rawRead(buf, len, &rawActual);
+        if (result != 0) {
+            if (result == 0x10 && *actual != 0) {
+                return 0;
+            }
+            return result;
         }
-        return result;
+        *actual += rawActual;
+        this->fileOffset += rawActual;
     }
-    *actual += chunkActual;
-    this->fileOffset += chunkActual;
     return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", readAt__12AbstractFilelPvlT2);
-#endif
 
-// s0↔s1 reg-alloc, beqz/bnez inversions, beqzl in clamping
-#ifdef NON_MATCHING
-s32 AbstractFile::read(void* buf, s32 len) {
-    u32 remaining = len;
-    s32 flags = this->state;
-    if (!(flags & 1)) {
+s32 AbstractFile::read(u8* buf, s32 len) {
+    s32 result;
+    if (!isOpen()) {
         return 7;
     }
-    if (remaining == 0) {
+    if (len == 0) {
         return 3;
     }
-    u32 bytesRead = 0;
-    if (flags & 2) {
-        u32 pos = this->readCursor;
-        u32 size = this->fileSize;
-        if (pos >= size) {
+    if (isArchiveMode()) {
+        if (this->readCursor >= this->fileSize) {
             return 0x10;
         }
-        u32 origLen = remaining;
-        if (size < pos + remaining) {
-            remaining = size - pos;
+        u32 origLen = len;
+        if (this->fileSize < this->readCursor + len) {
+            len = this->fileSize - this->readCursor;
         }
-        JamArchive* archive = &D_800763F8[this->archiveIndex];
-        s32 actual;
-        s32 result = archive->readLine(pos + this->fileOffset, (u8*)buf, remaining, origLen, (u32*)&actual);
+        u32 actual;
+        result = D_800763F8[this->archiveIndex].readLine(this->readCursor + this->fileOffset, buf, len, origLen, &actual);
         if (result != 0) {
             return result;
         }
         this->readCursor += actual;
         return 0;
     }
-
+    u32 bytesRead = 0;
     while (1) {
-        s32 filePos = this->fileOffset;
+        u32 filePos = this->fileOffset;
         if (this->state & 4) {
-            s32 bufStart = this->bufferStart;
-            if ((u32)filePos >= (u32)bufStart && (u32)filePos < (u32)this->bufferEnd) {
-                s32 offset = filePos - bufStart;
-                u8 newline = '\n';
-                u8 cr = '\r';
-                u8* dst = (u8*)buf + bytesRead;
+            if (filePos >= this->bufferStart && filePos < this->bufferEnd) {
+                s32 offset = filePos - this->bufferStart;
                 while (1) {
-                    u8 ch = this->buffer[offset];
-                    if (ch == newline) {
-                        *dst = 0;
-                        if (bytesRead != 0 && *(dst - 1) == cr) {
-                            *(dst - 1) = 0;
+                    result = this->buffer[offset];
+                    if (result == '\n') {
+                        buf[bytesRead] = 0;
+                        if (bytesRead != 0 && buf[bytesRead - 1] == '\r') {
+                            buf[bytesRead - 1] = 0;
                         }
-                        this->fileOffset = bufStart + offset + 1;
+                        this->fileOffset = this->bufferStart + offset + 1;
                         return 0;
                     }
-                    if (bytesRead >= remaining) {
-                        *((u8*)buf + remaining - 1) = 0;
-                        this->fileOffset = bufStart + offset;
+                    if (bytesRead >= len) {
+                        buf[len - 1] = 0;
+                        this->fileOffset = this->bufferStart + offset;
                         return 0;
                     }
                     filePos++;
                     offset++;
-                    *dst = ch;
-                    dst++;
-                    if ((u32)filePos >= (u32)this->bufferEnd) {
+                    buf[bytesRead++] = result;
+                    if (filePos >= this->bufferEnd) {
                         this->fileOffset = filePos;
                         break;
                     }
-                    bytesRead++;
                 }
             }
         }
         this->state &= ~4;
         s32 actual;
-        s32 result = this->rawRead(this->buffer, this->bufferCapacity, &actual);
+        result = this->rawRead(this->buffer, this->bufferCapacity, &actual);
         if (result != 0) {
-            if (result != 0x10) {
-                return result;
-            }
-            if (bytesRead != 0) {
-                *((u8*)buf + bytesRead) = 0;
+            if (result == 0x10 && bytesRead != 0) {
+                *(buf + bytesRead) = 0;
                 return 0;
             }
             return result;
         }
-        s32 pos = this->fileOffset;
         this->state |= 4;
-        this->bufferStart = pos;
-        this->bufferEnd = pos + actual;
+        this->bufferStart = this->fileOffset;
+        this->bufferEnd = this->fileOffset + actual;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", read__12AbstractFilePvl);
-#endif
 
-INCLUDE_RODATA("asm/nonmatchings/43DD0", D_800047F0);
-
-// reg-alloc: s4↔s5 swap (dir vs nameLen) + one missing move s0,zero
-#ifdef NON_MATCHING
 void AbstractFile::buildPath(const char* dir, const char* filename) {
-    u32 dirLen = 0;
     D_80076508[0] = '\0';
     u32 nameLen = strlen(filename);
     if (nameLen >= 256) {
-        __assert(D_800047F0, 0, 0, 0);
-        dirLen = 0;
+        __assert("", 0, 0, 0);
     }
+    u32 dirLen = 0;
     s32 isAbsolute = 0;
     if (filename[0] == '\\' && filename[1] == '\\') {
         filename++;
         isAbsolute = 1;
-    } else if ((D_80064360[(u8)filename[0]] & 6) && filename[1] == ':') {
+    } else if ((D_80064360[filename[0]] & 6) && filename[1] == ':') {
         isAbsolute = 1;
     } else if (dir) {
         dirLen = strlen(dir);
         if (dirLen + nameLen + 1 >= 256) {
-            __assert(D_800047F0, 0, 0, 0);
+            __assert("", 0, 0, 0);
         }
-        char* p = D_80076508;
-        strcpy(p, dir);
-        if (p[dirLen - 1] != '\\') {
+        strcpy(D_80076508, dir);
+        if (D_80076508[dirLen - 1] != '\\') {
+            D_80076508[dirLen] = '\\';
+            D_80076508[dirLen + 1] = '\0';
             dirLen++;
-            p[dirLen - 1] = '\\';
-            p[dirLen] = '\0';
         }
     }
     char* hasBackslash = strrchr(filename, '\\');
     if (isAbsolute) {
         strcpy(D_80076508, filename);
-    } else if (hasBackslash) {
-        char* cwd = D_80076404;
+        toUpperCase(D_80076508);
+        return;
+    }
+    char* cwd = getCurrentDir();
+    if (hasBackslash) {
+        u32 len;
         if (filename[0] == '\\' || cwd == NULL) {
+            len = dirLen;
             if (filename[0] == '\\') {
                 filename++;
             }
+            strcat(D_80076508, filename);
         } else {
             if (strlen(cwd) + dirLen + nameLen + 1 >= 256) {
-                __assert(D_800047F0, 0, 0, 0);
+                __assert("", 0, 0, 0);
             }
-            if (D_80076404[0] == '\\') {
+            if (cwd[0] == '\\') {
                 cwd++;
             }
             strcat(D_80076508, cwd);
-            u32 len = strlen(D_80076508);
+            len = strlen(D_80076508);
             if (D_80076508[len - 1] != '\\') {
                 D_80076508[len] = '\\';
                 D_80076508[len + 1] = '\0';
             }
+            strcat(D_80076508, filename);
         }
-        strcat(D_80076508, filename);
     } else {
-        char* cwd = D_80076404;
         if (cwd) {
-            if (D_80076404[0]) {
+            if (cwd[0]) {
                 strcat(D_80076508, cwd);
                 strcat(D_80076508, "\\");
             }
         }
         strcat(D_80076508, filename);
+        toUpperCase(D_80076508);
+        return;
     }
     toUpperCase(D_80076508);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", buildPath__12AbstractFilePCcPCc);
-#endif
 
-// delay slot filling (li v0,0xf) and beqzl in dirty-buffer check
-#ifdef NON_MATCHING
 s32 AbstractFile::writeAt(s32 pos, void* buf, s32 len) {
     if (!(this->state & 1)) {
         return 7;
     }
     if (this->buffer == NULL || this->bufferCapacity < len) {
         if (this->fileOffset != pos) {
-            s32 err = this->seek(pos);
-            if (err) {
-                return err;
+            if (this->seek(pos)) {
+                return 0xF;
             }
             this->fileOffset = pos;
         }
@@ -511,23 +565,23 @@ s32 AbstractFile::writeAt(s32 pos, void* buf, s32 len) {
     }
     if (this->state & 8) {
         s32 buffered = this->bufferEnd - this->bufferStart;
-        if (len + buffered <= this->bufferCapacity && pos == this->bufferEnd) {
+        if (len + buffered > this->bufferCapacity || pos != this->bufferEnd) {
+            if (this->fileOffset != this->bufferStart) {
+                if (this->seek(this->bufferStart)) {
+                    return 0xF;
+                }
+                this->fileOffset = this->bufferStart;
+            }
+            s32 err = this->rawWrite(this->buffer, buffered);
+            if (err) {
+                return err;
+            }
+            this->fileOffset += buffered;
+        } else {
             memcpy(this->buffer + buffered, buf, len);
             this->bufferEnd += len;
             return 0;
         }
-        if (this->fileOffset != this->bufferStart) {
-            s32 err = this->seek(this->bufferStart);
-            if (err) {
-                return 0xF;
-            }
-            this->fileOffset = this->bufferStart;
-        }
-        s32 err = this->rawWrite(this->buffer, buffered);
-        if (err) {
-            return err;
-        }
-        this->fileOffset += buffered;
     }
     this->bufferStart = pos;
     this->bufferEnd = pos + len;
@@ -535,51 +589,34 @@ s32 AbstractFile::writeAt(s32 pos, void* buf, s32 len) {
     memcpy(this->buffer, buf, len);
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", writeAt__12AbstractFilelPvl);
-#endif
 
-// control flow structure: NULL/size checks share dirty-check path in target
-#ifdef NON_MATCHING
 s32 AbstractFile::writeLine(void* buf, s32 len) {
-    char newline = '\n';
+    char newline[1] = { '\n' };
     if (!(this->state & 1)) {
         return 7;
     }
-    if (this->buffer && this->bufferCapacity < len + 1) {
+    if (this->buffer == NULL || this->bufferCapacity < len + 1) {
         if (this->state & 8) {
-            s32 buffered = this->bufferEnd - this->bufferStart;
-            if (this->bufferCapacity - buffered < len + 1) {
-                this->flush();
-            }
+            this->flush();
         }
         s32 err = this->rawWrite(buf, len);
         if (err) {
             return err;
         }
-        err = this->rawWrite(&newline, 1);
-        return err;
+        return this->rawWrite(newline, 1);
     }
     if (this->state & 8) {
-        s32 buffered = this->bufferEnd - this->bufferStart;
-        if (this->bufferCapacity - buffered < len + 1) {
+        if (this->bufferCapacity - (this->bufferEnd - this->bufferStart) < len + 1) {
             this->flush();
         }
     }
-    s32 offset = this->bufferEnd - this->bufferStart;
-    memcpy(this->buffer + offset, buf, len);
-    s32 newEnd = this->bufferEnd + len;
-    this->bufferEnd = newEnd;
-    offset = newEnd - this->bufferStart;
-    u8* p = this->buffer + offset;
-    *p = newline;
+    memcpy(this->buffer + (this->bufferEnd - this->bufferStart), buf, len);
+    this->bufferEnd += len;
+    this->buffer[this->bufferEnd - this->bufferStart] = newline[0];
     this->bufferEnd++;
     this->state |= 0xC;
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", writeLine__12AbstractFilePvl);
-#endif
 
 s32 AbstractFile::flush() {
     if (!(this->state & 1)) {
@@ -594,8 +631,7 @@ s32 AbstractFile::flush() {
     }
     if (!(this->openFlags & 8)) {
         if (this->fileOffset != this->bufferStart) {
-            s32 err = this->seek(this->bufferStart);
-            if (err) {
+            if (this->seek(this->bufferStart)) {
                 return 0xF;
             }
             this->fileOffset = this->bufferStart;
@@ -660,43 +696,29 @@ void AbstractFile::addSearchPath(const char* path) {
         return;
     }
     func_8004B3BC(D_80076504);
-    char* copy = new char[strlen(path) + 1];
-    D_80076608[D_80076400] = copy;
+    D_80076608[D_80076400] = new char[strlen(path) + 1];
     func_8004B390();
     if (D_80076608[D_80076400] == NULL) {
-        __assert(D_800047F0, 0, 0, 0);
+        __assert("", 0, 0, 0);
     }
     strcpy(D_80076608[D_80076400], path);
     D_80076400++;
 }
 
-// scheduling: move s2,v1 placed after lui/addiu D_80076608 instead of before
-#ifdef NON_MATCHING
 void AbstractFile::clearSearchPaths() {
-    u32 i = 0;
-    if (D_80076400 == 0) {
-        return;
-    }
-    char** p = D_80076608;
-    do {
-        char* entry = *p;
-        if (entry) {
-            delete[] entry;
-            *p = NULL;
+    for (u32 i = 0; i < D_80076400; i++) {
+        if (D_80076608[i]) {
+            delete[] D_80076608[i];
+            D_80076608[i] = NULL;
         }
-        p++;
-        i++;
-    } while (i < D_80076400);
+    }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", clearSearchPaths__12AbstractFile);
-#endif
 
 s32 AbstractFile::isAbsolutePath(const char* path) {
     if (path[0] == '\\' && path[1] == '\\') {
         return 1;
     }
-    if ((D_80064360[(u8)path[0]] & 6) && path[1] == ':') {
+    if ((D_80064360[path[0]] & 6) && path[1] == ':') {
         return 1;
     }
     return 0;
@@ -713,138 +735,4 @@ void AbstractFile::toUpperCase(char* str) {
 
 char* AbstractFile::errorMessage(s32 index) {
     return D_80076390[index];
-}
-
-// reg-alloc and control flow structure diffs
-#ifdef NON_MATCHING
-s32 AbstractFile::locateInArchives() {
-    s32 v1 = 8;
-    if (D_800763F8 == NULL) {
-        return v1;
-    }
-    if (this->openFlags & 0x45) {
-        return 8;
-    }
-    for (u32 i = 0; i < D_800763FC; i++) {
-        v1 = D_800763F8[i].locate(D_80076508, &this->fileOffset, &this->fileSize);
-        if (v1 == 0) {
-            this->archiveIndex = i;
-            this->state = 3;
-            break;
-        }
-    }
-    return v1;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/43DD0", locateInArchives__12AbstractFile);
-#endif
-
-void AbstractFile::reset() {
-    delete[] this->buffer;
-    this->openFlags = 0;
-    this->state = 0;
-    this->fileOffset = 0;
-    this->fileSize = 0;
-    this->readCursor = 0;
-    this->bufferCapacity = 0;
-    this->bufferStart = 0;
-    this->bufferEnd = 0;
-    this->buffer = NULL;
-    this->archiveIndex = -1;
-}
-
-void AbstractFile::init() {
-    this->openFlags = 0;
-    this->state = 0;
-    this->fileOffset = 0;
-    this->fileSize = 0;
-    this->readCursor = 0;
-    this->bufferCapacity = 0;
-    this->bufferStart = 0;
-    this->bufferEnd = 0;
-    this->buffer = NULL;
-    this->archiveIndex = -1;
-}
-
-AbstractFile::~AbstractFile() {
-    if (this->buffer) {
-        delete[] this->buffer;
-        this->buffer = NULL;
-    }
-    this->init();
-}
-
-AbstractFile::AbstractFile() {
-    this->init();
-}
-
-void AbstractFile::setCurrentDir(const char* src) {
-    if (src) {
-        strncpy(D_80076404, src, 256);
-        D_80076404[255] = '\0';
-    } else {
-        D_80076404[0] = '\0';
-    }
-}
-
-char* AbstractFile::getCurrentDir() {
-    return D_80076404;
-}
-
-u32 AbstractFile::getSearchPathCount() {
-    return D_80076400;
-}
-
-char* AbstractFile::getSearchPath(s32 index) {
-    return D_80076608[index];
-}
-
-u32 AbstractFile::getArchiveCount() {
-    return D_800763FC;
-}
-
-JamArchive* AbstractFile::getArchives() {
-    return D_800763F8;
-}
-
-void AbstractFile::setArchives(JamArchive* arg0, u32 arg1) {
-    D_800763F8 = arg0;
-    D_800763FC = arg1;
-}
-
-s32 AbstractFile::getFileSize() {
-    return this->fileSize;
-}
-
-s32 AbstractFile::isDirty() {
-    return this->state & 8;
-}
-
-s32 AbstractFile::isBuffered() {
-    return this->state & 4;
-}
-
-s32 AbstractFile::isArchiveMode() {
-    return this->state & 2;
-}
-
-s32 AbstractFile::isCreateMode() {
-    return this->openFlags & 4;
-}
-
-s32 AbstractFile::isReadMode() {
-    return this->openFlags & 2;
-}
-
-s32 AbstractFile::isSequentialMode() {
-    return this->openFlags & 8;
-}
-
-s32 AbstractFile::isOpen() {
-    return this->state & 1;
-}
-
-void AbstractFile::resetBufferRange() {
-    this->bufferEnd = 0;
-    this->bufferStart = 0;
 }

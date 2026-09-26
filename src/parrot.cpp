@@ -112,7 +112,6 @@ f32 Parrot::readFloat() {
     return this->floatValue;
 }
 
-// case 4 accumulator goes to v0 instead of target's a0 (avoids `move v0, a0` at end)
 #ifdef NON_MATCHING
 s32 Parrot::readInt() {
     if (this->pushedBack != 0) {

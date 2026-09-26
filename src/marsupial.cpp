@@ -5,74 +5,67 @@ extern "C" void func_8004B3BC(s32);
 extern "C" void func_8004B390(void);
 
 extern s32 D_800740B0;
-extern "C" const char D_80003970[];
 
-// load ordering diff (unkC vs unk0 field load order) + register allocation
-#ifdef NON_MATCHING
 void Marsupial::vfunc14(PotorooTruffle* adj) {
     s32 c0, c1, c2, c3;
+    MarsupialVertex* vertex;
+    u8* color;
+    u8* end;
 
     if (unk14 == NULL) {
         func_8004B3BC(D_800740B0);
         unk14 = new u8[unk0 * 4];
         func_8004B390();
         if (unk14 == NULL) {
-            __assert(D_80003970, NULL, 0, NULL);
+            __assert("", NULL, 0, NULL);
         }
-        MarsupialVertex* src = unkC;
-        u8* dst = unk14;
-        u8* end = dst + (u32)unk0 * 4;
-        while (dst < end) {
-            dst[0] = src->unkC;
-            dst[1] = src->unkD;
-            dst[2] = src->unkE;
-            dst[3] = src->unkF;
-            src++;
-            dst += 4;
+        vertex = unkC;
+        color = unk14;
+        end = color + unk0 * 4;
+        while (color < end) {
+            color[0] = vertex->unkC;
+            color[1] = vertex->unkD;
+            color[2] = vertex->unkE;
+            color[3] = vertex->unkF;
+            vertex++;
+            color += 4;
         }
     }
 
-    MarsupialVertex* dst2 = unkC;
-    u8* src2 = unk14;
-    u8* end2 = src2 + (u32)unk0 * 4;
-    s32 result = 1;
-    if (src2 < end2) {
-        do {
-            c0 = src2[0];
-            c1 = src2[1];
-            c2 = src2[2];
-            c3 = src2[3];
+    vertex = unkC;
+    color = unk14;
+    end = color + unk0 * 4;
+    while (color < end) {
+        c0 = color[0];
+        c1 = color[1];
+        c2 = color[2];
+        c3 = color[3];
 
-            c0 = (c0 >> adj->unk0) + adj->unk10;
-            if (c0 >= 256)
-                c0 = 255;
+        c0 = (c0 >> adj->unk0) + adj->unk10;
+        if (c0 >= 256)
+            c0 = 255;
 
-            c1 = (c1 >> adj->unk4) + adj->unk14;
-            if (c1 >= 256)
-                c1 = 255;
+        c1 = (c1 >> adj->unk4) + adj->unk14;
+        if (c1 >= 256)
+            c1 = 255;
 
-            c2 = (c2 >> adj->unk8) + adj->unk18;
-            if (c2 >= 256)
-                c2 = 255;
+        c2 = (c2 >> adj->unk8) + adj->unk18;
+        if (c2 >= 256)
+            c2 = 255;
 
-            c3 = (c3 >> adj->unkC) + adj->unk1C;
-            if (c3 >= 256)
-                c3 = 255;
+        c3 = (c3 >> adj->unkC) + adj->unk1C;
+        if (c3 >= 256)
+            c3 = 255;
 
-            dst2->unkC = c0;
-            dst2->unkD = c1;
-            dst2->unkE = c2;
-            dst2->unkF = c3;
-            dst2++;
-            src2 += 4;
-        } while (src2 < end2);
-        result = 1;
+        vertex->unkC = c0;
+        vertex->unkD = c1;
+        vertex->unkE = c2;
+        vertex->unkF = c3;
+        vertex++;
+        color += 4;
     }
-    unk10 = result;
+    unk10 = 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/marsupial", vfunc14__9MarsupialP14PotorooTruffle);
-#endif
 
 void Marsupial::vfunc15(void) {
     if (unk10 == 0) {
@@ -126,5 +119,3 @@ u16 Marsupial::func_8003B294() {
 s32 Marsupial::func_8003B2A0() {
     return unk0 != 0;
 }
-
-INCLUDE_RODATA("asm/nonmatchings/marsupial", D_80003970);

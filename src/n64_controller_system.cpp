@@ -471,8 +471,6 @@ s32 N64ControllerSystem::pfsAllocateFile(OSPfs* pfs, u16 cc, u32 gc, u8* gn, u8*
     return msg.out;
 }
 
-// reg-alloc: target keeps 0xB constant in s0 via bne+delay-slot trick; mine emits bnel and loses it
-#ifdef NON_MATCHING
 s32 N64ControllerSystem::tryInitAccessory(OSPfs* pfs, s32 controller_no) {
     InitPakArgs msg;
     msg.pfs = pfs;
@@ -482,16 +480,15 @@ s32 N64ControllerSystem::tryInitAccessory(OSPfs* pfs, s32 controller_no) {
     osRecvMesg(&D_800AE820, NULL, 1);
     msgArgs = NULL;
     s32 v = msg.out;
-    if (v != 0xB)
-        return v;
-    v = motorInit(pfs, controller_no);
-    if (v == 0xB)
-        return 0xA;
+    s32 pakResult = v;
+    if (v == 0xB) {
+        v = motorInit(pfs, controller_no);
+        if (v == pakResult) {
+            return 0xA;
+        }
+    }
     return v;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/n64_controller_system", tryInitAccessory__19N64ControllerSystemP5OSPfsl);
-#endif
 
 s32 N64ControllerSystem::pfsInitPak(OSPfs* pfs, s32 controller_no) {
     InitPakArgs msg;
@@ -526,17 +523,18 @@ s32 N64ControllerSystem::getChangeCount() {
     return changeCount;
 }
 
-// reg-alloc: target keeps 3 induction vars (i*0x150, 0x4268+i*0x150, i*6); compiler folds to fewer here
 #ifdef NON_MATCHING
 s32 N64ControllerSystem::poll(s32 arg1) {
     s32 result = 0;
+    s32 i;
     if (pollReady == 0) {
         return 0;
     }
-    for (s32 i = 0; i < 4; i++) {
+    for (i = 0; i < 4; i++) {
         if (devices[i].enabled != 0) {
-            devices[i].pad = &pads[readIdx][i];
-            s32 r = devices[i].vfunc6(arg1);
+            ControllerDevice* device = &devices[i];
+            device->pad = &pads[readIdx][i];
+            s32 r = device->vfunc6(arg1);
             if (r != 0) {
                 result = r;
             }
@@ -554,27 +552,23 @@ s32 N64ControllerSystem::poll(s32 arg1) {
 #else
 INCLUDE_ASM("asm/nonmatchings/n64_controller_system", poll__19N64ControllerSysteml);
 #endif
-// scheduling: target places `li v0,1` before register restores (offset 104c); mine puts it last
-#ifdef NON_MATCHING
+
 s32 N64ControllerSystem::shutdown() {
-    if (unk28 != 0) {
-        s32 i = 0;
-        do {
-            ControllerDevice* d = entries[i];
-            if (d != NULL) {
-                d->disconnect();
-                entries[i] = NULL;
-            }
-            i++;
-        } while (i < 4);
-        osStopThread(&thread);
-        init();
+    if (unk28 == 0) {
+        return 1;
     }
+    s32 i = 0;
+    do {
+        if (entries[i] != NULL) {
+            entries[i]->disconnect();
+            entries[i] = NULL;
+        }
+        i++;
+    } while (i < 4);
+    osStopThread(&thread);
+    init();
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/n64_controller_system", shutdown__19N64ControllerSystem);
-#endif
 
 void N64ControllerSystem::startThread() {
     memset(&D_800AE880, 0, 8);

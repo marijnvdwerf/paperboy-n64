@@ -258,7 +258,7 @@ void ControllerDevice::onInput(s32 code, s32 value, s32 deliver) {
             break;
     }
     if (deliver != 0) {
-        EventListener* cb = (EventListener*)this->handler;
+        EventListener* cb = this->handler;
         if (cb != NULL) {
             if (state != 0) {
                 cb->onPressed(this, outCode, this->timestamp);
@@ -283,7 +283,7 @@ f32 ControllerDevice::getAxisValue(s32 mask) {
     return 0.0f;
 }
 
-u8 ControllerDevice::getButtonState(s32 code) {
+s32 ControllerDevice::getButtonState(s32 code) {
     switch (code & 0xF0000000) {
         case 0x30000000:
             return this->prevButton & (1 << code);

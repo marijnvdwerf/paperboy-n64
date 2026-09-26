@@ -236,9 +236,7 @@ s32 RenderContext::vfunc1() {
     return 0;
 }
 
-#ifdef NON_MATCHING
 void RenderContext::vfunc4(PixelFormat* req, PixelFormat* out) {
-    RenderContext* self = this;
     u32 r = req->bitWidthMaskRed();
     u32 g = req->bitWidthMaskGreen();
     u32 b = req->bitWidthMaskBlue();
@@ -246,88 +244,103 @@ void RenderContext::vfunc4(PixelFormat* req, PixelFormat* out) {
     u32 u = req->bitWidthUnk10();
     u32 p = req->bitWidthPaletteMask();
     u32 depth = req->bitDepth;
+    u32 i;
 
-    if (self->unk10 == r && self->unk14 == g && self->unk18 == b && self->unk1C == a && self->unk20 == u && self->unk24 == p) {
-        *out = self->unk30[self->unkC];
+    if (this->unk10 == r && this->unk14 == g && this->unk18 == b && this->unk1C == a && this->unk20 == u && this->unk24 == p) {
+        *out = this->unk30[this->unkC];
         return;
     }
-    self->unk10 = r;
-    self->unk14 = g;
-    self->unk18 = b;
-    self->unk1C = a;
-    self->unk20 = u;
-    self->unk24 = p;
+    this->unk10 = r;
+    this->unk14 = g;
+    this->unk18 = b;
+    this->unk1C = a;
+    this->unk20 = u;
+    this->unk24 = p;
 
     if (a != 0) {
         if (p != 0) {
             // (M) exact depth + palette + alpha
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitDepth == depth && e->bitWidthPaletteMask() == p && e->bitWidthMaskAlpha() == a) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthPaletteMask() == p && this->unk30[i].bitWidthMaskAlpha() == a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         } else if (u != 0) {
             // (L) exact depth + unk10 + alpha
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitDepth == depth && e->bitWidthUnk10() == u && e->bitWidthMaskAlpha() == a) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthUnk10() == u && this->unk30[i].bitWidthMaskAlpha() == a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         } else {
             // (K) exact depth + RGB widths + alpha
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitDepth == depth && e->bitWidthMaskRed() == r && e->bitWidthMaskGreen() == g && e->bitWidthMaskBlue() == b && e->bitWidthMaskAlpha() == a) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() == r && this->unk30[i].bitWidthMaskGreen() == g && this->unk30[i].bitWidthMaskBlue() == b && this->unk30[i].bitWidthMaskAlpha() == a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         }
     } else {
         if (p != 0) {
             // (G) exact depth + palette
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitDepth == depth && e->bitWidthPaletteMask() == p) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthPaletteMask() == p;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         } else if (u != 0) {
             // (D) exact depth + unk10
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitDepth == depth && e->bitWidthUnk10() == u) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthUnk10() == u;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         } else {
             // (A) exact RGB mask values + depth
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitDepth == depth && e->maskRed == req->maskRed && e->maskGreen == req->maskGreen && e->maskBlue == req->maskBlue) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].maskRed == req->maskRed && this->unk30[i].maskGreen == req->maskGreen && this->unk30[i].maskBlue == req->maskBlue;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
             // (B) depth + RGB widths
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitDepth == depth && e->bitWidthMaskRed() == r && e->bitWidthMaskGreen() == g && e->bitWidthMaskBlue() == b) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() == r && this->unk30[i].bitWidthMaskGreen() == g && this->unk30[i].bitWidthMaskBlue() == b;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         }
@@ -337,50 +350,60 @@ void RenderContext::vfunc4(PixelFormat* req, PixelFormat* out) {
     if (a != 0) {
         if (p != 0) {
             // (Q) depth > + palette >= + alpha >=
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (depth < e->bitDepth && e->bitWidthPaletteMask() >= p && e->bitWidthMaskAlpha() >= a) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthPaletteMask() >= p && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
             // (R) depth >= 16 + RGB >= 5 + alpha >=
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitDepth >= 0x10 && e->bitWidthMaskRed() >= 5 && e->bitWidthMaskGreen() >= 5 && e->bitWidthMaskBlue() >= 5 && e->bitWidthMaskAlpha() >= a) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth >= 0x10) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= 5u && this->unk30[i].bitWidthMaskGreen() >= 5u && this->unk30[i].bitWidthMaskBlue() >= 5u && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         } else if (u != 0) {
             // (O) depth > + unk10 >= + alpha >=
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (depth < e->bitDepth && e->bitWidthUnk10() >= u && e->bitWidthMaskAlpha() >= a) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthUnk10() >= u && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
             // (P) depth > + RGB >= u + alpha >=
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (depth < e->bitDepth && e->bitWidthMaskRed() >= u && e->bitWidthMaskGreen() >= u && e->bitWidthMaskBlue() >= u && e->bitWidthMaskAlpha() >= a) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= u && this->unk30[i].bitWidthMaskGreen() >= u && this->unk30[i].bitWidthMaskBlue() >= u && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         } else {
             // (N) depth > + RGB >= + alpha >=
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (depth < e->bitDepth && e->bitWidthMaskRed() >= r && e->bitWidthMaskGreen() >= g && e->bitWidthMaskBlue() >= b && e->bitWidthMaskAlpha() >= a) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= r && this->unk30[i].bitWidthMaskGreen() >= g && this->unk30[i].bitWidthMaskBlue() >= b && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         }
@@ -388,50 +411,60 @@ void RenderContext::vfunc4(PixelFormat* req, PixelFormat* out) {
         if (p != 0) {
             // (H) p<8 special: depth < 16 + palette >=
             if (p < 8)
-                for (u32 i = 0; i < self->unk2C; i++) {
-                    PixelFormat* e = &self->unk30[i];
-                    if (e->bitDepth < 0x10 && e->bitWidthPaletteMask() >= p) {
-                        *out = self->unk30[i];
-                        self->unkC = i;
-                        return;
+                for (i = 0; i < this->unk2C; i++) {
+                    if (this->unk30[i].bitDepth < 0x10) {
+                        u32 width = this->unk30[i].bitWidthPaletteMask();
+                        if (width >= p) {
+                            *out = this->unk30[i];
+                            this->unkC = i;
+                            return;
+                        }
                     }
                 }
             // (I) depth == 16 + RGB >= 5
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitDepth == 0x10 && e->bitWidthMaskRed() >= 5 && e->bitWidthMaskGreen() >= 5 && e->bitWidthMaskBlue() >= 5) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == 0x10) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= 5u && this->unk30[i].bitWidthMaskGreen() >= 5u && this->unk30[i].bitWidthMaskBlue() >= 5u;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         } else if (u != 0) {
             // (E) depth > + unk10 >=
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (depth < e->bitDepth && e->bitWidthUnk10() >= u) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    u32 width = this->unk30[i].bitWidthUnk10();
+                    if (width >= u) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
             // (F) depth > + RGB >= u
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (depth < e->bitDepth && e->bitWidthMaskRed() >= u && e->bitWidthMaskGreen() >= u && e->bitWidthMaskBlue() >= u) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= u && this->unk30[i].bitWidthMaskGreen() >= u && this->unk30[i].bitWidthMaskBlue() >= u;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         } else {
             // (C) depth > + RGB >=
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (depth < e->bitDepth && e->bitWidthMaskRed() >= r && e->bitWidthMaskGreen() >= g && e->bitWidthMaskBlue() >= b) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
-                    return;
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= r && this->unk30[i].bitWidthMaskGreen() >= g && this->unk30[i].bitWidthMaskBlue() >= b;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
                 }
             }
         }
@@ -441,67 +474,64 @@ void RenderContext::vfunc4(PixelFormat* req, PixelFormat* out) {
     if (a != 0) {
         // (S) alpha >= 4
         if (a >= 4)
-            for (u32 i = 0; i < self->unk2C; i++) {
-                PixelFormat* e = &self->unk30[i];
-                if (e->bitWidthMaskAlpha() >= 4) {
-                    *out = self->unk30[i];
-                    self->unkC = i;
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitWidthMaskAlpha() >= 4u) {
+                    *out = this->unk30[i];
+                    this->unkC = i;
                     return;
                 }
             }
         // (T) alpha != 0
-        for (u32 i = 0; i < self->unk2C; i++) {
-            PixelFormat* e = &self->unk30[i];
-            if (e->bitWidthMaskAlpha() != 0) {
-                *out = self->unk30[i];
-                self->unkC = i;
+        for (i = 0; i < this->unk2C; i++) {
+            if (this->unk30[i].bitWidthMaskAlpha() != 0) {
+                *out = this->unk30[i];
+                this->unkC = i;
                 return;
             }
         }
     } else {
         // (J) depth >= 15 + RGB >= 5
-        for (u32 i = 0; i < self->unk2C; i++) {
-            PixelFormat* e = &self->unk30[i];
-            if (e->bitDepth >= 0xF && e->bitWidthMaskRed() >= 5 && e->bitWidthMaskGreen() >= 5 && e->bitWidthMaskBlue() >= 5) {
-                *out = self->unk30[i];
-                self->unkC = i;
-                return;
+        for (i = 0; i < this->unk2C; i++) {
+            if (this->unk30[i].bitDepth >= 0xF) {
+                s32 matches = this->unk30[i].bitWidthMaskRed() >= 5u && this->unk30[i].bitWidthMaskGreen() >= 5u && this->unk30[i].bitWidthMaskBlue() >= 5u;
+                if (matches) {
+                    *out = this->unk30[i];
+                    this->unkC = i;
+                    return;
+                }
             }
         }
     }
 
     // (U) same depth
-    for (u32 i = 0; i < self->unk2C; i++) {
-        PixelFormat* e = &self->unk30[i];
-        if (e->bitDepth == depth) {
-            *out = self->unk30[i];
-            self->unkC = i;
+    for (i = 0; i < this->unk2C; i++) {
+        u32 entryDepth = this->unk30[i].bitDepth;
+        if (entryDepth == depth) {
+            *out = this->unk30[i];
+            this->unkC = i;
             return;
         }
     }
     // (V) larger depth
-    for (u32 i = 0; i < self->unk2C; i++) {
-        PixelFormat* e = &self->unk30[i];
-        if (depth < e->bitDepth) {
-            *out = self->unk30[i];
-            self->unkC = i;
+    for (i = 0; i < this->unk2C; i++) {
+        u32 entryDepth = this->unk30[i].bitDepth;
+        if (depth < entryDepth) {
+            *out = this->unk30[i];
+            this->unkC = i;
             return;
         }
     }
 
     // (W) entry[0] + cache reset
-    self->unk10 = 0;
-    self->unk14 = 0;
-    self->unk18 = 0;
-    self->unk1C = 0;
-    self->unk20 = 0;
-    self->unk24 = 0;
-    *out = self->unk30[0];
-    self->unkC = 0;
+    *out = this->unk30[0];
+    this->unkC = 0;
+    this->unk10 = 0;
+    this->unk14 = 0;
+    this->unk18 = 0;
+    this->unk1C = 0;
+    this->unk20 = 0;
+    this->unk24 = 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/render_context", vfunc4__13RenderContextP11PixelFormatT1);
-#endif
 
 void RenderContext::vfunc41(Mover* arg1) {
     f32 fv1, fv0;
@@ -541,13 +571,12 @@ void RenderContext::vfunc41(Mover* arg1) {
     }
 }
 
-#ifdef NON_MATCHING
-extern "C" void func_800260AC(RenderContext* arg0, Mover* arg1, Vec3* arg2, Vec3* arg3, Vec3* arg4) {
+void RenderContext::vfunc42(Mover* arg1, Vec3* arg2, Vec3* arg3, Vec3* arg4) {
     MoverGeom geom;
     Vec3 sp38, sp48;
     f32 fv1, fv0;
 
-    arg1->vfunc6(arg0->unk48, &geom);
+    arg1->vfunc6(this->unk48, &geom);
     if (geom.status != 0) {
         arg1->vfunc17(geom.vec_a, geom.vec_b);
         f32 dot = geom.vec_a[0] * arg4->x + geom.vec_a[1] * arg4->y + geom.vec_a[2] * arg4->z;
@@ -557,30 +586,24 @@ extern "C" void func_800260AC(RenderContext* arg0, Mover* arg1, Vec3* arg2, Vec3
         sp38.x = geom.vec_a[0] - sp48.x;
         sp38.y = geom.vec_a[1] - sp48.y;
         sp38.z = geom.vec_a[2] - sp48.z;
-        f32 zero = 0.0f;
-        if (sp38.x != zero || sp38.y != zero || sp38.z != zero) {
+        if (sp38.x != 0.0f || sp38.y != 0.0f || sp38.z != 0.0f) {
             vec3_normalize((f32*)&sp38, (f32*)&sp38);
-            f32 dot_a2 = sp38.x * arg2->x + sp38.y * arg2->y + sp38.z * arg2->z;
-            s32 idx_a = ((s32)((dot_a2 + 1.0f) * 511.5f)) & 0x3FF;
+            dot = sp38.x * arg2->x + sp38.y * arg2->y + sp38.z * arg2->z;
+            s32 idx_a = ((s32)((dot + 1.0f) * 511.5f)) & 0x3FF;
             f32 lut_a = D_8006C5F0[idx_a] * 0.31830987f;
-            f32 dot_a3 = sp38.x * arg3->x + sp38.y * arg3->y + sp38.z * arg3->z;
+            dot = sp38.x * arg3->x + sp38.y * arg3->y + sp38.z * arg3->z;
             fv1 = lut_a * 0.5f;
-            if (dot_a3 < zero) {
+            if (dot < 0.0f) {
                 fv1 = 1.0f - fv1;
             }
-            f32 dot_b4 = geom.vec_b[0] * arg4->x + geom.vec_b[1] * arg4->y + geom.vec_b[2] * arg4->z;
-            s32 idx_b = ((s32)((dot_b4 + 1.0f) * 511.5f)) & 0x3FF;
-            fv0 = D_8006C5F0[idx_b] * 0.31830987f;
+            fv0 = D_8006C5F0[(((s32)(((geom.vec_b[0] * arg4->x + geom.vec_b[1] * arg4->y + geom.vec_b[2] * arg4->z) + 1.0f) * 511.5f)) & 0x3FF)] * 0.31830987f;
         } else {
-            fv1 = zero;
+            fv1 = 0.0f;
             fv0 = 0.5f;
         }
-        arg0->vfunc43(arg1, fv1, fv0);
+        this->vfunc43(arg1, fv1, fv0);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/render_context", vfunc42__13RenderContextP5MoverP4Vec3N22);
-#endif
 
 void RenderContext::vfunc10() {
     this->unk8 = 0;
