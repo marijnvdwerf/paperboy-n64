@@ -318,7 +318,7 @@ s32 GolStream::readAt(u32 pos, void* buf, u32 len, s32* actual) {
             return result;
         }
         *actual += chunkActual;
-        buf = buf + chunkActual;
+        buf = (u8*)buf + chunkActual;
         len -= chunkActual;
         pos += chunkActual;
     }
@@ -346,7 +346,7 @@ s32 GolStream::readAt(u32 pos, void* buf, u32 len, s32* actual) {
             }
             avail = this->bufferEnd - pos;
             memcpy(buf, src, avail);
-            buf = buf + avail;
+            buf = (u8*)buf + avail;
             pos += avail;
             *actual += avail;
             len -= avail;
@@ -381,7 +381,7 @@ s32 GolStream::readAt(u32 pos, void* buf, u32 len, s32* actual) {
             } else {
                 avail = this->bufferEnd - pos;
                 memcpy(buf, src, avail);
-                buf = buf + avail;
+                buf = (u8*)buf + avail;
                 pos += avail;
                 len -= avail;
                 *actual += avail;
