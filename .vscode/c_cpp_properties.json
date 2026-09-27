@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "Paperboy N64",
+            "compileCommands": "${workspaceFolder}/compile_commands.json",
+            "compilerPath": "mips-linux-gnu-g++",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/ultralib/include",
+                "${workspaceFolder}/ultralib/include/PR"
+            ],
+            "defines": [
+                "_LANGUAGE_C",
+                "_FINALROM",
+                "NDEBUG",
+                "BUILD_VERSION=VERSION_J",
+                "F3DEX_GBI_2=1",
+                "_PSYQ",
+                "__EXTENSIONS__",
+                "_MIPSEB",
+                "__CHAR_UNSIGNED__",
+                "INCLUDE_ASM_USE_MACRO_INC=1"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++14"
+        }
+    ],
+    "version": 4
+}
