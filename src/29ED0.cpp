@@ -1,4 +1,5 @@
 #include "common.h"
+#include "vector.h"
 
 struct Plane {
     f32 nx;
@@ -15,10 +16,6 @@ struct Frustum {
 struct AABB {
     f32 x0, y0, z0;
     f32 x1, y1, z1;
-};
-
-struct Vec3f {
-    f32 x, y, z;
 };
 
 extern "C" s32 func_800292D0(Frustum* frustum, AABB* box) {

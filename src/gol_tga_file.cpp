@@ -1,31 +1,11 @@
 #include "gol_tga_file.h"
+#include "surface/tiled_surface.h"
 #include "gol_surface.h"
 
 extern "C" char* strcpy(char*, const char*);
 extern "C" char* strcat(char*, const char*);
 extern "C" unsigned strlen(const char*);
 extern "C" int memcmp(const void*, const void*, unsigned);
-
-struct TiledSurface {
-    /* 0x00 */ s32* tileWidths;
-    /* 0x04 */ s32* tileHeights;
-    /* 0x08 */ u8 unk8[0x20];
-    /* 0x28 */ u32 rowCount;
-    /* 0x2C */ u32 colCount;
-    /* 0x30 */ s32 totalWidth;
-    /* 0x34 */ s32 totalHeight;
-    /* 0x38 */ s32 flags;
-    /* 0x3C */ u8 unk3C[0x10];
-
-    virtual ~TiledSurface() = 0;
-    virtual void vfunc2() = 0;
-    virtual void vfunc3() = 0;
-    virtual void vfunc4() = 0;
-    virtual void vfunc5() = 0;
-    virtual void vfunc6() = 0;
-    virtual void vfunc7() = 0;
-    virtual GolSurface* vfunc8(s32 row, s32 col) = 0;
-};
 
 static inline void tileDims(TiledSurface* ts, u32 row, u32 col, s32* w, s32* h) {
     *w = ts->tileWidths[row];

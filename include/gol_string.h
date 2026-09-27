@@ -30,7 +30,8 @@ class GolString {
     GolString();
 
     u16 size(void) {
-        return length - unk6;
+        u16 result = length - unk6;
+        return result;
     }
 };
 

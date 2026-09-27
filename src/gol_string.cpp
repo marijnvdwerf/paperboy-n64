@@ -1,4 +1,5 @@
 #include "common.h"
+#include "gol_string.h"
 
 static inline s32 wideLength(const u16* str) {
     s32 length = 0;
@@ -7,38 +8,6 @@ static inline s32 wideLength(const u16* str) {
     }
     return length;
 }
-
-class GolString {
-  public:
-    /* 0x0 */ u16* data;
-    /* 0x4 */ u16 capacity;
-    /* 0x6 */ u16 unk6;
-    /* 0x8 */ u16 length;
-
-    s32 func_800100C0();
-    void func_80010118(u8* dst);
-    void func_800101A4(u8* dst);
-    void func_800101F0();
-    s32 func_800101F8(u16* src);
-    s32 func_80010280(GolString* src);
-    s32 func_800102FC(u16* src);
-    s32 func_80010374(GolString* src);
-    s32 func_800103F0(u16* src);
-    s32 func_800104B8(GolString* src);
-    void func_80010564();
-    void func_800105E0();
-    void func_80010640();
-    s32 func_80010680(GolString* src);
-    s32 func_800106BC(u16* d, u16 cap);
-    u16* func_8001075C(s32 index);
-    ~GolString();
-    GolString();
-
-    u16 size(void) {
-        u16 result = length - unk6;
-        return result;
-    }
-};
 
 static inline u16* wideAt(GolString* str, s32 index) {
     return str->data + str->unk6 + index;
