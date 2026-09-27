@@ -10,7 +10,7 @@ void Echidna::func_8003A340(s32 val) {
     D_800740A0 = val;
 }
 
-Surface16970Palette* Echidna::vfunc8() {
+GolPaletteBase* Echidna::vfunc8() {
     return &palette;
 }
 
@@ -23,7 +23,7 @@ void Echidna::vfunc15() {
     unk22 = 0;
 }
 
-void Echidna::vfunc14(BunyipRenderer* ctx, PixelFormat* pf, s32 w, s32 h) {
+void Echidna::vfunc14(GolRenderDevice* ctx, GolSurfaceFormat* pf, s32 w, s32 h) {
     if (unk22 & 1) {
         vfunc15();
     }

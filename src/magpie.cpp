@@ -1,5 +1,5 @@
 #include "common.h"
-#include "parrot.h"
+#include "gol_file_parser.h"
 
 extern "C" {
 void qsort(void* base, void* nel, s32 width, void* compar);
@@ -8,7 +8,7 @@ s32 strnicmp(char* s1, char* s2, s32 n);
 unsigned int strlen(const char* s);
 }
 
-class OtherBird : public Parrot {
+class OtherBird : public GolFileParser {
   public:
     virtual void selectDriver(const char* path);
     virtual char* getExtension();

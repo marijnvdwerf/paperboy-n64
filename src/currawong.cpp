@@ -1,39 +1,39 @@
 #include "currawong.h"
-#include "parrot.h"
+#include "gol_file_parser.h"
 
 extern "C" void func_8004B3BC(s32);
 extern "C" void func_8004B390(void);
 extern s32 D_800740B0;
 
-void Currawong::vfunc2(Parrot* parrot) {
+void Currawong::vfunc2(GolFileParser* parser) {
     if (unk0 != 0) {
         vfunc4();
     }
     unk2 = 3;
-    parrot->expectToken(TOKEN_OPEN_BRACKET);
-    s32 count = parrot->readInt();
+    parser->expectToken(TOKEN_OPEN_BRACKET);
+    s32 count = parser->readInt();
     if (count == 0) {
-        parrot->parseError(4);
+        parser->parseError(4);
     }
-    parrot->expectToken(TOKEN_CLOSE_BRACKET);
-    parrot->expectToken(TOKEN_OPEN_BRACE);
+    parser->expectToken(TOKEN_CLOSE_BRACKET);
+    parser->expectToken(TOKEN_OPEN_BRACE);
     vfunc3(count);
     for (u32 i = 0; i < unk0; i++) {
-        unkC[i].unk0 = (s16)parrot->readFloat();
-        unkC[i].unk2 = (s16)parrot->readFloat();
-        unkC[i].unk4 = (s16)parrot->readFloat();
+        unkC[i].unk0 = (s16)parser->readFloat();
+        unkC[i].unk2 = (s16)parser->readFloat();
+        unkC[i].unk4 = (s16)parser->readFloat();
         unkC[i].unk6 = 0;
-        unkC[i].unk8 = (s16)(parrot->readFloat() * 127.0f * 32.0f);
-        unkC[i].unkA = (s16)(parrot->readFloat() * 127.0f * 32.0f);
+        unkC[i].unk8 = (s16)(parser->readFloat() * 127.0f * 32.0f);
+        unkC[i].unkA = (s16)(parser->readFloat() * 127.0f * 32.0f);
         unkC[i].unkC = 0xFF;
         unkC[i].unkD = 0xFF;
         unkC[i].unkE = 0xFF;
         unkC[i].unkF = 0xFF;
-        unk18[i].x = parrot->readFloat();
-        unk18[i].y = parrot->readFloat();
-        unk18[i].z = parrot->readFloat();
+        unk18[i].x = parser->readFloat();
+        unk18[i].y = parser->readFloat();
+        unk18[i].z = parser->readFloat();
     }
-    parrot->expectToken(TOKEN_CLOSE_BRACE);
+    parser->expectToken(TOKEN_CLOSE_BRACE);
 }
 
 void Currawong::vfunc5(void) {

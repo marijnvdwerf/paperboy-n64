@@ -1,5 +1,5 @@
 #include "wombat.h"
-#include "parrot.h"
+#include "gol_file_parser.h"
 
 extern "C" void func_8004B3BC(s32);
 extern "C" void func_8004B390(void);
@@ -7,17 +7,17 @@ extern "C" void func_8004B390(void);
 extern "C" s32 D_800740B0;
 
 // vfunc2
-extern "C" void func_800394B0(Wombat* self, Parrot* parrot) {
+extern "C" void func_800394B0(Wombat* self, GolFileParser* parser) {
     if (self->unk0 != 0) {
         self->vfunc4();
     }
-    parrot->expectToken(TOKEN_OPEN_BRACKET);
-    self->unk0 = parrot->readInt();
+    parser->expectToken(TOKEN_OPEN_BRACKET);
+    self->unk0 = parser->readInt();
     if (self->unk0 == 0) {
-        parrot->parseError(4);
+        parser->parseError(4);
     }
-    parrot->expectToken(TOKEN_CLOSE_BRACKET);
-    parrot->expectToken(TOKEN_OPEN_BRACE);
+    parser->expectToken(TOKEN_CLOSE_BRACKET);
+    parser->expectToken(TOKEN_OPEN_BRACE);
     func_8004B3BC(D_800740B0);
     self->unkC = new MarsupialVertex[self->unk0];
     func_8004B390();
@@ -26,18 +26,18 @@ extern "C" void func_800394B0(Wombat* self, Parrot* parrot) {
     }
     memset(self->unkC, 0, self->unk0 * sizeof(MarsupialVertex));
     for (u32 i = 0; i < self->unk0; i++) {
-        self->unkC[i].unk0 = (s16)parrot->readFloat();
-        self->unkC[i].unk2 = (s16)parrot->readFloat();
-        self->unkC[i].unk4 = (s16)parrot->readFloat();
-        self->unkC[i].unk8 = (s16)(parrot->readFloat() * 127.0f * 32.0f);
-        self->unkC[i].unkA = (s16)(parrot->readFloat() * 127.0f * 32.0f);
+        self->unkC[i].unk0 = (s16)parser->readFloat();
+        self->unkC[i].unk2 = (s16)parser->readFloat();
+        self->unkC[i].unk4 = (s16)parser->readFloat();
+        self->unkC[i].unk8 = (s16)(parser->readFloat() * 127.0f * 32.0f);
+        self->unkC[i].unkA = (s16)(parser->readFloat() * 127.0f * 32.0f);
         self->unkC[i].unk6 = 0;
         self->unkC[i].unkC = 0xFF;
         self->unkC[i].unkD = 0xFF;
         self->unkC[i].unkE = 0xFF;
         self->unkC[i].unkF = 0xFF;
     }
-    parrot->expectToken(TOKEN_CLOSE_BRACE);
+    parser->expectToken(TOKEN_CLOSE_BRACE);
 }
 
 // vfunc13

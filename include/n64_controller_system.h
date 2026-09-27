@@ -1,13 +1,13 @@
 #ifndef N64_CONTROLLER_SYSTEM_H
 #define N64_CONTROLLER_SYSTEM_H
 
-#include "controller_system.h"
+#include "input/input_manager.h"
 
 extern "C" {
 #include <PR/sched.h>
 }
 
-struct N64ControllerSystem : public ControllerSystem {
+struct N64ControllerSystem : public InputManager {
     /* 0x0054 */ s32 readIdx;
     /* 0x0058 */ s32 writeIdx;
     /* 0x005C */ s32 connected[4];

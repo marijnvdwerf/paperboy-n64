@@ -596,7 +596,7 @@ N64ControllerSystem::N64ControllerSystem() {
     readIdx = 0;
     writeIdx = 1;
     changeCount = 0;
-    ControllerSystem::init();
+    InputManager::init();
 }
 
 void N64ControllerSystem::init() {
@@ -606,7 +606,7 @@ void N64ControllerSystem::init() {
     readIdx = 0;
     writeIdx = 1;
     changeCount = 0;
-    ControllerSystem::init();
+    InputManager::init();
 }
 
 void N64ControllerSystem::setSched(OSSched* s) {

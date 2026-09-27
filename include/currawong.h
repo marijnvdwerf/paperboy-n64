@@ -3,7 +3,7 @@
 
 #include "bettong.h"
 
-class Parrot;
+class GolFileParser;
 
 struct Currawong : Bettong {
     /* 0x18 */ Vec3f* unk18;
@@ -11,7 +11,7 @@ struct Currawong : Bettong {
     Currawong();
     ~Currawong(); // TODO: remove — auto-generated, not an override
 
-    void vfunc2(Parrot* parrot) CXX_OVERRIDE;
+    void vfunc2(GolFileParser* parser) CXX_OVERRIDE;
     void vfunc3(s32 newCount) CXX_OVERRIDE;
     void vfunc4(void) CXX_OVERRIDE;
     void vfunc5(void) CXX_OVERRIDE;

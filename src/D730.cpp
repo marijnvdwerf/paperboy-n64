@@ -22,7 +22,7 @@ StructYYHandler* func_80039420(StructYYInner*);
 extern u8 D_1106A0[];
 extern u8 D_BDE740[];
 extern char D_80000B70[];
-extern JamArchive* D_800763F8;
+extern GolFileSource* D_800763F8;
 extern s32 D_800763FC;
 }
 
@@ -91,7 +91,7 @@ void StructYY::func_8000CDD8() {
     if (io->func_80048A40((s32)D_1106A0, D_BDE740 - D_1106A0, 0x82, 0x8000)) {
         __assert(D_80000B70, 0, 0, 0);
     }
-    JamArchive* archive = &this->archives[0];
+    GolFileSource* archive = &this->archives[0];
     this->unk68 = 1;
     archive->open(io);
     D_800763F8 = archive;

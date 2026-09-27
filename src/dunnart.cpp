@@ -7,7 +7,7 @@ extern "C" void func_8004B390();
 extern s32 D_80072C10;
 
 void Dunnart::vfunc1(u8* dst, s32 start, u32 num) {
-    DunnartColor* colors = (DunnartColor*)dst;
+    ColorRGBA* colors = (ColorRGBA*)dst;
     u32 i = 0;
     if (num != 0) {
         do {
@@ -77,7 +77,7 @@ s32 Dunnart::vfunc5(u8* rgba) {
 INCLUDE_ASM("asm/nonmatchings/dunnart", vfunc5__7DunnartPUc);
 #endif
 
-void Dunnart::vfunc4(Surface16970Palette* arg) {
+void Dunnart::vfunc4(GolPaletteBase* arg) {
     Dunnart* src = (Dunnart*)arg;
     u8 rgba[4];
 
@@ -107,7 +107,7 @@ void Dunnart::vfunc3(u8* dst, s32 index) {
     }
 }
 
-void Dunnart::vfunc2(DunnartColor* colors, s32 start, u32 num) {
+void Dunnart::vfunc2(ColorRGBA* colors, s32 start, u32 num) {
     u32 i = 0;
     if (num != 0) {
         do {
@@ -127,7 +127,7 @@ void Dunnart::func_80030B50() {
     }
 }
 
-void Dunnart::func_80030B88(PixelFormat* pf) {
+void Dunnart::func_80030B88(GolSurfaceFormat* pf) {
     if (data != NULL) {
         func_80030B50();
     }

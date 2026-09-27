@@ -67,7 +67,7 @@ void StructYYSubA8Inner1::vfunc15() {
     this->unk26 = 0;
     this->unk28 = 0;
     this->unk20 = 0;
-    this->Surface177B0::vfunc15();
+    this->GolDisplaySurface::vfunc15();
 }
 
 void StructYYSubA8Inner1::vfunc14(void* buf, u16 w, u16 h, u32 bpp) {

@@ -24,7 +24,7 @@ if (unk54 & 4) {
 return unk34->flags & 0x1100;""")
 
 F(2, "vfunc8", "void vfunc8(SceneRenderer* scene)", virtual=True, body="""\
-((RenderContext*)scene)->vfunc45((UNK)this);""")
+((GolRenderDevice*)scene)->vfunc45((UNK)this);""")
 
 F(5, "vfunc6", "void vfunc6(Vec3f* frustum, DingoFrustumResult* out)", virtual=True, body="""\
 Vec3f myPos;
@@ -101,7 +101,7 @@ FennecEntry* entry = data->entries[index];
 vfunc20(entry, width, height, radius);
 unk54 |= 4;""")
 
-F(9, "ctor", "Fennec()", body="""\
+F(9, "ctor", "GolBillboard()", body="""\
 unk34 = NULL;
 unk38 = NULL;
 unk3C.x = 0;
@@ -160,8 +160,8 @@ return unk54;""")
 
 PREAMBLE = """\
 #include "common.h"
-#include "dingo.h"
-#include "render_context.h"
+#include "gol_world_entity.h"
+#include "render/gol_render_device.h"
 
 extern "C" s32 func_80029480(void* frustum, Vec3f* point, f32 radius);
 
@@ -186,12 +186,12 @@ def indent(text, n=4):
 def qualified_sig(f):
     sig = f["sig"]
     if f["sym"] == "ctor":
-        return "Fennec::Fennec()"
+        return "GolBillboard::GolBillboard()"
     parts = sig.split("(", 1)
     ret_name = parts[0]
     params = "(" + parts[1]
     ret, name = ret_name.rsplit(" ", 1)
-    return f"{ret} Fennec::{name}{params}"
+    return f"{ret} GolBillboard::{name}{params}"
 
 def emit(placement, ordinary_order, inclass_order):
     """
@@ -200,7 +200,7 @@ def emit(placement, ordinary_order, inclass_order):
     inclass_order:  list of n64 ints for in-class defs (declaration order)
     """
     out = [PREAMBLE]
-    out.append("struct Fennec : Dingo {")
+    out.append("struct GolBillboard : GolWorldEntity {")
     out.append("    /* 0x34 */ FennecEntry* unk34;")
     out.append("    /* 0x38 */ FennecAnimData* unk38;")
     out.append("    /* 0x3C */ Vec3f unk3C;")
@@ -229,7 +229,7 @@ def emit(placement, ordinary_order, inclass_order):
         f = FUNCS[n]
         if not f["virtual"] and placement.get(n) != "inclass":
             if f["sym"] == "ctor":
-                out.append("    Fennec();")
+                out.append("    GolBillboard();")
             else:
                 out.append(f'    {f["sig"]};')
 
@@ -246,7 +246,7 @@ def emit(placement, ordinary_order, inclass_order):
         elif f["virtual"]:
             out.append(f'    {f["sig"]} CXX_OVERRIDE {{')
         elif f["sym"] == "ctor":
-            out.append("    Fennec() {")
+            out.append("    GolBillboard() {")
         else:
             out.append(f'    {f["sig"]} {{')
         out.append(indent(f["body"], 8))
@@ -351,7 +351,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--preset", default="all_ordinary")
     ap.add_argument("--list-presets", action="store_true")
-    ap.add_argument("--output", default="src/fennec.cpp")
+    ap.add_argument("--output", default="src/scene/gol_billboard.cpp")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 

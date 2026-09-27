@@ -18,7 +18,7 @@ void Tenrec::func_8003B2B0() {
     this->unk30 = NULL;
 }
 
-void Tenrec::func_8003B2FC(s32 unused, Surface16970* src) {
+void Tenrec::func_8003B2FC(s32 unused, GolSurface* src) {
     this->unk22 = 1;
     this->unk26 = src->unk26;
     this->unk20 = this->unk26 * 2;

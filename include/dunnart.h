@@ -2,16 +2,16 @@
 #define DUNNART_H
 
 #include "common.h"
-#include "surfaces.h"
+#include "gol_surface.h"
 
-struct Dunnart : Surface16970Palette {
+struct Dunnart : GolPaletteBase {
     /* 0x04 */ u16* data;
     /* 0x08 */ u32 count;
 
     void vfunc1(u8* dst, s32 start, u32 num) CXX_OVERRIDE;
-    void vfunc2(DunnartColor* colors, s32 start, u32 num) CXX_OVERRIDE;
+    void vfunc2(ColorRGBA* colors, s32 start, u32 num) CXX_OVERRIDE;
     void vfunc3(u8* dst, s32 index) CXX_OVERRIDE;
-    void vfunc4(Surface16970Palette* src) CXX_OVERRIDE;
+    void vfunc4(GolPaletteBase* src) CXX_OVERRIDE;
     virtual s32 vfunc5(u8* color);
     virtual s32 vfunc6();
     virtual u32 vfunc7();
@@ -21,7 +21,7 @@ struct Dunnart : Surface16970Palette {
     virtual ~Dunnart();
 
     void func_80030B50();
-    void func_80030B88(PixelFormat* pf);
+    void func_80030B88(GolSurfaceFormat* pf);
     u16* func_80030CC0();
     s32 func_80030CCC();
 

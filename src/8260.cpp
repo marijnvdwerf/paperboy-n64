@@ -1,15 +1,15 @@
 #include "common.h"
-#include "bandicoot.h"
-#include "skink.h"
+#include "gol_name_table.h"
+#include "gol_model_material_table.h"
 #include "dunnart.h"
 #include "echidna.h"
 #include "os_pi.h"
 #include "os_thread.h"
 #include "structs.h"
 #include "game.h"
-#include "porcupine.h"
-#include "goanna.h"
-#include "potoroo.h"
+#include "gol_paletted_texture.h"
+#include "cmb_model_part_track_data.h"
+#include "gdb_vertex_array.h"
 #include "marsupial.h"
 
 class StructYY;
@@ -247,10 +247,10 @@ void GameContext::func_80007A60() {
     Echidna::func_8003A340(D_8006AAE8);
     Dunnart::func_800308D8(D_8006AAE8);
     func_80038C90(D_8006AAE8);
-    Bandicoot::func_80024C10(D_8006AAE8);
+    GolNameTable::func_80024C10(D_8006AAE8);
     Marsupial::func_8003B1B4(D_8006AAE8);
     func_80037C08(D_8006AAE8);
-    Goanna::func_80020DA4(D_8006AAE8);
+    CmbModelPartTrackData::func_80020DA4(D_8006AAE8);
     func_80011500(D_8006AAE8);
     func_800284D8(D_8006AAE8);
     Marsupial::func_8003B1B4(D_8006AAE8);
@@ -258,19 +258,19 @@ void GameContext::func_80007A60() {
     func_8012016C(D_8006AAE8);
     func_80039A94(D_8006AAE8);
     func_8002E874(D_8006AAE8);
-    Skink::func_8002151C(D_8006AAE8);
+    GolModelMaterialTable::func_8002151C(D_8006AAE8);
     func_80124198(D_8006AAE8);
     func_8002DFF0(D_8006AAE8);
     func_8002C2CC(D_8006AAE8);
     func_8002DBBC(D_8006AAE8);
     func_80019080(D_8006AAE8);
     func_8002377C(D_8006AAE8);
-    Potoroo::func_80029654(D_8006AAE8);
+    GdbVertexArray::func_80029654(D_8006AAE8);
     func_8003F97C(D_8006AAE4);
     D_80076170 = D_8006AAE8;
     D_80076630 = D_8006AAE8;
-    Possum::func_80026B50(D_8006AAE8);
-    Porcupine::func_80026F10(D_8006AAE8);
+    GolTexturePalette::func_80026B50(D_8006AAE8);
+    GolPalettedTexture::func_80026F10(D_8006AAE8);
     D_801286D4 = D_8006AAE8;
     func_80007D14();
 

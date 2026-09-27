@@ -3,13 +3,13 @@
 
 #include "marsupial.h"
 
-class Parrot;
+class GolFileParser;
 
 struct Bettong : Marsupial {
     Bettong();
     ~Bettong(); // TODO: remove — auto-generated, not an override
 
-    void vfunc2(Parrot* parrot) CXX_OVERRIDE;
+    void vfunc2(GolFileParser* parser) CXX_OVERRIDE;
     void vfunc3(s32 newCount) CXX_OVERRIDE;
     void vfunc4(void) CXX_OVERRIDE;
     void vfunc6(s32 index, Vec3f* out) CXX_OVERRIDE;

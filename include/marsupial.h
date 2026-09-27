@@ -2,7 +2,7 @@
 #define MARSUPIAL_H
 
 #include "common.h"
-#include "potoroo.h"
+#include "gdb_vertex_array.h"
 
 struct MarsupialVertex {
     /* 0x00 */ s16 unk0;
@@ -17,7 +17,7 @@ struct MarsupialVertex {
     /* 0x0F */ u8 unkF;
 };
 
-struct Marsupial : public Potoroo {
+struct Marsupial : public GdbVertexArray {
     /* 0x0C */ MarsupialVertex* unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ u8* unk14;

@@ -4,10 +4,10 @@
 #ifdef __cplusplus
 
 #include "common.h"
-#include "file.h"
+#include "gol_stream.h"
 #include "heap.h"
 #include "n64_controller_system.h"
-#include "surfaces.h"
+#include "gol_surface.h"
 
 extern "C" {
 #include "sched.h"
@@ -49,49 +49,49 @@ class StructTT : public StructTTBase {
     /* 0xC */ u8 unkC;
 };
 
-struct FileNode {
-    /* 0x00 */ char name[12];
-    /* 0x0C */ s32 offset;
-    /* 0x10 */ s32 size;
-};
+struct GolDirEntry {
+    struct FileEntry {
+        /* 0x00 */ char name[12];
+        /* 0x0C */ s32 offset;
+        /* 0x10 */ s32 size;
+    };
 
-struct FolderNode {
     /* 0x00 */ char name[12];
     /* 0x0C */ u8 initialized;
     /* 0x10 */ s32 offset;
     /* 0x14 */ u32 fileCount;
-    /* 0x18 */ FileNode* files;
+    /* 0x18 */ GolDirEntry::FileEntry* files;
     /* 0x1C */ u32 folderCount;
-    /* 0x20 */ FolderNode* folders;
+    /* 0x20 */ GolDirEntry* folders;
 
-    FolderNode* init();
+    GolDirEntry* init();
     void reset();
-    void load(AbstractFile* io);
-    FileNode* findFile(const char* name, AbstractFile* io);
-    FolderNode* findFolder(const char* name, AbstractFile* io);
+    void load(GolStream* io);
+    GolDirEntry::FileEntry* findFile(const char* name, GolStream* io);
+    GolDirEntry* findFolder(const char* name, GolStream* io);
 };
 
-class JamArchive {
+class GolFileSource {
   public:
-    /* 0x00 */ AbstractFile* io;
+    /* 0x00 */ GolStream* io;
     /* 0x04 */ s32 unk4;
-    /* 0x08 */ FolderNode root;
-    /* 0x2C */ FileNode* curFile;
+    /* 0x08 */ GolDirEntry root;
+    /* 0x2C */ GolDirEntry::FileEntry* curFile;
     /* 0x30 */ // vtable
 
-    JamArchive();
+    GolFileSource();
     virtual s32 locate(const char* path, u32* outOffset, u32* outSize);
     virtual s32 close();
     virtual s32 readLine(s32 offset, u8* buffer, u32 bufferSize, u32 maxLength, u32* processedLength);
     virtual s32 read(s32 offset, void* buf, s32 size, s32* outRead);
-    virtual ~JamArchive();
+    virtual ~GolFileSource();
     virtual s32 findFile(const char* path);
 
     void func_80045288();
     void reset();
-    void open(AbstractFile* io);
-    FileNode* getCurFile();
-    AbstractFile* getIO();
+    void open(GolStream* io);
+    GolDirEntry::FileEntry* getCurFile();
+    GolStream* getIO();
     bool hasIO();
 };
 
@@ -120,11 +120,11 @@ class StructYYUnk88 {
 
 class StructYYInner;
 
-class StructYYBase {
+class GolApp {
   public:
     /* 0x00 */ s32 unk0;
     /* 0x04 */ File io[1];
-    /* 0x34 */ JamArchive archives[1];
+    /* 0x34 */ GolFileSource archives[1];
     /* 0x68 */ s32 unk68;
     /* 0x6C */ StructYYInner* unk6C;
     /* 0x70 */ StructYYHandler* unk70;
@@ -140,13 +140,13 @@ class StructYYBase {
     /* 0x98 */ s32 unk98;
     /* 0x9C */ // vtable
 
-    StructYYBase();
+    GolApp();
     void func_8000C6C0();
     void func_8000C74C();
     void func_8000C7AC();
     void func_8000C9B8();
     s32 func_8000C9F8();
-    JamArchive* func_8000CA04(s32 idx);
+    GolFileSource* func_8000CA04(s32 idx);
     void func_8000CA24();
     void func_8000CA38();
     s32 func_8000CA48();
@@ -166,7 +166,7 @@ class StructYYBase {
     s32 func_8000CAF0();
     s32 func_8000CAFC();
     s32 func_8000CB08();
-    virtual ~StructYYBase();
+    virtual ~GolApp();
     virtual void vfunc1();
     virtual void vfunc2(const char*, s32) = 0;
     virtual void vfunc3() = 0;
@@ -244,7 +244,7 @@ class StructYYSubA8Node {
     virtual void vfunc7();
 };
 
-class StructYYSubA8GrandBase {
+class GolDrawState {
   public:
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
@@ -253,9 +253,9 @@ class StructYYSubA8GrandBase {
     /* 0x10 */ void* unk10;
     /* 0x14 */ // vtable
 
-    StructYYSubA8GrandBase();
+    GolDrawState();
     virtual s32 vfunc1() = 0;
-    virtual ~StructYYSubA8GrandBase();
+    virtual ~GolDrawState();
     virtual void vfunc3();
     virtual void vfunc4();
     virtual s32 vfunc5(s32, s32, s32, s32);
@@ -285,12 +285,12 @@ class StructYYSubA8GrandBase {
     void* func_80016B9C();
 };
 
-class StructYYSubA8Base : public StructYYSubA8GrandBase {
+class GolCommonDrawState : public GolDrawState {
   public:
     /* 0x18 */ StructYYSubA8Node* unk18;
     /* 0x1C */ void* unk1C;
 
-    StructYYSubA8Base();
+    GolCommonDrawState();
     virtual s32 vfunc5(s32, s32, s32, s32);
     virtual void vfunc6();
     virtual void vfunc8();
@@ -327,7 +327,7 @@ class StructYYSubA8Base : public StructYYSubA8GrandBase {
 // Double-buffered Surface177B0: owns a back buffer at unk38.
 // Overrides vfunc2 (lock back buf), vfunc6 (swap front/back), vfunc13
 // (memcpy front→back), vfunc14 (allocate + init dims), vfunc15 (free both).
-class StructYYSubA8Inner1 : public Surface177B0 {
+class StructYYSubA8Inner1 : public GolDisplaySurface {
   public:
     /* 0x38 */ u8* unk38;
     /* 0x3C */ s32 pad3C; // garbage / unused tail
@@ -357,7 +357,7 @@ class N64RenderContext {
     s32 func_80031B58(StructYYSubA8*, StructYYSubA8Inner1*, s32, s32);
 };
 
-class StructYYSubA8 : public StructYYSubA8Base {
+class StructYYSubA8 : public GolCommonDrawState {
   public:
     /* 0x20 */ OSSched scheduler;
     /* 0x2A8 */ StructYYSubA8Inner1 inner1;
@@ -379,7 +379,7 @@ class StructYYSubA8 : public StructYYSubA8Base {
     OSMesgQueue* func_80029D08();
 };
 
-class StructYY : public StructYYBase {
+class StructYY : public GolApp {
   public:
     /* 0x00A0 */ StructYYInner inner;
     /* 0x00A8 */ StructYYSubA8 subA8;
@@ -426,13 +426,13 @@ class StructUU : public StructUUBase {
     StructUU();
 };
 
-class StructVVParent {
+class MusicGroupState {
   public:
     /* 0x00 */ u32 unk0;
     /* 0x04 */ // vtable
 
-    StructVVParent();
-    virtual ~StructVVParent();
+    MusicGroupState();
+    virtual ~MusicGroupState();
     virtual void vfunc1(const char*) = 0;
     virtual void vfunc2() = 0;
     virtual s32 vfunc3() = 0;
@@ -443,7 +443,7 @@ class StructVVParent {
     u32 func_8003CA28();
 };
 
-class StructVV : public StructVVParent {
+class StructVV : public MusicGroupState {
   public:
     /* 0x08 */ class StructWWBase* owner;
     /* 0x0C */ StructVV* next;

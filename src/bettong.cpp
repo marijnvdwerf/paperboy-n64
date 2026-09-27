@@ -1,22 +1,22 @@
 #include "bettong.h"
-#include "parrot.h"
+#include "gol_file_parser.h"
 
 extern "C" void func_8004B3BC(s32);
 extern "C" void func_8004B390(void);
 
 extern "C" s32 D_800740B0;
 
-void Bettong::vfunc2(Parrot* parrot) {
+void Bettong::vfunc2(GolFileParser* parser) {
     if (unk0 != 0) {
         vfunc4();
     }
-    parrot->expectToken(TOKEN_OPEN_BRACKET);
-    unk0 = parrot->readInt();
+    parser->expectToken(TOKEN_OPEN_BRACKET);
+    unk0 = parser->readInt();
     if (unk0 == 0) {
-        parrot->parseError(4);
+        parser->parseError(4);
     }
-    parrot->expectToken(TOKEN_CLOSE_BRACKET);
-    parrot->expectToken(TOKEN_OPEN_BRACE);
+    parser->expectToken(TOKEN_CLOSE_BRACKET);
+    parser->expectToken(TOKEN_OPEN_BRACE);
     func_8004B3BC(D_800740B0);
     unkC = new MarsupialVertex[unk0];
     func_8004B390();
@@ -26,18 +26,18 @@ void Bettong::vfunc2(Parrot* parrot) {
     memset(unkC, 0, unk0 * sizeof(MarsupialVertex));
 
     for (u32 i = 0; i < unk0; i++) {
-        unkC[i].unk0 = (s16)parrot->readFloat();
-        unkC[i].unk2 = (s16)parrot->readFloat();
-        unkC[i].unk4 = (s16)parrot->readFloat();
-        unkC[i].unk8 = (s16)(parrot->readFloat() * 127.0f * 32.0f);
-        unkC[i].unkA = (s16)(parrot->readFloat() * 127.0f * 32.0f);
+        unkC[i].unk0 = (s16)parser->readFloat();
+        unkC[i].unk2 = (s16)parser->readFloat();
+        unkC[i].unk4 = (s16)parser->readFloat();
+        unkC[i].unk8 = (s16)(parser->readFloat() * 127.0f * 32.0f);
+        unkC[i].unkA = (s16)(parser->readFloat() * 127.0f * 32.0f);
         unkC[i].unk6 = 0;
-        unkC[i].unkC = parrot->readInt();
-        unkC[i].unkD = parrot->readInt();
-        unkC[i].unkE = parrot->readInt();
-        unkC[i].unkF = parrot->readInt();
+        unkC[i].unkC = parser->readInt();
+        unkC[i].unkD = parser->readInt();
+        unkC[i].unkE = parser->readInt();
+        unkC[i].unkF = parser->readInt();
     }
-    parrot->expectToken(TOKEN_CLOSE_BRACE);
+    parser->expectToken(TOKEN_CLOSE_BRACE);
 }
 
 void Bettong::vfunc13(s32 index, u8* src) {

@@ -314,7 +314,7 @@ void GameSubContext::func_800085B8() {
     unkA8 = new ObjA8();
     char* filename = D_80000738;
     File sp10;
-    if (AbstractFile::findFile(filename) != 8) {
+    if (GolStream::findFile(filename) != 8) {
         sp10.open(filename, 0x8A, 0x20);
         sp10.read(unk140, 0xC);
         sp10.close();

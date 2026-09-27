@@ -1,0 +1,1047 @@
+#include "common.h"
+#include "gol_name_table.h"
+#include "render/gol_render_device.h"
+
+// TODO: find proper type for ListNode — extends Bandicoot with extra virtuals and a next pointer
+struct ListNode : GolNameTable {
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ ListNode* next;
+
+    virtual UNK vfunc5();
+    virtual UNK vfunc6();
+    virtual UNK vfunc7();
+    virtual UNK vfunc8();
+};
+
+struct Inner {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ // vptr
+
+    virtual UNK vfunc1();
+    virtual UNK vfunc2();
+    virtual UNK vfunc3();
+    virtual UNK vfunc4();
+    virtual UNK vfunc5();
+    virtual UNK vfunc6();
+    virtual UNK vfunc7();
+    virtual UNK vfunc8();
+    virtual void vfunc9(f32* a, f32* b);
+    virtual UNK vfunc10();
+    virtual UNK vfunc11();
+    virtual UNK vfunc12();
+    virtual UNK vfunc13();
+    virtual UNK vfunc14();
+    virtual UNK vfunc15();
+    virtual UNK vfunc16();
+    virtual UNK vfunc17(UNK);
+};
+
+struct Renderer {
+    /* 0x00 */ Inner* inner;
+    /* 0x04 */ u8 pad4[0x2C];
+    /* 0x30 */ u32 data[51]; // 0x30..0xFC
+};
+
+extern "C" void vec2_normalize(f32*, f32*);
+extern "C" void vec3_normalize(f32*, f32*);
+extern "C" const f32 D_8006C5F0[1024];
+
+struct Vec3 {
+    f32 x, y, z;
+};
+
+// Geometry result populated by Mover::vfunc6 (sp10..sp30 in the asm)
+struct MoverGeom {
+    /* 0x00 */ s32 status;
+    /* 0x04 */ s32 idx;
+    /* 0x08 */ f32 vec_a[3];
+    /* 0x14 */ f32 pad14;
+    /* 0x18 */ f32 vec_b[3];
+};
+
+// Result type of Mover::vfunc23 — vptr at offset 0x8, slot-7 returns an Inner with vptr at 0xC
+struct MoverItemBase {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+};
+
+struct MoverItem : MoverItemBase {
+    /* 0x08 */ // vptr here
+    virtual UNK vfunc1();
+    virtual UNK vfunc2();
+    virtual UNK vfunc3();
+    virtual UNK vfunc4();
+    virtual UNK vfunc5();
+    virtual UNK vfunc6();
+    virtual Inner* vfunc7(s32);
+};
+
+// arg1 of func_80025E7C / func_800260AC — has its vtable at offset 0x30
+struct MoverBase {
+    /* 0x00 */ char pad[0x30];
+};
+
+struct Mover : MoverBase {
+    /* 0x30 */ // vptr here
+    virtual UNK vfunc1();
+    virtual UNK vfunc2();
+    virtual UNK vfunc3();
+    virtual UNK vfunc4();
+    virtual UNK vfunc5();
+    virtual void vfunc6(void* src, MoverGeom* out);
+    virtual UNK vfunc7();
+    virtual UNK vfunc8();
+    virtual UNK vfunc9();
+    virtual UNK vfunc10();
+    virtual UNK vfunc11();
+    virtual UNK vfunc12();
+    virtual UNK vfunc13();
+    virtual void vfunc14(f32* in, f32* out);
+    virtual UNK vfunc15();
+    virtual UNK vfunc16();
+    virtual void vfunc17(f32* in, f32* out);
+    virtual UNK vfunc18();
+    virtual UNK vfunc19();
+    virtual UNK vfunc20();
+    virtual UNK vfunc21();
+    virtual UNK vfunc22();
+    virtual MoverItem* vfunc23(s32 idx);
+    virtual void vfunc24(s32 idx);
+};
+
+void GolRenderDevice::func_80024F30() {
+    GolRenderDevice* self = this;
+    if (self->unk30 != NULL) {
+        delete[] self->unk30;
+        self->unk30 = NULL;
+    }
+    self->unk2C = 0;
+    self->unkC = 0;
+    self->unk10 = 0;
+    self->unk14 = 0;
+    self->unk18 = 0;
+    self->unk1C = 0;
+    self->unk20 = 0;
+    self->unk24 = 0;
+    {
+        ListNode* n = self->unk38;
+        while (n != NULL) {
+            ListNode* next = n->next;
+            n->vfunc3();
+            n = next;
+        }
+    }
+    {
+        ListNode* n = self->unk34;
+        while (n != NULL) {
+            ListNode* next = n->next;
+            n->vfunc3();
+            n = next;
+        }
+    }
+    {
+        ListNode* n = self->unk3C;
+        while (n != NULL) {
+            ListNode* next = n->next;
+            n->vfunc3();
+            n = next;
+        }
+    }
+    {
+        ListNode* n = self->unk40;
+        while (n != NULL) {
+            ListNode* next = n->next;
+            n->vfunc3();
+            n = next;
+        }
+    }
+}
+
+void GolRenderDevice::vfunc2() {
+    GolRenderDevice* self = this;
+    if (self->unk30 != NULL) {
+        delete[] self->unk30;
+        self->unk30 = NULL;
+    }
+    self->unk2C = 0;
+    {
+        ListNode* n = self->unk38;
+        while (n != NULL) {
+            n->vfunc4();
+            n = n->next;
+        }
+    }
+    {
+        ListNode* n = self->unk34;
+        while (n != NULL) {
+            n->vfunc4();
+            n = n->next;
+        }
+    }
+    {
+        ListNode* n = self->unk3C;
+        while (n != NULL) {
+            n->vfunc5();
+            n = n->next;
+        }
+    }
+    {
+        ListNode* n = self->unk40;
+        while (n != NULL) {
+            n->vfunc7();
+            n = n->next;
+        }
+    }
+    self->unkC = 0;
+    self->unk10 = 0;
+    self->unk14 = 0;
+    self->unk18 = 0;
+    self->unk1C = 0;
+    self->unk20 = 0;
+    self->unk24 = 0;
+}
+
+s32 GolRenderDevice::vfunc1() {
+    GolRenderDevice* self = this;
+    {
+        ListNode* n = self->unk3C;
+        while (n != NULL) {
+            n->vfunc6();
+            n = n->next;
+        }
+    }
+    {
+        ListNode* n = self->unk34;
+        while (n != NULL) {
+            n->vfunc5();
+            n = n->next;
+        }
+    }
+    {
+        ListNode* n = self->unk38;
+        while (n != NULL) {
+            n->vfunc5();
+            n = n->next;
+        }
+    }
+    {
+        ListNode* n = self->unk40;
+        while (n != NULL) {
+            n->vfunc8();
+            n = n->next;
+        }
+    }
+    return 0;
+}
+
+void GolRenderDevice::vfunc4(GolSurfaceFormat* req, GolSurfaceFormat* out, s32 flag) {
+    u32 r = req->bitWidthMaskRed();
+    u32 g = req->bitWidthMaskGreen();
+    u32 b = req->bitWidthMaskBlue();
+    u32 a = req->bitWidthMaskAlpha();
+    u32 u = req->bitWidthUnk10();
+    u32 p = req->bitWidthPaletteMask();
+    u32 depth = req->bitDepth;
+    u32 i;
+
+    if (this->unk10 == r && this->unk14 == g && this->unk18 == b && this->unk1C == a && this->unk20 == u && this->unk24 == p) {
+        *out = this->unk30[this->unkC];
+        return;
+    }
+    this->unk10 = r;
+    this->unk14 = g;
+    this->unk18 = b;
+    this->unk1C = a;
+    this->unk20 = u;
+    this->unk24 = p;
+
+    if (a != 0) {
+        if (p != 0) {
+            // (M) exact depth + palette + alpha
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthPaletteMask() == p && this->unk30[i].bitWidthMaskAlpha() == a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        } else if (u != 0) {
+            // (L) exact depth + unk10 + alpha
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthUnk10() == u && this->unk30[i].bitWidthMaskAlpha() == a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        } else {
+            // (K) exact depth + RGB widths + alpha
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() == r && this->unk30[i].bitWidthMaskGreen() == g && this->unk30[i].bitWidthMaskBlue() == b && this->unk30[i].bitWidthMaskAlpha() == a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        }
+    } else {
+        if (p != 0) {
+            // (G) exact depth + palette
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthPaletteMask() == p;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        } else if (u != 0) {
+            // (D) exact depth + unk10
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthUnk10() == u;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        } else {
+            // (A) exact RGB mask values + depth
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].maskRed == req->maskRed && this->unk30[i].maskGreen == req->maskGreen && this->unk30[i].maskBlue == req->maskBlue;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+            // (B) depth + RGB widths
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == depth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() == r && this->unk30[i].bitWidthMaskGreen() == g && this->unk30[i].bitWidthMaskBlue() == b;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // Fuzzy level (block_67)
+    if (a != 0) {
+        if (p != 0) {
+            // (Q) depth > + palette >= + alpha >=
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthPaletteMask() >= p && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+            // (R) depth >= 16 + RGB >= 5 + alpha >=
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth >= 0x10) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= 5u && this->unk30[i].bitWidthMaskGreen() >= 5u && this->unk30[i].bitWidthMaskBlue() >= 5u && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        } else if (u != 0) {
+            // (O) depth > + unk10 >= + alpha >=
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthUnk10() >= u && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+            // (P) depth > + RGB >= u + alpha >=
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= u && this->unk30[i].bitWidthMaskGreen() >= u && this->unk30[i].bitWidthMaskBlue() >= u && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        } else {
+            // (N) depth > + RGB >= + alpha >=
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= r && this->unk30[i].bitWidthMaskGreen() >= g && this->unk30[i].bitWidthMaskBlue() >= b && this->unk30[i].bitWidthMaskAlpha() >= a;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        }
+    } else {
+        if (p != 0) {
+            // (H) p<8 special: depth < 16 + palette >=
+            if (p < 8)
+                for (i = 0; i < this->unk2C; i++) {
+                    if (this->unk30[i].bitDepth < 0x10) {
+                        u32 width = this->unk30[i].bitWidthPaletteMask();
+                        if (width >= p) {
+                            *out = this->unk30[i];
+                            this->unkC = i;
+                            return;
+                        }
+                    }
+                }
+            // (I) depth == 16 + RGB >= 5
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitDepth == 0x10) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= 5u && this->unk30[i].bitWidthMaskGreen() >= 5u && this->unk30[i].bitWidthMaskBlue() >= 5u;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        } else if (u != 0) {
+            // (E) depth > + unk10 >=
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    u32 width = this->unk30[i].bitWidthUnk10();
+                    if (width >= u) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+            // (F) depth > + RGB >= u
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= u && this->unk30[i].bitWidthMaskGreen() >= u && this->unk30[i].bitWidthMaskBlue() >= u;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        } else {
+            // (C) depth > + RGB >=
+            for (i = 0; i < this->unk2C; i++) {
+                if (depth < this->unk30[i].bitDepth) {
+                    s32 matches = this->unk30[i].bitWidthMaskRed() >= r && this->unk30[i].bitWidthMaskGreen() >= g && this->unk30[i].bitWidthMaskBlue() >= b;
+                    if (matches) {
+                        *out = this->unk30[i];
+                        this->unkC = i;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // block_159
+    if (a != 0) {
+        // (S) alpha >= 4
+        if (a >= 4)
+            for (i = 0; i < this->unk2C; i++) {
+                if (this->unk30[i].bitWidthMaskAlpha() >= 4u) {
+                    *out = this->unk30[i];
+                    this->unkC = i;
+                    return;
+                }
+            }
+        // (T) alpha != 0
+        for (i = 0; i < this->unk2C; i++) {
+            if (this->unk30[i].bitWidthMaskAlpha() != 0) {
+                *out = this->unk30[i];
+                this->unkC = i;
+                return;
+            }
+        }
+    } else {
+        // (J) depth >= 15 + RGB >= 5
+        for (i = 0; i < this->unk2C; i++) {
+            if (this->unk30[i].bitDepth >= 0xF) {
+                s32 matches = this->unk30[i].bitWidthMaskRed() >= 5u && this->unk30[i].bitWidthMaskGreen() >= 5u && this->unk30[i].bitWidthMaskBlue() >= 5u;
+                if (matches) {
+                    *out = this->unk30[i];
+                    this->unkC = i;
+                    return;
+                }
+            }
+        }
+    }
+
+    // (U) same depth
+    for (i = 0; i < this->unk2C; i++) {
+        u32 entryDepth = this->unk30[i].bitDepth;
+        if (entryDepth == depth) {
+            *out = this->unk30[i];
+            this->unkC = i;
+            return;
+        }
+    }
+    // (V) larger depth
+    for (i = 0; i < this->unk2C; i++) {
+        u32 entryDepth = this->unk30[i].bitDepth;
+        if (depth < entryDepth) {
+            *out = this->unk30[i];
+            this->unkC = i;
+            return;
+        }
+    }
+
+    // (W) entry[0] + cache reset
+    *out = this->unk30[0];
+    this->unkC = 0;
+    this->unk10 = 0;
+    this->unk14 = 0;
+    this->unk18 = 0;
+    this->unk1C = 0;
+    this->unk20 = 0;
+    this->unk24 = 0;
+}
+
+void GolRenderDevice::vfunc41(Mover* arg1) {
+    f32 fv1, fv0;
+    MoverGeom geom;
+    f32 sp38[3];
+    f32 sp48[3];
+
+    arg1->vfunc6(this->unk48, &geom);
+    if (geom.status != 0) {
+        MoverItem* item = arg1->vfunc23(geom.idx);
+        if (item == NULL) {
+            arg1->vfunc17(geom.vec_a, geom.vec_b);
+        } else {
+            arg1->vfunc24(geom.idx);
+            Inner* inner = item->vfunc7(0);
+            inner->vfunc9(sp38, sp48);
+            arg1->vfunc14(sp38, geom.vec_a);
+            arg1->vfunc14(sp48, geom.vec_b);
+        }
+        if (geom.vec_a[0] != 0.0f || geom.vec_a[1] != 0.0f) {
+            f32 buf[2];
+            buf[0] = geom.vec_a[0];
+            buf[1] = geom.vec_a[1];
+            vec2_normalize(buf, buf);
+            s32 idx_x = ((s32)((buf[0] + 1.0f) * 511.5f)) & 0x3FF;
+            fv1 = D_8006C5F0[idx_x] * 0.31830987f * 0.5f;
+            if (buf[1] < 0.0f) {
+                fv1 = 1.0f - fv1;
+            }
+            s32 idx_z = ((s32)((geom.vec_b[2] + 1.0f) * 511.5f)) & 0x3FF;
+            fv0 = D_8006C5F0[idx_z] * 0.31830987f;
+        } else {
+            fv1 = 0.0f;
+            fv0 = 0.5f;
+        }
+        this->vfunc43(arg1, fv1, fv0);
+    }
+}
+
+void GolRenderDevice::vfunc42(Mover* arg1, Vec3* arg2, Vec3* arg3, Vec3* arg4) {
+    MoverGeom geom;
+    Vec3 sp38, sp48;
+    f32 fv1, fv0;
+
+    arg1->vfunc6(this->unk48, &geom);
+    if (geom.status != 0) {
+        arg1->vfunc17(geom.vec_a, geom.vec_b);
+        f32 dot = geom.vec_a[0] * arg4->x + geom.vec_a[1] * arg4->y + geom.vec_a[2] * arg4->z;
+        sp48.x = arg4->x * dot;
+        sp48.y = arg4->y * dot;
+        sp48.z = arg4->z * dot;
+        sp38.x = geom.vec_a[0] - sp48.x;
+        sp38.y = geom.vec_a[1] - sp48.y;
+        sp38.z = geom.vec_a[2] - sp48.z;
+        if (sp38.x != 0.0f || sp38.y != 0.0f || sp38.z != 0.0f) {
+            vec3_normalize((f32*)&sp38, (f32*)&sp38);
+            dot = sp38.x * arg2->x + sp38.y * arg2->y + sp38.z * arg2->z;
+            s32 idx_a = ((s32)((dot + 1.0f) * 511.5f)) & 0x3FF;
+            f32 lut_a = D_8006C5F0[idx_a] * 0.31830987f;
+            dot = sp38.x * arg3->x + sp38.y * arg3->y + sp38.z * arg3->z;
+            fv1 = lut_a * 0.5f;
+            if (dot < 0.0f) {
+                fv1 = 1.0f - fv1;
+            }
+            fv0 = D_8006C5F0[(((s32)(((geom.vec_b[0] * arg4->x + geom.vec_b[1] * arg4->y + geom.vec_b[2] * arg4->z) + 1.0f) * 511.5f)) & 0x3FF)] * 0.31830987f;
+        } else {
+            fv1 = 0.0f;
+            fv0 = 0.5f;
+        }
+        this->vfunc43(arg1, fv1, fv0);
+    }
+}
+
+void GolRenderDevice::vfunc10() {
+    this->unk8 = 0;
+}
+
+void GolRenderDevice::vfunc22(UNK, UNK arg) {
+    this->vfunc23(arg);
+}
+
+void GolRenderDevice::vfunc21() {
+}
+
+s32 GolRenderDevice::vfunc20() {
+    return 0;
+}
+
+void GolRenderDevice::vfunc19() {
+    this->flags &= ~0x40000;
+}
+
+void GolRenderDevice::vfunc18() {
+    this->flags |= 0x40000;
+}
+
+void GolRenderDevice::vfunc17() {
+}
+
+void GolRenderDevice::vfunc16() {
+}
+
+void GolRenderDevice::vfunc59() {
+}
+
+void GolRenderDevice::vfunc15() {
+}
+
+void GolRenderDevice::vfunc14() {
+}
+
+void GolRenderDevice::vfunc51() {
+}
+
+void GolRenderDevice::vfunc50() {
+}
+
+void GolRenderDevice::vfunc25() {
+}
+
+void GolRenderDevice::vfunc13(s32 val) {
+    if (this->unk118 < 3) {
+        this->flags |= 0x8000;
+        this->unk120[this->unk118++] = val;
+    }
+}
+
+void GolRenderDevice::vfunc12(s32 val) {
+    this->unk11C = val;
+    this->flags |= 0x8000;
+}
+
+void GolRenderDevice::vfunc11() {
+    this->unk118 = 0;
+    this->unk11C = 0;
+    this->unk120[0] = 0;
+    this->flags &= ~0x8000;
+}
+
+void GolRenderDevice::vfunc49() {
+    this->flags &= ~0x80000;
+}
+
+void GolRenderDevice::vfunc48(const char* src) {
+    memcpy(&this->unk114, src, 4);
+    this->flags |= 0x80000;
+}
+
+void GolRenderDevice::vfunc47() {
+    this->flags &= ~0x4000;
+}
+
+void GolRenderDevice::vfunc46(s16 a, s16 b) {
+    this->unk6 = a;
+    this->unk4 = b;
+    this->flags |= 0x4000;
+}
+
+void GolRenderDevice::vfunc43(Mover* arg, f32 f1, f32 f2) {
+    this->vfunc35((UNK)arg);
+}
+
+void GolRenderDevice::vfunc40() {
+}
+
+void GolRenderDevice::vfunc39() {
+}
+
+void GolRenderDevice::vfunc38() {
+}
+
+void GolRenderDevice::vfunc37() {
+}
+
+void GolRenderDevice::vfunc61() {
+}
+
+s32 GolRenderDevice::vfunc68() {
+    return 0;
+}
+
+void* GolRenderDevice::func_800264FC(const char* arg) {
+    GolRenderDevice* self = this;
+    ListNode* n = self->unk38;
+    void* result;
+    while (1) {
+        if (n == NULL) {
+            result = NULL;
+            break;
+        }
+        if (n->entries == NULL)
+            result = NULL;
+        else
+            result = n->findByName(arg);
+        if (result != NULL)
+            break;
+        n = n->next;
+    }
+    return result;
+}
+
+void GolRenderDevice::func_80026560(ListNode* node) {
+    GolRenderDevice* self = this;
+    ListNode* head = self->unk38;
+    if (head == NULL)
+        return;
+    if (node == head) {
+        self->unk38 = node->next;
+        return;
+    }
+    ListNode* prev = head;
+    ListNode* curr = head->next;
+    while (curr != NULL) {
+        if (curr == node) {
+            prev->next = curr->next;
+            curr->next = NULL;
+            return;
+        }
+        ListNode* next = curr->next;
+        prev = curr;
+        curr = next;
+    }
+}
+
+void GolRenderDevice::func_800265BC(ListNode* node) {
+    node->next = this->unk38;
+    this->unk38 = node;
+}
+
+void* GolRenderDevice::func_800265CC(const char* arg) {
+    GolRenderDevice* self = this;
+    ListNode* n = self->unk34;
+    void* result;
+    while (1) {
+        if (n == NULL) {
+            result = NULL;
+            break;
+        }
+        if (n->entries == NULL)
+            result = NULL;
+        else
+            result = n->findByName(arg);
+        if (result != NULL)
+            break;
+        n = n->next;
+    }
+    return result;
+}
+
+void GolRenderDevice::func_80026630(ListNode* node) {
+    GolRenderDevice* self = this;
+    ListNode* head = self->unk34;
+    if (head == NULL)
+        return;
+    if (node == head) {
+        self->unk34 = node->next;
+        return;
+    }
+    ListNode* prev = head;
+    ListNode* curr = head->next;
+    while (curr != NULL) {
+        if (curr == node) {
+            prev->next = curr->next;
+            curr->next = NULL;
+            return;
+        }
+        ListNode* next = curr->next;
+        prev = curr;
+        curr = next;
+    }
+}
+
+void GolRenderDevice::func_8002668C(ListNode* node) {
+    node->next = this->unk34;
+    this->unk34 = node;
+}
+
+void* GolRenderDevice::func_8002669C(const char* arg) {
+    GolRenderDevice* self = this;
+    ListNode* n = self->unk3C;
+    void* result;
+    while (1) {
+        if (n == NULL) {
+            result = NULL;
+            break;
+        }
+        if (n->entries == NULL)
+            result = NULL;
+        else
+            result = n->findByName(arg);
+        if (result != NULL)
+            break;
+        n = n->next;
+    }
+    return result;
+}
+
+void GolRenderDevice::func_80026700(ListNode* node) {
+    GolRenderDevice* self = this;
+    ListNode* head = self->unk3C;
+    if (head == NULL)
+        return;
+    if (node == head) {
+        self->unk3C = node->next;
+        return;
+    }
+    ListNode* prev = head;
+    ListNode* curr = head->next;
+    while (curr != NULL) {
+        if (curr == node) {
+            prev->next = curr->next;
+            curr->next = NULL;
+            return;
+        }
+        ListNode* next = curr->next;
+        prev = curr;
+        curr = next;
+    }
+}
+
+void GolRenderDevice::func_8002675C(ListNode* node) {
+    node->next = this->unk3C;
+    this->unk3C = node;
+}
+
+void* GolRenderDevice::func_8002676C(const char* arg) {
+    GolRenderDevice* self = this;
+    ListNode* n = self->unk40;
+    void* result;
+    while (1) {
+        if (n == NULL) {
+            result = NULL;
+            break;
+        }
+        if (n->entries == NULL)
+            result = NULL;
+        else
+            result = n->findByName(arg);
+        if (result != NULL)
+            break;
+        n = n->next;
+    }
+    return result;
+}
+
+void GolRenderDevice::func_800267D0(ListNode* node) {
+    GolRenderDevice* self = this;
+    ListNode* head = self->unk40;
+    if (head == NULL)
+        return;
+    if (node == head) {
+        self->unk40 = node->next;
+        return;
+    }
+    ListNode* prev = head;
+    ListNode* curr = head->next;
+    while (curr != NULL) {
+        if (curr == node) {
+            prev->next = curr->next;
+            curr->next = NULL;
+            return;
+        }
+        ListNode* next = curr->next;
+        prev = curr;
+        curr = next;
+    }
+}
+
+void GolRenderDevice::func_8002682C(ListNode* node) {
+    node->next = this->unk40;
+    this->unk40 = node;
+}
+
+GolRenderDevice::~GolRenderDevice() {
+    this->func_80024F30();
+}
+
+GolRenderDevice::GolRenderDevice() {
+    unkC = 0;
+    unk10 = 0;
+    unk14 = 0;
+    unk18 = 0;
+    unk1C = 0;
+    unk20 = 0;
+    unk24 = 0;
+    unk2C = 0;
+    unk30 = 0;
+    unk34 = 0;
+    unk38 = 0;
+    unk3C = 0;
+    unk40 = 0;
+    unk44 = 0;
+    unk8 = 0;
+    flags = 0;
+    unk6 = 0;
+    memset(unk48, 0, 0xCC);
+    unk118 = 0;
+    unk11C = 0;
+    memset(unk120, 0, 0xC);
+    unk120[0] = 0;
+}
+
+s32 GolRenderDevice::func_8002692C() {
+    return this->flags & 0x80000;
+}
+
+s32 GolRenderDevice::func_8002693C() {
+    return this->flags & 0x40000;
+}
+
+s32 GolRenderDevice::func_8002694C() {
+    return this->flags & 0x20000;
+}
+
+s32 GolRenderDevice::func_8002695C() {
+    return this->flags & 0x10000;
+}
+
+s32 GolRenderDevice::func_8002696C() {
+    return this->flags & 0x8000;
+}
+
+u16 GolRenderDevice::func_80026978() {
+    return this->unk6;
+}
+
+u16 GolRenderDevice::func_80026984() {
+    return this->unk4;
+}
+
+s32 GolRenderDevice::func_80026990() {
+    return this->flags & 0x4000;
+}
+
+void GolRenderDevice::func_8002699C(UNK arg) {
+    this->unk8->inner->vfunc17(arg);
+}
+
+void GolRenderDevice::func_800269D0(u32* dst) {
+    memcpy(dst, this->unk8->data, 60);
+}
+
+void* GolRenderDevice::func_80026A24() {
+    return this->unk48;
+}
+
+s32 GolRenderDevice::func_80026A2C(s32 i) {
+    return this->unk120[i];
+}
+
+s32 GolRenderDevice::func_80026A40() {
+    return this->unk118;
+}
+
+s32 GolRenderDevice::func_80026A4C() {
+    return this->unk11C;
+}
+
+Renderer* GolRenderDevice::func_80026A58() {
+    return this->unk8;
+}
+
+void GolRenderDevice::func_80026A64(u32* dst) {
+    memcpy(dst, this->unk8->data, 0xCC);
+}
+
+s32 GolRenderDevice::func_80026AB8() {
+    return this->flags & 0x1000;
+}
+
+s32 GolRenderDevice::func_80026AC4() {
+    return this->flags & 0x800;
+}
+
+s32 GolRenderDevice::func_80026AD0() {
+    return this->flags & 0x200;
+}
+
+s32 GolRenderDevice::func_80026ADC() {
+    return this->flags & 0x100;
+}
+
+s32 GolRenderDevice::func_80026AE8() {
+    return this->flags & 0x80;
+}
+
+s32 GolRenderDevice::func_80026AF4() {
+    return this->flags & 0x180;
+}
+
+s32 GolRenderDevice::func_80026B00() {
+    return this->flags & 0x40;
+}
+
+s32 GolRenderDevice::func_80026B0C() {
+    return this->flags & 0x20;
+}
+
+s32 GolRenderDevice::func_80026B18() {
+    return this->flags & 0x2;
+}
+
+s32 GolRenderDevice::func_80026B24() {
+    return this->flags & 0x1;
+}
+
+s32 GolRenderDevice::func_80026B30() {
+    return this->unk44;
+}
+
+void GolRenderDevice::func_80026B3C(s32 v) {
+    this->unk44 = v;
+}

@@ -5,9 +5,9 @@
 
 #include "common.h"
 #include "otter.h"
-#include "pelican.h"
+#include "save/save_game_file.h"
 
-class Penguin : public Pelican {
+class Penguin : public SaveGameFile {
   public:
     /* 0x30 */ Otter* unk30;
     /* 0x34 */ s32 fileNo;

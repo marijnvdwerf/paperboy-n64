@@ -284,7 +284,7 @@ rotation.m[0][0] = 1.0f;
 rotation.m[1][1] = 1.0f;
 rotation.m[2][2] = 1.0f;""")
 
-F(19, "ctor", "Pademelon()", body="func_80022548();")
+F(19, "ctor", "GolOrientedEntity()", body="func_80022548();")
 
 F(20, "func_800225CC", "void func_800225CC(Vec3f* row0, Vec3f* row1, Vec3f* row2)", body="""\
 row0->x = rotation.m[0][0];
@@ -337,7 +337,7 @@ out->m[3][0] = translation.x;
 out->m[3][1] = translation.y;
 out->m[3][2] = translation.z;""")
 
-F(29, "func_80022760", "void func_80022760(Pademelon* other)", body="""\
+F(29, "func_80022760", "void func_80022760(GolOrientedEntity* other)", body="""\
 rotation.m[0][0] = other->rotation.m[0][0];
 rotation.m[0][1] = other->rotation.m[0][1];
 rotation.m[0][2] = other->rotation.m[0][2];
@@ -350,7 +350,7 @@ rotation.m[2][2] = other->rotation.m[2][2];
 translation = other->translation;
 halfExtent = -1.0f;""")
 
-F(30, "func_800227D0", "void func_800227D0(Pademelon* other)", body="""\
+F(30, "func_800227D0", "void func_800227D0(GolOrientedEntity* other)", body="""\
 rotation.m[0][0] = other->rotation.m[0][0];
 rotation.m[0][1] = other->rotation.m[0][1];
 rotation.m[0][2] = other->rotation.m[0][2];
@@ -361,7 +361,7 @@ rotation.m[2][0] = other->rotation.m[2][0];
 rotation.m[2][1] = other->rotation.m[2][1];
 rotation.m[2][2] = other->rotation.m[2][2];""")
 
-F(31, "func_8002281C", "void func_8002281C(Pademelon* other)", body="""\
+F(31, "func_8002281C", "void func_8002281C(GolOrientedEntity* other)", body="""\
 translation = other->translation;
 halfExtent = -1.0f;""")
 
@@ -372,15 +372,15 @@ def indent(text, n=4):
     return "\n".join(pad + line if line.strip() else "" for line in text.split("\n"))
 
 def qualified_sig(f):
-    """Pademelon::funcname(...) form."""
+    """GolOrientedEntity::funcname(...) form."""
     sig = f["sig"]
     if f["sym"] == "ctor":
-        return "Pademelon::Pademelon()"
+        return "GolOrientedEntity::GolOrientedEntity()"
     parts = sig.split("(", 1)
     ret_name = parts[0]  # e.g. "void vfunc16"
     params = "(" + parts[1]
     ret, name = ret_name.rsplit(" ", 1)
-    return f"{ret} Pademelon::{name}{params}"
+    return f"{ret} GolOrientedEntity::{name}{params}"
 
 def emit(placement, ordinary_order, inclass_order):
     """
@@ -390,10 +390,10 @@ def emit(placement, ordinary_order, inclass_order):
     """
     out = []
     out.append('#include "common.h"')
-    out.append('#include "dingo.h"')
+    out.append('#include "gol_world_entity.h"')
     out.append('#include "vector.h"')
     out.append("")
-    out.append("struct Pademelon : public Dingo {")
+    out.append("struct GolOrientedEntity : public GolWorldEntity {")
     out.append("    /* 0x34 */ Mat3f rotation;")
     out.append("    /* 0x58 */ Vec3f translation;")
     out.append("")
@@ -409,7 +409,7 @@ def emit(placement, ordinary_order, inclass_order):
         f = FUNCS[n]
         if not f["virtual"] and placement.get(n) != "inclass":
             if f["sym"] == "ctor":
-                out.append(f'    Pademelon();')
+                out.append(f'    GolOrientedEntity();')
             else:
                 out.append(f'    {f["sig"]};')
 
@@ -421,7 +421,7 @@ def emit(placement, ordinary_order, inclass_order):
         if f["virtual"]:
             out.append(f'    {f["sig"]} CXX_OVERRIDE {{')
         elif f["sym"] == "ctor":
-            out.append(f'    Pademelon() {{')
+            out.append(f'    GolOrientedEntity() {{')
         else:
             out.append(f'    {f["sig"]} {{')
         out.append(indent(f["body"], 8))
@@ -530,7 +530,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--preset", default="all_ordinary")
     ap.add_argument("--list-presets", action="store_true")
-    ap.add_argument("--output", default="src/padmelon.cpp")
+    ap.add_argument("--output", default="src/gol_oriented_entity.cpp")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 

@@ -560,7 +560,7 @@ extern "C" SceneNode* func_800DCA68(UnkArgStruct* arg0, SceneNodeEntry* entry, s
             func_8000D5CC(sp10, temp_s1, "OBB");
             s32 temp_s3 = D_801272F0;
             func_800CB804(temp_s3, "OBF");
-            if (AbstractFile::findFile(sp10) != 8) {
+            if (GolStream::findFile(sp10) != 8) {
                 func_80101C44(obj);
                 func_800C5610(obj->unkD8, temp_s1);
             }

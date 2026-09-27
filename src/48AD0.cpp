@@ -1,5 +1,5 @@
 #include "common.h"
-#include "input.h"
+#include "input/input_device.h"
 
 extern "C" s32 motorInit__19N64ControllerSystemP5OSPfsl(void*, OSPfs*, s32);
 extern "C" s32 func_800474F8__19N64ControllerSystemP5OSPfs(void*, OSPfs*);
@@ -122,7 +122,7 @@ s32 ControllerDevice::vfunc6(s32 arg1) {
 
     *(u32*)&this->prevButton = *(u32*)this->pad;
     this->prevErrno = *(s16*)((u8*)this->pad + 4);
-    InputDeviceBase::vfunc6(arg1);
+    InputDevice::vfunc6(arg1);
     return 0;
 }
 #else
@@ -258,7 +258,7 @@ void ControllerDevice::onInput(s32 code, s32 value, s32 deliver) {
             break;
     }
     if (deliver != 0) {
-        EventListener* cb = this->handler;
+        InputDevice::Callback* cb = this->handler;
         if (cb != NULL) {
             if (state != 0) {
                 cb->onPressed(this, outCode, this->timestamp);
@@ -267,7 +267,7 @@ void ControllerDevice::onInput(s32 code, s32 value, s32 deliver) {
             }
         }
     }
-    InputDeviceBase::onInput(codeSave, state, deliver);
+    InputDevice::onInput(codeSave, state, deliver);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/48AD0", onInput__16ControllerDevicelll);
@@ -342,12 +342,12 @@ f32 ControllerDevice::func_80048758(s8 raw) {
 
 s32 ControllerDevice::disconnect() {
     if (this->enabled) {
-        return InputDeviceBase::disconnect();
+        return InputDevice::disconnect();
     }
     return 1;
 }
 
-s32 ControllerDevice::func_8004880C(ControllerSystem* system, s32 port) {
+s32 ControllerDevice::func_8004880C(InputManager* system, s32 port) {
     this->disconnect();
     this->system = system;
     this->port = port;
@@ -358,7 +358,7 @@ s32 ControllerDevice::func_8004880C(ControllerSystem* system, s32 port) {
 #if 0
 // TODO: include when rodata order matches
 void ControllerDevice::init() {
-    InputDeviceBase::init();
+    InputDevice::init();
     this->system = NULL;
     memset(&this->prevButton, 0, 6);
     memset(this->buttonStates, 0, 4);
