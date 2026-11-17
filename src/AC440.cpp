@@ -104,7 +104,5 @@ INCLUDE_ASM("asm/nonmatchings/AC440", func_800E69BC);
 // Cleanup wrapper
 INCLUDE_ASM("asm/nonmatchings/AC440", func_800E69D8);
 
-#ifndef PAL
-// Return negative float (stub)
-INCLUDE_ASM("asm/nonmatchings/AC440", func_800E69F4);
-#endif
+// The 12 NTSC bytes at 0x800E69F4 (ROM 0xAEDD4) are linker junk, not a function: no jr $ra,
+// uses $at without a lui, unreferenced, absent in PAL. Listed in garbage.py (0xAEDE0: 12).
